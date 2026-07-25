@@ -34,7 +34,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       return { reply: "⚠️ Gemini ainda não configurado." };
     }
 
-    const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+    const model = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
     const systemInstruction =
       "Você é o QAP IA, um assistente inteligente para pesquisa jurídica e administrativa voltado a policiais militares no Brasil. Responda de forma clara, objetiva e profissional, em português. Lembre que as respostas têm caráter informativo e devem ser conferidas na legislação oficial.";
 
