@@ -48,7 +48,14 @@ function Index() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 240)}px`;
+  }, [input]);
 
   const handleSubmit = async () => {
     const text = input.trim();
@@ -132,11 +139,11 @@ function Index() {
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex items-start gap-3 sm:gap-4 ${
+                  className={`flex items-start gap-4 sm:gap-5 ${
                     message.role === "user" ? "flex-row-reverse" : ""
                   }`}
                 >
@@ -154,12 +161,17 @@ function Index() {
                     )}
                   </div>
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-3 sm:max-w-[75%] sm:px-5 sm:py-3.5 ${
+                    className={`relative max-w-[80%] rounded-2xl px-4 py-3 sm:max-w-[75%] sm:px-5 sm:py-3.5 ${
                       message.role === "user"
                         ? "bg-gold text-gold-dark"
                         : "border border-border bg-card text-foreground"
                     }`}
                   >
+                    {message.role === "assistant" && (
+                      <div className="absolute -top-2 -right-2 grid h-5 w-5 place-items-center rounded-full bg-gold text-gold-dark ring-2 ring-card shadow-sm">
+                        <ShieldCheck className="h-3 w-3" />
+                      </div>
+                    )}
                     <p className="text-sm leading-relaxed sm:text-base">
                       {message.content}
                     </p>
@@ -168,15 +180,18 @@ function Index() {
               ))}
 
               {isLoading && (
-                <div className="flex items-start gap-3 sm:gap-4">
+                <div className="flex items-start gap-4 sm:gap-5">
                   <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-navy text-primary-foreground sm:h-10 sm:w-10">
                     <Bot className="h-5 w-5" />
                   </div>
                   <div className="rounded-2xl border border-border bg-card px-4 py-3 sm:px-5 sm:py-3.5">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 animate-bounce rounded-full bg-gold [animation-delay:-0.3s]" />
-                      <span className="h-2 w-2 animate-bounce rounded-full bg-gold [animation-delay:-0.15s]" />
-                      <span className="h-2 w-2 animate-bounce rounded-full bg-gold" />
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Pensando
+                      </span>
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold [animation-delay:-0.3s]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold [animation-delay:-0.15s]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold" />
                     </div>
                   </div>
                 </div>
@@ -205,7 +220,8 @@ function Index() {
                 onKeyDown={handleKeyDown}
                 placeholder="Exemplo: Qual é o procedimento para registro de ocorrência administrativa?"
                 disabled={isLoading}
-                className="min-h-[80px] w-full resize-none bg-transparent text-base leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none sm:min-h-[96px]"
+                rows={1}
+                className="max-h-[240px] min-h-[52px] w-full resize-none overflow-y-auto bg-transparent py-3 text-base leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none sm:min-h-[56px]"
               />
 
               <div className="mt-3 flex items-center justify-end">
