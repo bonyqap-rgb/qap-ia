@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { Send, ShieldCheck, User, Bot } from "lucide-react";
+import { sendChatMessage } from "@/lib/ai-service.functions";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,7 +50,7 @@ function Index() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const text = input.trim();
     if (!text || isLoading) return;
 
@@ -62,17 +64,28 @@ function Index() {
     setInput("");
     setIsLoading(true);
 
-    // Simulate assistant response delay
-    setTimeout(() => {
+    try {
+      const { reply } = await sendChatMessage({ data: { message: text } });
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: "Conectando ao mecanismo de inteligência do QAP IA...",
+        content: reply,
       };
       setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      const assistantMessage: Message = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content:
+          error instanceof Error
+            ? `Erro ao processar sua pergunta: ${error.message}`
+            : "Erro ao processar sua pergunta.",
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+    } finally {
       setIsLoading(false);
       textareaRef.current?.focus();
-    }, 800);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -81,6 +94,7 @@ function Index() {
       handleSubmit();
     }
   };
+
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
