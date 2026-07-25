@@ -62,8 +62,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
           `[QAP IA] Gemini request failed [${response.status}]: ${errorBody}`,
         );
         return {
-          reply:
-            "❌ Não foi possível obter resposta do Gemini no momento. Tente novamente em instantes.",
+          reply: `❌ Gemini [${response.status}]: ${errorBody}`,
         };
       }
 
