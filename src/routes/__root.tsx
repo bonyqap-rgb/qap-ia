@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "QAP IA" },
+      { title: "QAP IA — Assistente Inteligente" },
       { name: "description", content: "Assistente inteligente para pesquisa jurídica e administrativa voltado para policiais militares." },
       { name: "author", content: "QAP IA" },
-      { property: "og:title", content: "QAP IA" },
-      { property: "og:description", content: "Assistente inteligente para pesquisa jurídica e administrativa." },
+      { property: "og:title", content: "QAP IA — Assistente Inteligente" },
+      { property: "og:description", content: "Assistente inteligente para pesquisa jurídica e administrativa voltado para policiais militares." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@qapia" },
+      { name: "twitter:title", content: "QAP IA — Assistente Inteligente" },
+      { name: "twitter:description", content: "Assistente inteligente para pesquisa jurídica e administrativa voltado para policiais militares." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4f4f8b7e-39a3-4cf1-b91b-92ef2de7bf11/id-preview-2f51d4d7--5e7123e8-9978-42b3-a75e-9bafbb99366d.lovable.app-1784969951074.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4f4f8b7e-39a3-4cf1-b91b-92ef2de7bf11/id-preview-2f51d4d7--5e7123e8-9978-42b3-a75e-9bafbb99366d.lovable.app-1784969951074.png" },
     ],
     links: [
       {

@@ -20,7 +20,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Assistente inteligente para pesquisa jurídica e administrativa.",
+          "Assistente inteligente para pesquisa jurídica e administrativa voltado para policiais militares.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
