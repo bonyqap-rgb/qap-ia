@@ -27,29 +27,71 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     if (!trimmed) throw new Error("Mensagem vazia.");
     return { message: trimmed };
   })
-  .handler(async ({ data: _data }) => {
+  .handler(async ({ data }) => {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       return { reply: "⚠️ Gemini ainda não configurado." };
     }
 
-    // TODO: Integrar com o Google Gemini quando GEMINI_API_KEY estiver definida.
-    // Exemplo (a implementar):
-    //
-    //   const response = await fetch(
-    //     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-    //     {
-    //       method: "POST",
-    //       headers: { "Content-Type": "application/json" },
-    //       body: JSON.stringify({
-    //         contents: [{ role: "user", parts: [{ text: _data.message }] }],
-    //       }),
-    //     },
-    //   );
-    //   const json = await response.json();
-    //   const reply = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-    //   return { reply };
+    const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+    const systemInstruction =
+      "Você é o QAP IA, um assistente inteligente para pesquisa jurídica e administrativa voltado a policiais militares no Brasil. Responda de forma clara, objetiva e profissional, em português. Lembre que as respostas têm caráter informativo e devem ser conferidas na legislação oficial.";
 
-    return { reply: "⚠️ Gemini ainda não configurado." };
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: {
+              role: "system",
+              parts: [{ text: systemInstruction }],
+            },
+            contents: [
+              { role: "user", parts: [{ text: data.message }] },
+            ],
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(
+          `[QAP IA] Gemini request failed [${response.status}]: ${errorBody}`,
+        );
+        return {
+          reply:
+            "❌ Não foi possível obter resposta do Gemini no momento. Tente novamente em instantes.",
+        };
+      }
+
+      const json = (await response.json()) as {
+        candidates?: Array<{
+          content?: { parts?: Array<{ text?: string }> };
+        }>;
+      };
+
+      const reply =
+        json?.candidates?.[0]?.content?.parts
+          ?.map((p) => p.text ?? "")
+          .join("")
+          .trim() ?? "";
+
+      if (!reply) {
+        return {
+          reply:
+            "❌ O Gemini não retornou uma resposta. Tente reformular sua pergunta.",
+        };
+      }
+
+      return { reply };
+    } catch (error) {
+      console.error("[QAP IA] Gemini request error:", error);
+      return {
+        reply:
+          "❌ Erro de conexão com o Gemini. Verifique sua rede e tente novamente.",
+      };
+    }
   });
