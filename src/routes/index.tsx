@@ -1,8 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef, useEffect } from "react";
-import { Send, ShieldCheck, User, Bot } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  Send,
+  ShieldCheck,
+  User,
+  Bot,
+  Copy,
+  Check,
+  RefreshCw,
+  Sparkles,
+  Scale,
+  FileText,
+  Gavel,
+} from "lucide-react";
 import { sendChatMessage } from "@/lib/ai-service.functions";
-
+import { Markdown } from "@/components/chat/markdown";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -13,10 +28,7 @@ export const Route = createFileRoute("/")({
         content:
           "Assistente inteligente para pesquisa jurídica e administrativa voltado para policiais militares.",
       },
-      {
-        property: "og:title",
-        content: "QAP IA — Assistente Inteligente",
-      },
+      { property: "og:title", content: "QAP IA — Assistente Inteligente" },
       {
         property: "og:description",
         content:
@@ -33,67 +45,110 @@ type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
+  createdAt: number;
 };
+
+const suggestions = [
+  {
+    icon: Scale,
+    title: "Uso progressivo da força",
+    prompt: "Explique os níveis do uso progressivo da força pela polícia militar.",
+  },
+  {
+    icon: Gavel,
+    title: "Processo administrativo disciplinar",
+    prompt: "Quais os prazos e fases do processo administrativo disciplinar militar?",
+  },
+  {
+    icon: FileText,
+    title: "Registro de ocorrência",
+    prompt: "Qual o procedimento para registro de ocorrência administrativa?",
+  },
+  {
+    icon: Sparkles,
+    title: "Direitos do preso",
+    prompt: "Quais são os direitos constitucionais do preso durante a abordagem?",
+  },
+];
+
+function formatTime(ts: number) {
+  return new Date(ts).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 function Index() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
   useEffect(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    textarea.style.height = "auto";
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 240)}px`;
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 240)}px`;
   }, [input]);
 
-  const handleSubmit = async () => {
-    const text = input.trim();
-    if (!text || isLoading) return;
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
 
-    const userMessage: Message = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: text,
-    };
+  const send = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || isLoading) return;
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      const { reply } = await sendChatMessage({ data: { message: text } });
-      const assistantMessage: Message = {
+      const userMessage: Message = {
         id: crypto.randomUUID(),
-        role: "assistant",
-        content: reply,
+        role: "user",
+        content: trimmed,
+        createdAt: Date.now(),
       };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      const assistantMessage: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content:
-          error instanceof Error
-            ? `Erro ao processar sua pergunta: ${error.message}`
-            : "Erro ao processar sua pergunta.",
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } finally {
-      setIsLoading(false);
-      textareaRef.current?.focus();
-    }
-  };
+      setMessages((prev) => [...prev, userMessage]);
+      setInput("");
+      setIsLoading(true);
+
+      try {
+        const { reply } = await sendChatMessage({ data: { message: trimmed } });
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: reply,
+            createdAt: Date.now(),
+          },
+        ]);
+      } catch (error) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content:
+              error instanceof Error
+                ? `Erro ao processar sua pergunta: ${error.message}`
+                : "Erro ao processar sua pergunta.",
+            createdAt: Date.now(),
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
+        textareaRef.current?.focus();
+      }
+    },
+    [isLoading],
+  );
+
+  const handleSubmit = () => send(input);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -102,89 +157,155 @@ function Index() {
     }
   };
 
+  const handleCopy = async (msg: Message) => {
+    await navigator.clipboard.writeText(msg.content);
+    setCopiedId(msg.id);
+    toast.success("Resposta copiada");
+    setTimeout(() => setCopiedId(null), 1500);
+  };
+
+  const handleRegenerate = async () => {
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    if (!lastUser) return;
+    // remove last assistant if exists
+    setMessages((prev) => {
+      const idx = [...prev].reverse().findIndex((m) => m.role === "assistant");
+      if (idx === -1) return prev;
+      const realIdx = prev.length - 1 - idx;
+      return prev.slice(0, realIdx);
+    });
+    await send(lastUser.content);
+  };
+
+  const isEmpty = messages.length === 0;
 
   return (
-    <div className="relative flex h-screen flex-col overflow-hidden">
-      {/* Decorative top accent */}
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-navy via-gold to-navy" />
+    <div className="relative flex h-[calc(100vh-3rem)] flex-col overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent" />
 
-      {/* Header */}
-      <header className="flex shrink-0 items-center justify-center border-b border-border/50 bg-card/50 px-6 py-4 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy shadow-gold">
-            <ShieldCheck className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <div className="flex min-w-0 flex-col">
-            <span className="truncate text-lg font-bold tracking-tight text-navy sm:text-xl">
-              QAP IA
-            </span>
-            <span className="truncate text-xs font-medium text-muted-foreground">
-              Assistente Inteligente para Pesquisa Jurídica e Administrativa
-            </span>
-          </div>
-        </div>
-      </header>
-
-      {/* Messages area */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
-        <div className="mx-auto max-w-3xl">
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <h1 className="text-center text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 md:px-8">
+        <div className="mx-auto w-full max-w-3xl">
+          {isEmpty ? (
+            <div className="flex min-h-[60vh] flex-col items-center justify-center">
+              <div className="mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-navy shadow-gold">
+                <ShieldCheck className="h-7 w-7 text-gold" />
+              </div>
+              <h1 className="text-center text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 Como posso ajudá-lo hoje?
               </h1>
               <p className="mt-3 max-w-md text-center text-sm text-muted-foreground">
-                Digite sua dúvida jurídica ou administrativa e receba uma
-                resposta orientada.
+                Assistente inteligente para pesquisa jurídica e administrativa.
               </p>
+
+              <div className="mt-10 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+                {suggestions.map((s) => (
+                  <button
+                    key={s.title}
+                    onClick={() => send(s.prompt)}
+                    className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-gold hover:shadow-gold"
+                  >
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-navy/5 text-navy transition-colors group-hover:bg-navy group-hover:text-gold">
+                      <s.icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold text-foreground">
+                        {s.title}
+                      </div>
+                      <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                        {s.prompt}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="space-y-8">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex items-start gap-4 sm:gap-5 ${
-                    message.role === "user" ? "flex-row-reverse" : ""
-                  }`}
-                >
+            <div className="space-y-6 pb-4">
+              {messages.map((message, i) => {
+                const isUser = message.role === "user";
+                const isLast = i === messages.length - 1;
+                return (
                   <div
-                    className={`grid h-9 w-9 shrink-0 place-items-center rounded-full sm:h-10 sm:w-10 ${
-                      message.role === "user"
-                        ? "bg-gold text-gold-dark"
-                        : "bg-navy text-primary-foreground"
-                    }`}
-                  >
-                    {message.role === "user" ? (
-                      <User className="h-5 w-5" />
-                    ) : (
-                      <Bot className="h-5 w-5" />
+                    key={message.id}
+                    className={cn(
+                      "flex items-start gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300",
+                      isUser && "flex-row-reverse",
                     )}
-                  </div>
-                  <div
-                    className={`relative max-w-[80%] rounded-2xl px-4 py-3 sm:max-w-[75%] sm:px-5 sm:py-3.5 ${
-                      message.role === "user"
-                        ? "bg-gold text-gold-dark"
-                        : "border border-border bg-card text-foreground"
-                    }`}
                   >
-                    {message.role === "assistant" && (
-                      <div className="absolute -top-2 -right-2 grid h-5 w-5 place-items-center rounded-full bg-gold text-gold-dark ring-2 ring-card shadow-sm">
-                        <ShieldCheck className="h-3 w-3" />
+                    <div
+                      className={cn(
+                        "grid h-9 w-9 shrink-0 place-items-center rounded-full shadow-sm",
+                        isUser
+                          ? "bg-gold text-gold-dark"
+                          : "bg-gradient-navy text-gold",
+                      )}
+                    >
+                      {isUser ? (
+                        <User className="h-4 w-4" />
+                      ) : (
+                        <Bot className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div
+                      className={cn(
+                        "group relative min-w-0 max-w-[85%] rounded-2xl px-4 py-3 sm:max-w-[80%]",
+                        isUser
+                          ? "bg-gold text-gold-dark"
+                          : "border border-border bg-card text-foreground shadow-sm",
+                      )}
+                    >
+                      {isUser ? (
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed sm:text-[15px]">
+                          {message.content}
+                        </p>
+                      ) : (
+                        <Markdown content={message.content} />
+                      )}
+                      <div
+                        className={cn(
+                          "mt-2 flex items-center gap-2 text-[10px] font-medium",
+                          isUser
+                            ? "text-gold-dark/70 justify-end"
+                            : "text-muted-foreground",
+                        )}
+                      >
+                        <span>{formatTime(message.createdAt)}</span>
+                        {!isUser && (
+                          <div className="ml-auto flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                            <button
+                              onClick={() => handleCopy(message)}
+                              className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                              title="Copiar"
+                            >
+                              {copiedId === message.id ? (
+                                <Check className="h-3 w-3" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                            </button>
+                            {isLast && (
+                              <button
+                                onClick={handleRegenerate}
+                                className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                                title="Regenerar resposta"
+                              >
+                                <RefreshCw className="h-3 w-3" />
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    )}
-                    <p className="text-sm leading-relaxed sm:text-base">
-                      {message.content}
-                    </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {isLoading && (
-                <div className="flex items-start gap-4 sm:gap-5">
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-navy text-primary-foreground sm:h-10 sm:w-10">
-                    <Bot className="h-5 w-5" />
+                <div className="flex items-start gap-3 sm:gap-4 animate-in fade-in duration-200">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-navy text-gold shadow-sm">
+                    <Bot className="h-4 w-4" />
                   </div>
-                  <div className="rounded-2xl border border-border bg-card px-4 py-3 sm:px-5 sm:py-3.5">
+                  <div className="rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
                     <div className="flex items-center gap-2.5">
                       <span className="text-sm font-medium text-muted-foreground">
                         Pensando
@@ -200,15 +321,12 @@ function Index() {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
-      {/* Input area */}
-      <div className="shrink-0 border-t border-border/50 bg-card/50 px-4 py-4 backdrop-blur-sm sm:px-6 sm:py-5">
+      <div className="shrink-0 border-t border-border/60 bg-card/70 px-4 py-4 backdrop-blur-md sm:px-6">
         <div className="mx-auto max-w-3xl">
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-gold transition-shadow focus-within:shadow-gold">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-60" />
-
-            <div className="p-3 sm:p-4">
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all focus-within:border-gold focus-within:shadow-gold">
+            <div className="p-2 sm:p-3">
               <label htmlFor="question" className="sr-only">
                 Digite sua pergunta
               </label>
@@ -218,27 +336,38 @@ function Index() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Exemplo: Qual é o procedimento para registro de ocorrência administrativa?"
+                placeholder="Faça uma pergunta jurídica ou administrativa..."
                 disabled={isLoading}
                 rows={1}
-                className="max-h-[240px] min-h-[52px] w-full resize-none overflow-y-auto bg-transparent py-3 text-base leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none sm:min-h-[56px]"
+                className="max-h-[240px] min-h-[44px] w-full resize-none overflow-y-auto bg-transparent px-2 py-2 text-[15px] leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
 
-              <div className="mt-3 flex items-center justify-end">
-                <button
+              <div className="mt-1 flex items-center justify-between gap-2 px-2">
+                <div className="text-[11px] text-muted-foreground">
+                  <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                    Enter
+                  </kbd>{" "}
+                  enviar ·{" "}
+                  <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                    Shift + Enter
+                  </kbd>{" "}
+                  quebra de linha
+                </div>
+                <Button
                   type="button"
                   onClick={handleSubmit}
                   disabled={!input.trim() || isLoading}
-                  className="inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-gold transition-all hover:bg-navy-light disabled:cursor-not-allowed disabled:opacity-50"
+                  size="sm"
+                  className="gap-1.5 rounded-full bg-navy px-4 text-primary-foreground shadow-gold hover:bg-navy-light disabled:opacity-50"
                 >
                   <span>Enviar</span>
-                  <Send className="h-4 w-4" />
-                </button>
+                  <Send className="h-3.5 w-3.5" />
+                </Button>
               </div>
             </div>
           </div>
 
-          <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+          <p className="mt-2.5 text-center text-[11px] leading-relaxed text-muted-foreground">
             As respostas possuem caráter informativo e devem ser conferidas na
             legislação oficial.
           </p>
