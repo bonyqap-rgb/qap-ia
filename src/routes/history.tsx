@@ -119,16 +119,17 @@ function HistoryPage() {
         </div>
       </div>
     ) : (
-      <ul className="divide-y divide-border/60">
+      <ul className="space-y-2">
         {list.map((c) => (
-          <li key={c.id} className="group flex items-start gap-3 py-3">
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-navy/5 text-navy">
+          <li
+            key={c.id}
+            className="interactive-card group flex items-start gap-3 rounded-xl border border-border/70 bg-card p-3 shadow-soft"
+          >
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-azure/10 text-azure transition-colors group-hover:bg-gradient-azure group-hover:text-primary-foreground">
               <MessageSquare className="h-4 w-4" />
             </div>
-            <Link
-              to="/"
-              className="min-w-0 flex-1 rounded-md px-1 py-0.5 hover:bg-muted/40"
-            >
+            <Link to="/" className="min-w-0 flex-1 rounded-md">
+
               <div className="flex items-center gap-2">
                 <div className="truncate text-sm font-semibold text-foreground">
                   {c.title}
@@ -149,7 +150,7 @@ function HistoryPage() {
                 </Badge>
               </div>
             </Link>
-            <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
               <Button
                 variant="ghost"
                 size="icon"

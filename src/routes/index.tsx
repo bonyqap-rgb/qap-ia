@@ -186,33 +186,38 @@ function Index() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-azure to-transparent" />
 
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 md:px-8">
-        <div className="mx-auto w-full max-w-3xl">
+        <div className={cn("mx-auto w-full max-w-3xl", isEmpty && "flex h-full items-center")}>
           {isEmpty ? (
-            <div className="flex min-h-[60vh] flex-col items-center justify-center animate-in fade-in duration-500">
-              <BrandLogo size={68} className="mb-6 rounded-2xl shadow-azure" />
-              <h1 className="text-center font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            <div className="flex w-full flex-col items-center justify-center py-4 animate-in fade-in duration-500">
+
+              <BrandLogo size={54} className="mb-4 rounded-2xl shadow-azure" />
+              <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-azure/25 bg-azure/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-azure-dark">
+                <ShieldCheck className="h-3 w-3" />
+                Assistente jurídico
+              </span>
+              <h1 className="text-balance text-center font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                 Como posso ajudá-lo hoje?
               </h1>
-              <p className="mt-3 max-w-md text-center text-sm leading-relaxed text-muted-foreground">
-                Inteligência que apoia quem protege — pesquisa jurídica e
-                administrativa com base na legislação vigente.
+              <p className="mt-2 max-w-md text-center text-[13px] leading-relaxed text-muted-foreground">
+                Pesquisa jurídica e administrativa com base na legislação
+                vigente.
               </p>
 
-              <div className="mt-10 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="mt-7 grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {suggestions.map((s) => (
                   <button
                     key={s.title}
                     onClick={() => send(s.prompt)}
-                    className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-left shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-azure/60 hover:shadow-azure focus-visible:border-azure"
+                    className="interactive-card group flex items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-3 text-left shadow-soft focus-visible:border-azure"
                   >
-                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-azure/10 text-azure transition-colors group-hover:bg-azure group-hover:text-primary-foreground">
+                    <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-azure/10 text-azure transition-colors group-hover:bg-gradient-azure group-hover:text-primary-foreground">
                       <s.icon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold text-foreground">
+                      <div className="truncate text-[13px] font-semibold text-foreground">
                         {s.title}
                       </div>
-                      <div className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                      <div className="mt-0.5 line-clamp-1 text-[11px] leading-relaxed text-muted-foreground">
                         {s.prompt}
                       </div>
                     </div>
@@ -220,6 +225,7 @@ function Index() {
                 ))}
               </div>
             </div>
+
 
           ) : (
             <div className="space-y-6 pb-4">
@@ -243,12 +249,13 @@ function Index() {
                     )}
                     <div
                       className={cn(
-                        "group relative min-w-0 max-w-[85%] rounded-2xl px-4 py-3 sm:max-w-[80%]",
+                        "group relative min-w-0 rounded-2xl px-4 py-3 transition-shadow",
                         isUser
-                          ? "bg-primary text-primary-foreground shadow-azure"
-                          : "border border-border bg-card text-foreground shadow-soft",
+                          ? "max-w-[85%] bg-primary text-primary-foreground shadow-azure sm:max-w-[75%]"
+                          : "w-full max-w-full border border-border/70 bg-card text-foreground shadow-soft sm:px-5 sm:py-4",
                       )}
                     >
+
                       {isUser ? (
                         <p className="whitespace-pre-wrap text-sm leading-relaxed sm:text-[15px]">
                           {message.content}
@@ -267,7 +274,7 @@ function Index() {
 
                         <span>{formatTime(message.createdAt)}</span>
                         {!isUser && (
-                          <div className="ml-auto flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                          <div className="ml-auto flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                             <button
                               onClick={() => handleCopy(message)}
                               className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
