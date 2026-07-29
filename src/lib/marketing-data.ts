@@ -222,3 +222,78 @@ export const trustSignals = [
   { icon: ScrollText, label: "Base legal em toda resposta" },
   { icon: Lock, label: "Dados isolados por unidade" },
 ];
+
+export const howItWorks = [
+  {
+    step: "01",
+    title: "Pergunte em linguagem natural",
+    description:
+      "Digite a dúvida como você falaria com um colega mais experiente. Não é preciso saber o número da norma.",
+  },
+  {
+    step: "02",
+    title: "O QAP IA consulta as fontes",
+    description:
+      "A pergunta é cruzada com a legislação aplicável e com os documentos indexados pela sua unidade.",
+  },
+  {
+    step: "03",
+    title: "Receba resposta objetiva",
+    description:
+      "Resumo direto em até 150 palavras, fundamentação e a base legal correspondente para conferência.",
+  },
+  {
+    step: "04",
+    title: "Aprofunde quando precisar",
+    description:
+      "Peça o texto legal completo, exporte a conversa ou salve nos favoritos para consultar depois.",
+  },
+];
+
+export const differentials = [
+  {
+    title: "Feito para a atividade policial militar",
+    description:
+      "Vocabulário, rotinas e normas do dia a dia da corporação — não é um chatbot genérico adaptado.",
+  },
+  {
+    title: "Resposta curta por padrão",
+    description:
+      "Limite de 150 palavras com convite para aprofundar, pensado para consulta durante o serviço.",
+  },
+  {
+    title: "Base legal sempre visível",
+    description:
+      "Cada resposta destaca a norma citada em um cartão de fonte, pronto para conferência oficial.",
+  },
+  {
+    title: "Base documental da unidade",
+    description:
+      "Portarias, diretrizes e manuais internos indexados e isolados por organização.",
+  },
+];
+
+export const metrics = [
+  { value: "12.940", label: "consultas realizadas" },
+  { value: "128", label: "documentos indexados" },
+  { value: "1,4s", label: "tempo médio de resposta" },
+  { value: "99,9%", label: "disponibilidade do serviço" },
+];
+
+export const screenshots = [
+  {
+    title: "Chat Jurídico",
+    description: "Consulta com base legal citada, cópia rápida e exportação da conversa.",
+    tone: "azure" as const,
+  },
+  {
+    title: "Dashboard institucional",
+    description: "Uso, integridade dos serviços e produtividade da unidade em um só painel.",
+    tone: "navy" as const,
+  },
+  {
+    title: "Base de conhecimento",
+    description: "Upload, categorização e acompanhamento do status de indexação.",
+    tone: "steel" as const,
+  },
+];
