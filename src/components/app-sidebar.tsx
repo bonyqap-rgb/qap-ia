@@ -36,7 +36,7 @@ type NavItem = { title: string; url: string; icon: typeof BookOpen; badge?: stri
 
 const workspaceItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Chat Jurídico", url: "/", icon: MessageSquare },
+  { title: "Chat Jurídico", url: "/chat", icon: MessageSquare },
   { title: "Histórico", url: "/history", icon: History },
 ];
 
@@ -145,7 +145,7 @@ export function AppSidebar() {
                 className="w-full justify-start gap-2 bg-gradient-azure text-primary-foreground shadow-azure transition-all hover:brightness-110"
                 size={collapsed ? "icon" : "default"}
               >
-                <Link to="/">
+                <Link to="/chat">
                   <MessageSquarePlus className="h-4 w-4 shrink-0" />
                   {!collapsed && <span>Nova conversa</span>}
                 </Link>
