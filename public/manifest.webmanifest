@@ -1,0 +1,19 @@
+{
+  "name": "QAP IA — Assistente Jurídico",
+  "short_name": "QAP IA",
+  "description": "Assistente inteligente para pesquisa jurídica e administrativa.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0e1420",
+  "theme_color": "#0e1420",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/qap-ia-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

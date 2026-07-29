@@ -10,6 +10,7 @@ import {
   FileText,
   History,
   ShieldAlert,
+  UserRound,
 } from "lucide-react";
 
 import {
@@ -50,6 +51,7 @@ const adminItems: NavItem[] = [
 ];
 
 const bottomItems: NavItem[] = [
+  { title: "Meu perfil", url: "/profile", icon: UserRound },
   { title: "Configurações", url: "/settings", icon: Settings },
   { title: "Ajuda", url: "/help", icon: HelpCircle },
 ];
