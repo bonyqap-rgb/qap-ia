@@ -273,7 +273,7 @@ function Index() {
 
                         <span>{formatTime(message.createdAt)}</span>
                         {!isUser && (
-                          <div className="ml-auto flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                          <div className="ml-auto flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                             <button
                               onClick={() => handleCopy(message)}
                               className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
