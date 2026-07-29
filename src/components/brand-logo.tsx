@@ -22,7 +22,7 @@ export function BrandLogo({ className, size = 36 }: BrandLogoProps) {
         alt="QAP IA"
         width={size}
         height={size}
-        className="h-full w-full scale-[1.5] object-cover object-[50%_18%]"
+        className="h-full w-full scale-[1.7] object-cover object-[50%_16%]"
         loading="eager"
         decoding="async"
       />
