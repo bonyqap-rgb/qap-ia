@@ -248,12 +248,13 @@ function Index() {
                     )}
                     <div
                       className={cn(
-                        "group relative min-w-0 max-w-[85%] rounded-2xl px-4 py-3 sm:max-w-[80%]",
+                        "group relative min-w-0 rounded-2xl px-4 py-3 transition-shadow",
                         isUser
-                          ? "bg-primary text-primary-foreground shadow-azure"
-                          : "border border-border bg-card text-foreground shadow-soft",
+                          ? "max-w-[85%] bg-primary text-primary-foreground shadow-azure sm:max-w-[75%]"
+                          : "w-full max-w-full border border-border/70 bg-card text-foreground shadow-soft sm:px-5 sm:py-4",
                       )}
                     >
+
                       {isUser ? (
                         <p className="whitespace-pre-wrap text-sm leading-relaxed sm:text-[15px]">
                           {message.content}
