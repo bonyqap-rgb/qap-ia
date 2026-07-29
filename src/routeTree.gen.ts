@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -30,6 +31,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/knowledge': typeof KnowledgeRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/knowledge': typeof KnowledgeRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/knowledge': typeof KnowledgeRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/knowledge'
     | '/pricing'
+    | '/privacy'
     | '/settings'
     | '/sitemap.xml'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/knowledge'
     | '/pricing'
+    | '/privacy'
     | '/settings'
     | '/sitemap.xml'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/knowledge'
     | '/pricing'
+    | '/privacy'
     | '/settings'
     | '/sitemap.xml'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   KnowledgeRoute: typeof KnowledgeRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   KnowledgeRoute: KnowledgeRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
