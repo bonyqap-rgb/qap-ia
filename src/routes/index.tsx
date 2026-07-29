@@ -186,9 +186,10 @@ function Index() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-azure to-transparent" />
 
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 md:px-8">
-        <div className="mx-auto w-full max-w-3xl">
+        <div className={cn("mx-auto w-full max-w-3xl", isEmpty && "flex h-full items-center")}>
           {isEmpty ? (
-            <div className="flex min-h-[42vh] flex-col items-center justify-center py-4 animate-in fade-in duration-500 sm:min-h-[46vh]">
+            <div className="flex w-full flex-col items-center justify-center py-4 animate-in fade-in duration-500">
+
               <BrandLogo size={54} className="mb-4 rounded-2xl shadow-azure" />
               <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-azure/25 bg-azure/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-azure-dark">
                 <ShieldCheck className="h-3 w-3" />
