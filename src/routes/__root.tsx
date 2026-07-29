@@ -101,12 +101,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "Assistente inteligente para pesquisa jurídica e administrativa voltado para policiais militares." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4f4f8b7e-39a3-4cf1-b91b-92ef2de7bf11/id-preview-2f51d4d7--5e7123e8-9978-42b3-a75e-9bafbb99366d.lovable.app-1784969951074.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4f4f8b7e-39a3-4cf1-b91b-92ef2de7bf11/id-preview-2f51d4d7--5e7123e8-9978-42b3-a75e-9bafbb99366d.lovable.app-1784969951074.png" },
+      { name: "theme-color", content: "#0e1420" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "QAP IA" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", href: "/qap-ia-icon.jpg", type: "image/jpeg" },
       { rel: "apple-touch-icon", href: "/qap-ia-icon.jpg" },
       {

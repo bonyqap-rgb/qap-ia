@@ -26,6 +26,7 @@ const routeLabels: Record<string, string> = {
   admin: "Administração",
   settings: "Configurações",
   help: "Ajuda",
+  profile: "Meu perfil",
 };
 
 /** Rotas públicas (site institucional e autenticação) não usam o shell interno. */
