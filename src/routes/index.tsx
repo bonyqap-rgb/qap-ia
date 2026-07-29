@@ -1,388 +1,455 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Send,
-  ShieldCheck,
-  User,
-  Bot,
-  Copy,
+  ArrowRight,
   Check,
-  RefreshCw,
+  ChevronDown,
+  PlayCircle,
+  ShieldCheck,
   Sparkles,
-  Scale,
-  FileText,
-  Gavel,
 } from "lucide-react";
-import { sendChatMessage } from "@/lib/ai-service.functions";
-import { Markdown } from "@/components/chat/markdown";
-import { BrandLogo } from "@/components/brand-logo";
 
+import { MarketingLayout } from "@/components/marketing/site-chrome";
+import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  benefits,
+  demoConversation,
+  faq,
+  features,
+  plans,
+  trustSignals,
+} from "@/lib/marketing-data";
 import { cn } from "@/lib/utils";
+
+const TITLE = "QAP IA — Pesquisa jurídica e administrativa para quem protege";
+const DESCRIPTION =
+  "Assistente inteligente de pesquisa jurídica e administrativa para policiais militares: respostas objetivas, base legal citada e sua própria base de documentos.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "QAP IA — Assistente Inteligente" },
-      {
-        name: "description",
-        content:
-          "Assistente inteligente para pesquisa jurídica e administrativa voltado para policiais militares.",
-      },
-      { property: "og:title", content: "QAP IA — Assistente Inteligente" },
-      {
-        property: "og:description",
-        content:
-          "Assistente inteligente para pesquisa jurídica e administrativa voltado para policiais militares.",
-      },
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://qap-ia.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESCRIPTION },
+    ],
+    links: [{ rel: "canonical", href: "https://qap-ia.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "QAP IA",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          description: DESCRIPTION,
+          url: "https://qap-ia.lovable.app/",
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "BRL",
+          },
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faq.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
     ],
   }),
-  component: Index,
+  component: LandingPage,
 });
 
-type Message = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  createdAt: number;
-};
-
-const suggestions = [
-  {
-    icon: Scale,
-    title: "Uso progressivo da força",
-    prompt: "Explique os níveis do uso progressivo da força pela polícia militar.",
-  },
-  {
-    icon: Gavel,
-    title: "Processo administrativo disciplinar",
-    prompt: "Quais os prazos e fases do processo administrativo disciplinar militar?",
-  },
-  {
-    icon: FileText,
-    title: "Registro de ocorrência",
-    prompt: "Qual o procedimento para registro de ocorrência administrativa?",
-  },
-  {
-    icon: Sparkles,
-    title: "Direitos do preso",
-    prompt: "Quais são os direitos constitucionais do preso durante a abordagem?",
-  },
-];
-
-function formatTime(ts: number) {
-  return new Date(ts).toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function LandingPage() {
+  return (
+    <MarketingLayout>
+      <Hero />
+      <Demo />
+      <Features />
+      <Benefits />
+      <PlansPreview />
+      <Faq />
+      <FinalCta />
+    </MarketingLayout>
+  );
 }
 
-function Index() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
-
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 240)}px`;
-  }, [input]);
-
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
-
-  const send = useCallback(
-    async (text: string) => {
-      const trimmed = text.trim();
-      if (!trimmed || isLoading) return;
-
-      const userMessage: Message = {
-        id: crypto.randomUUID(),
-        role: "user",
-        content: trimmed,
-        createdAt: Date.now(),
-      };
-      setMessages((prev) => [...prev, userMessage]);
-      setInput("");
-      setIsLoading(true);
-
-      try {
-        const { reply } = await sendChatMessage({ data: { message: trimmed } });
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: reply,
-            createdAt: Date.now(),
-          },
-        ]);
-      } catch (error) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content:
-              error instanceof Error
-                ? `Erro ao processar sua pergunta: ${error.message}`
-                : "Erro ao processar sua pergunta.",
-            createdAt: Date.now(),
-          },
-        ]);
-      } finally {
-        setIsLoading(false);
-        textareaRef.current?.focus();
-      }
-    },
-    [isLoading],
-  );
-
-  const handleSubmit = () => send(input);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
-  const handleCopy = async (msg: Message) => {
-    await navigator.clipboard.writeText(msg.content);
-    setCopiedId(msg.id);
-    toast.success("Resposta copiada");
-    setTimeout(() => setCopiedId(null), 1500);
-  };
-
-  const handleRegenerate = async () => {
-    const lastUser = [...messages].reverse().find((m) => m.role === "user");
-    if (!lastUser) return;
-    // remove last assistant if exists
-    setMessages((prev) => {
-      const idx = [...prev].reverse().findIndex((m) => m.role === "assistant");
-      if (idx === -1) return prev;
-      const realIdx = prev.length - 1 - idx;
-      return prev.slice(0, realIdx);
-    });
-    await send(lastUser.content);
-  };
-
-  const isEmpty = messages.length === 0;
-
+function Hero() {
   return (
-    <div className="relative flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-azure to-transparent" />
+    <section className="relative overflow-hidden border-b border-border/60">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-linear-to-b from-azure/12 via-transparent to-transparent"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[42rem] -translate-x-1/2 rounded-full bg-azure/20 blur-3xl"
+      />
+      <div className="relative mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+          <BrandLogo size={72} className="mb-6 rounded-2xl shadow-azure animate-in fade-in zoom-in-95 duration-500" />
+          <Badge
+            variant="outline"
+            className="mb-4 gap-1.5 border-azure/30 bg-azure/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-azure-dark"
+          >
+            <ShieldCheck className="h-3 w-3" />
+            Inteligência que apoia quem protege
+          </Badge>
+          <h1 className="text-balance font-display text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+            Pesquisa jurídica e administrativa{" "}
+            <span className="text-azure">em segundos</span>, com base legal citada
+          </h1>
+          <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+            O QAP IA responde dúvidas de legislação e rotina administrativa com
+            objetividade, indica a norma correspondente e consulta a base de
+            documentos da sua unidade.
+          </p>
 
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 md:px-8">
-        <div className={cn("mx-auto w-full max-w-3xl", isEmpty && "flex h-full items-center")}>
-          {isEmpty ? (
-            <div className="flex w-full flex-col items-center justify-center py-4 animate-in fade-in duration-500">
-
-              <BrandLogo size={54} className="mb-4 rounded-2xl shadow-azure" />
-              <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-azure/25 bg-azure/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-azure-dark">
-                <ShieldCheck className="h-3 w-3" />
-                Assistente jurídico
-              </span>
-              <h1 className="text-balance text-center font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                Como posso ajudá-lo hoje?
-              </h1>
-              <p className="mt-2 max-w-md text-center text-[13px] leading-relaxed text-muted-foreground">
-                Pesquisa jurídica e administrativa com base na legislação
-                vigente.
-              </p>
-
-              <div className="mt-7 grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2">
-                {suggestions.map((s) => (
-                  <button
-                    key={s.title}
-                    onClick={() => send(s.prompt)}
-                    className="interactive-card group flex items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-3 text-left shadow-soft focus-visible:border-azure"
-                  >
-                    <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-azure/10 text-azure transition-colors group-hover:bg-gradient-azure group-hover:text-primary-foreground">
-                      <s.icon className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-[13px] font-semibold text-foreground">
-                        {s.title}
-                      </div>
-                      <div className="mt-0.5 line-clamp-1 text-[11px] leading-relaxed text-muted-foreground">
-                        {s.prompt}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-
-          ) : (
-            <div className="space-y-6 pb-4">
-              {messages.map((message, i) => {
-                const isUser = message.role === "user";
-                const isLast = i === messages.length - 1;
-                return (
-                  <div
-                    key={message.id}
-                    className={cn(
-                      "flex items-start gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300",
-                      isUser && "flex-row-reverse",
-                    )}
-                  >
-                    {isUser ? (
-                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground ring-1 ring-border">
-                        <User className="h-4 w-4" />
-                      </div>
-                    ) : (
-                      <BrandLogo size={36} className="rounded-full" />
-                    )}
-                    <div
-                      className={cn(
-                        "group relative min-w-0 rounded-2xl px-4 py-3 transition-shadow",
-                        isUser
-                          ? "max-w-[85%] bg-primary text-primary-foreground shadow-azure sm:max-w-[75%]"
-                          : "w-full max-w-full border border-border/70 bg-card text-foreground shadow-soft sm:px-5 sm:py-4",
-                      )}
-                    >
-
-                      {isUser ? (
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed sm:text-[15px]">
-                          {message.content}
-                        </p>
-                      ) : (
-                        <Markdown content={message.content} />
-                      )}
-                      <div
-                        className={cn(
-                          "mt-2 flex items-center gap-2 text-[10px] font-medium",
-                          isUser
-                            ? "text-primary-foreground/70 justify-end"
-                            : "text-muted-foreground",
-                        )}
-                      >
-
-                        <span>{formatTime(message.createdAt)}</span>
-                        {!isUser && (
-                          <div className="ml-auto flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                            <button
-                              onClick={() => handleCopy(message)}
-                              className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                              title="Copiar"
-                            >
-                              {copiedId === message.id ? (
-                                <Check className="h-3 w-3" />
-                              ) : (
-                                <Copy className="h-3 w-3" />
-                              )}
-                            </button>
-                            {isLast && (
-                              <button
-                                onClick={handleRegenerate}
-                                className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                                title="Regenerar resposta"
-                              >
-                                <RefreshCw className="h-3 w-3" />
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-
-              {isLoading && (
-                <div className="flex items-start gap-3 sm:gap-4 animate-in fade-in duration-200">
-                  <BrandLogo size={36} className="rounded-full" />
-                  <div className="rounded-2xl border border-border bg-card px-4 py-3 shadow-soft">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        Analisando
-                      </span>
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-azure [animation-delay:-0.3s]" />
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-azure [animation-delay:-0.15s]" />
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-azure" />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="shrink-0 border-t border-border/60 bg-card/70 px-4 py-4 backdrop-blur-md sm:px-6">
-        <div className="mx-auto max-w-3xl">
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-200 focus-within:border-azure/70 focus-within:shadow-azure">
-
-            <div className="p-2 sm:p-3">
-              <label htmlFor="question" className="sr-only">
-                Digite sua pergunta
-              </label>
-              <textarea
-                ref={textareaRef}
-                id="question"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Faça uma pergunta jurídica ou administrativa..."
-                disabled={isLoading}
-                rows={1}
-                className="max-h-[240px] min-h-[44px] w-full resize-none overflow-y-auto bg-transparent px-2 py-2 text-[15px] leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
-              />
-
-              <div className="mt-1 flex items-center justify-between gap-2 px-2">
-                <div className="hidden text-[11px] text-muted-foreground sm:block">
-                  <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                    Enter
-                  </kbd>{" "}
-                  enviar ·{" "}
-                  <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                    Shift + Enter
-                  </kbd>{" "}
-                  quebra de linha
-                </div>
-                <Button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={!input.trim() || isLoading}
-                  size="sm"
-                  className="ml-auto gap-1.5 rounded-full bg-gradient-azure px-4 text-primary-foreground shadow-azure transition-all hover:brightness-110 disabled:opacity-50 disabled:shadow-none"
-                >
-                  {isLoading ? (
-                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <>
-                      <span>Enviar</span>
-                      <Send className="h-3.5 w-3.5" />
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
+          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <Button
+              asChild
+              size="lg"
+              className="gap-2 bg-gradient-azure text-primary-foreground shadow-azure transition-all hover:brightness-110"
+            >
+              <Link to="/chat">
+                Fazer uma consulta agora
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="gap-2">
+              <a href="#demo">
+                <PlayCircle className="h-4 w-4" />
+                Ver demonstração
+              </a>
+            </Button>
           </div>
 
-
-          <p className="mt-2.5 text-center text-[11px] leading-relaxed text-muted-foreground">
-            As respostas possuem caráter informativo e devem ser conferidas na
-            legislação oficial.
-          </p>
+          <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {trustSignals.map((t) => (
+              <li
+                key={t.label}
+                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground"
+              >
+                <t.icon className="h-3.5 w-3.5 text-azure" />
+                {t.label}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-    </div>
+    </section>
+  );
+}
+
+function Demo() {
+  return (
+    <section id="demo" className="scroll-mt-20 border-b border-border/60 bg-muted/30">
+      <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Veja como uma consulta acontece
+          </h2>
+          <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+            Resposta direta, base legal e convite para aprofundar — sem textos
+            longos e sem rodeios.
+          </p>
+        </div>
+
+        <div className="surface-raised mx-auto mt-9 max-w-3xl overflow-hidden p-0">
+          <div className="flex items-center gap-2 border-b border-border/60 bg-card/80 px-4 py-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
+            <span className="h-2.5 w-2.5 rounded-full bg-azure/50" />
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/60" />
+            <span className="ml-2 truncate text-[11px] font-medium text-muted-foreground">
+              QAP IA · Chat Jurídico
+            </span>
+          </div>
+          <div className="space-y-5 p-4 sm:p-6">
+            {demoConversation.map((m, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "flex items-start gap-3",
+                  m.role === "user" && "flex-row-reverse",
+                )}
+              >
+                {m.role === "user" ? (
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground ring-1 ring-border">
+                    PM
+                  </div>
+                ) : (
+                  <BrandLogo size={36} className="rounded-full" />
+                )}
+                <div
+                  className={cn(
+                    "min-w-0 rounded-2xl px-4 py-3 text-sm leading-relaxed",
+                    m.role === "user"
+                      ? "max-w-[85%] bg-primary text-primary-foreground shadow-azure"
+                      : "w-full border border-border/70 bg-card text-foreground shadow-soft",
+                  )}
+                >
+                  <p className="whitespace-pre-wrap">{m.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-border/60 bg-card/60 px-4 py-3 text-center text-[11px] text-muted-foreground">
+            As respostas possuem caráter informativo e devem ser conferidas na
+            legislação oficial.
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Features() {
+  return (
+    <section id="recursos" className="scroll-mt-20 border-b border-border/60">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="max-w-2xl">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
+            Recursos
+          </span>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Tudo o que a unidade precisa em um só lugar
+          </h2>
+          <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+            Da consulta rápida no plantão à gestão da base documental da seção.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f) => (
+            <article
+              key={f.title}
+              className="interactive-card group rounded-2xl border border-border/70 bg-card p-5 shadow-soft"
+            >
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-azure/10 text-azure transition-colors group-hover:bg-gradient-azure group-hover:text-primary-foreground">
+                <f.icon className="h-5 w-5" />
+              </div>
+              <h3 className="mt-4 font-display text-[15px] font-semibold text-foreground">
+                {f.title}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                {f.description}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Benefits() {
+  return (
+    <section className="border-b border-border/60 bg-muted/30">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="grid gap-4 md:grid-cols-3">
+          {benefits.map((b) => (
+            <div
+              key={b.title}
+              className="rounded-2xl border border-border/70 bg-card p-6 shadow-soft"
+            >
+              <b.icon className="h-5 w-5 text-azure" />
+              <div className="mt-4 font-display text-3xl font-bold tracking-tight text-foreground">
+                {b.metric}
+              </div>
+              <div className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                {b.metricLabel}
+              </div>
+              <h3 className="mt-4 text-[15px] font-semibold text-foreground">
+                {b.title}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                {b.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PlansPreview() {
+  return (
+    <section id="planos" className="scroll-mt-20 border-b border-border/60">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
+            Planos
+          </span>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Comece grátis, evolua conforme a demanda
+          </h2>
+          <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+            Do uso individual à corporação inteira, com governança e auditoria.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {plans.map((p) => (
+            <div
+              key={p.id}
+              className={cn(
+                "relative flex flex-col rounded-2xl border bg-card p-5 shadow-soft transition-all",
+                p.highlight
+                  ? "border-azure/60 shadow-azure lg:-translate-y-2"
+                  : "border-border/70 hover:border-azure/40",
+              )}
+            >
+              {p.badge && (
+                <Badge className="absolute -top-2.5 left-5 bg-gradient-azure text-[10px] font-semibold text-primary-foreground">
+                  {p.badge}
+                </Badge>
+              )}
+              <h3 className="font-display text-base font-bold text-foreground">
+                {p.name}
+              </h3>
+              <div className="mt-2 flex items-end gap-1">
+                <span className="font-display text-2xl font-bold tracking-tight text-foreground">
+                  {p.price}
+                </span>
+                <span className="pb-1 text-xs text-muted-foreground">{p.period}</span>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {p.description}
+              </p>
+              <ul className="mt-4 flex-1 space-y-2">
+                {p.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-[13px] text-foreground">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-azure" />
+                    <span className="leading-relaxed">{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                asChild
+                className={cn(
+                  "mt-5 w-full",
+                  p.highlight
+                    ? "bg-gradient-azure text-primary-foreground shadow-azure hover:brightness-110"
+                    : "",
+                )}
+                variant={p.highlight ? "default" : "outline"}
+              >
+                <Link to="/pricing">{p.cta}</Link>
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            to="/pricing"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-azure hover:underline"
+          >
+            Ver comparativo completo de recursos
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Faq() {
+  return (
+    <section id="faq" className="scroll-mt-20 border-b border-border/60 bg-muted/30">
+      <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="text-center">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
+            Dúvidas frequentes
+          </span>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Perguntas que sempre recebemos
+          </h2>
+        </div>
+
+        <Accordion type="single" collapsible className="mt-8 space-y-2">
+          {faq.map((item, i) => (
+            <AccordionItem
+              key={item.q}
+              value={`item-${i}`}
+              className="rounded-xl border border-border/70 bg-card px-4 shadow-soft"
+            >
+              <AccordionTrigger className="text-left text-sm font-semibold hover:no-underline">
+                {item.q}
+              </AccordionTrigger>
+              <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                {item.a}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+
+        <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+          <ChevronDown className="h-3.5 w-3.5" />
+          Não encontrou sua dúvida?{" "}
+          <Link to="/contact" className="font-medium text-azure hover:underline">
+            Fale com a equipe
+          </Link>
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function FinalCta() {
+  return (
+    <section className="relative overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-linear-to-br from-azure/12 via-transparent to-navy/10"
+      />
+      <div className="relative mx-auto w-full max-w-4xl px-4 py-16 text-center sm:px-6 sm:py-20">
+        <Sparkles className="mx-auto h-6 w-6 text-azure" />
+        <h2 className="mt-4 text-balance font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Leve o QAP IA para o seu turno de serviço
+        </h2>
+        <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+          Crie sua conta gratuita e faça a primeira consulta em menos de um
+          minuto. Sem cartão de crédito.
+        </p>
+        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button
+            asChild
+            size="lg"
+            className="gap-2 bg-gradient-azure text-primary-foreground shadow-azure hover:brightness-110"
+          >
+            <Link to="/signup">
+              Criar conta gratuita
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link to="/contact">Falar com especialista</Link>
+          </Button>
+        </div>
+      </div>
+    </section>
   );
 }
