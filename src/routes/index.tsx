@@ -85,9 +85,13 @@ function LandingPage() {
   return (
     <MarketingLayout>
       <Hero />
+      <Metrics />
       <Demo />
+      <HowItWorks />
       <Features />
+      <Screenshots />
       <Benefits />
+      <Differentials />
       <PlansPreview />
       <Faq />
       <FinalCta />
