@@ -160,11 +160,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               </TooltipProvider>
               <ThemeToggle />
               <div className="mx-1 h-4 w-px bg-border" />
-              <Avatar className="h-8 w-8 border border-border">
-                <AvatarFallback className="bg-navy text-[11px] font-semibold text-primary-foreground">
-                  PM
-                </AvatarFallback>
-              </Avatar>
+              <Link
+                to="/profile"
+                aria-label="Meu perfil"
+                className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Avatar className="h-8 w-8 border border-border transition hover:border-azure">
+                  <AvatarFallback className="bg-navy text-[11px] font-semibold text-primary-foreground">
+                    PM
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
             </div>
           </header>
           <main className="flex min-w-0 flex-1 flex-col">{children}</main>
