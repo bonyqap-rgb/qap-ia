@@ -17,7 +17,8 @@ import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
 const routeLabels: Record<string, string> = {
-  "": "Chat Jurídico",
+  "": "Início",
+  chat: "Chat Jurídico",
   dashboard: "Dashboard",
   knowledge: "Base de Conhecimento",
   documents: "Documentos",
@@ -26,6 +27,21 @@ const routeLabels: Record<string, string> = {
   settings: "Configurações",
   help: "Ajuda",
 };
+
+/** Rotas públicas (site institucional e autenticação) não usam o shell interno. */
+const PUBLIC_ROUTES = new Set([
+  "/",
+  "/pricing",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/lgpd",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+]);
 
 function Breadcrumbs({ pathname }: { pathname: string }) {
   const segments = pathname.split("/").filter(Boolean);
