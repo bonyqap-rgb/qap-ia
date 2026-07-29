@@ -21,6 +21,10 @@ import {
 import {
   benefits,
   demoConversation,
+  differentials,
+  howItWorks,
+  metrics,
+  screenshots,
   faq,
   features,
   plans,
@@ -452,6 +456,141 @@ function FinalCta() {
           <Button asChild size="lg" variant="outline">
             <Link to="/contact">Falar com especialista</Link>
           </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Metrics() {
+  return (
+    <section className="border-b border-border/60 bg-muted/30">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-4 px-4 py-10 sm:px-6 lg:grid-cols-4">
+        {metrics.map((m) => (
+          <div key={m.label} className="text-center">
+            <div className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              {m.value}
+            </div>
+            <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+              {m.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function HowItWorks() {
+  return (
+    <section id="como-funciona" className="scroll-mt-20 border-b border-border/60">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
+            Como funciona
+          </span>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Da dúvida à base legal em quatro passos
+          </h2>
+        </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {howItWorks.map((s) => (
+            <div
+              key={s.step}
+              className="hover-lift relative rounded-2xl border border-border/70 bg-card p-5 shadow-soft"
+            >
+              <span className="font-display text-3xl font-bold tracking-tight text-azure/25">
+                {s.step}
+              </span>
+              <h3 className="mt-2 font-display text-[15px] font-semibold text-foreground">
+                {s.title}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                {s.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Screenshots() {
+  return (
+    <section className="border-b border-border/60 bg-muted/30">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
+            A plataforma
+          </span>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Um ambiente completo para a unidade
+          </h2>
+        </div>
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          {screenshots.map((s) => (
+            <article
+              key={s.title}
+              className="hover-lift overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft"
+            >
+              <div
+                className={cn(
+                  "relative h-40 bg-grid-subtle",
+                  s.tone === "azure" && "bg-azure/8",
+                  s.tone === "navy" && "bg-navy/8",
+                  s.tone === "steel" && "bg-muted",
+                )}
+              >
+                <div className="absolute inset-0 grid place-items-center">
+                  <BrandLogo size={44} className="rounded-xl shadow-azure" />
+                </div>
+              </div>
+              <div className="p-5">
+                <h3 className="font-display text-[15px] font-semibold text-foreground">
+                  {s.title}
+                </h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {s.description}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Differentials() {
+  return (
+    <section className="border-b border-border/60">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="max-w-2xl">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
+            Diferenciais
+          </span>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Por que o QAP IA e não um chatbot genérico
+          </h2>
+        </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          {differentials.map((d) => (
+            <div
+              key={d.title}
+              className="flex items-start gap-3 rounded-2xl border border-border/70 bg-card p-5 shadow-soft transition-colors hover:border-azure/40"
+            >
+              <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-azure/10 text-azure">
+                <Check className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-[15px] font-semibold text-foreground">{d.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  {d.description}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
