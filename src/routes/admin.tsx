@@ -96,7 +96,7 @@ function AdminPage() {
       <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            <ShieldAlert className="h-6 w-6 text-gold-dark" />
+            <ShieldAlert className="h-6 w-6 text-azure-dark" />
             Administração
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -105,7 +105,7 @@ function AdminPage() {
         </div>
         <Badge
           variant="outline"
-          className="w-fit gap-1.5 border-gold/40 bg-gold/10 text-gold-dark"
+          className="w-fit gap-1.5 border-azure/40 bg-azure/10 text-azure-dark"
         >
           Acesso restrito · Nível 3
         </Badge>
@@ -180,7 +180,7 @@ function AdminPage() {
                           className={cn(
                             "font-normal",
                             u.role === "Administrador" &&
-                              "border-gold/40 bg-gold/10 text-gold-dark",
+                              "border-azure/40 bg-azure/10 text-azure-dark",
                           )}
                         >
                           {u.role}

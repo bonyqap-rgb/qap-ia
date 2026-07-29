@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { sendChatMessage } from "@/lib/ai-service.functions";
 import { Markdown } from "@/components/chat/markdown";
+import { BrandLogo } from "@/components/brand-logo";
+
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -180,21 +182,20 @@ function Index() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="relative flex h-[calc(100vh-3rem)] flex-col overflow-hidden">
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent" />
+    <div className="relative flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-azure to-transparent" />
 
       <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 md:px-8">
         <div className="mx-auto w-full max-w-3xl">
           {isEmpty ? (
-            <div className="flex min-h-[60vh] flex-col items-center justify-center">
-              <div className="mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-navy shadow-gold">
-                <ShieldCheck className="h-7 w-7 text-gold" />
-              </div>
-              <h1 className="text-center text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            <div className="flex min-h-[60vh] flex-col items-center justify-center animate-in fade-in duration-500">
+              <BrandLogo size={68} className="mb-6 rounded-2xl shadow-azure" />
+              <h1 className="text-center font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 Como posso ajudá-lo hoje?
               </h1>
-              <p className="mt-3 max-w-md text-center text-sm text-muted-foreground">
-                Assistente inteligente para pesquisa jurídica e administrativa.
+              <p className="mt-3 max-w-md text-center text-sm leading-relaxed text-muted-foreground">
+                Inteligência que apoia quem protege — pesquisa jurídica e
+                administrativa com base na legislação vigente.
               </p>
 
               <div className="mt-10 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
@@ -202,16 +203,16 @@ function Index() {
                   <button
                     key={s.title}
                     onClick={() => send(s.prompt)}
-                    className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-gold hover:shadow-gold"
+                    className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-left shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-azure/60 hover:shadow-azure focus-visible:border-azure"
                   >
-                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-navy/5 text-navy transition-colors group-hover:bg-navy group-hover:text-gold">
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-azure/10 text-azure transition-colors group-hover:bg-azure group-hover:text-primary-foreground">
                       <s.icon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-semibold text-foreground">
                         {s.title}
                       </div>
-                      <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                      <div className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                         {s.prompt}
                       </div>
                     </div>
@@ -219,6 +220,7 @@ function Index() {
                 ))}
               </div>
             </div>
+
           ) : (
             <div className="space-y-6 pb-4">
               {messages.map((message, i) => {
@@ -232,26 +234,19 @@ function Index() {
                       isUser && "flex-row-reverse",
                     )}
                   >
-                    <div
-                      className={cn(
-                        "grid h-9 w-9 shrink-0 place-items-center rounded-full shadow-sm",
-                        isUser
-                          ? "bg-gold text-gold-dark"
-                          : "bg-gradient-navy text-gold",
-                      )}
-                    >
-                      {isUser ? (
+                    {isUser ? (
+                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground ring-1 ring-border">
                         <User className="h-4 w-4" />
-                      ) : (
-                        <Bot className="h-4 w-4" />
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <BrandLogo size={36} className="rounded-full" />
+                    )}
                     <div
                       className={cn(
                         "group relative min-w-0 max-w-[85%] rounded-2xl px-4 py-3 sm:max-w-[80%]",
                         isUser
-                          ? "bg-gold text-gold-dark"
-                          : "border border-border bg-card text-foreground shadow-sm",
+                          ? "bg-primary text-primary-foreground shadow-azure"
+                          : "border border-border bg-card text-foreground shadow-soft",
                       )}
                     >
                       {isUser ? (
@@ -265,10 +260,11 @@ function Index() {
                         className={cn(
                           "mt-2 flex items-center gap-2 text-[10px] font-medium",
                           isUser
-                            ? "text-gold-dark/70 justify-end"
+                            ? "text-primary-foreground/70 justify-end"
                             : "text-muted-foreground",
                         )}
                       >
+
                         <span>{formatTime(message.createdAt)}</span>
                         {!isUser && (
                           <div className="ml-auto flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
@@ -302,21 +298,20 @@ function Index() {
 
               {isLoading && (
                 <div className="flex items-start gap-3 sm:gap-4 animate-in fade-in duration-200">
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-navy text-gold shadow-sm">
-                    <Bot className="h-4 w-4" />
-                  </div>
-                  <div className="rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
+                  <BrandLogo size={36} className="rounded-full" />
+                  <div className="rounded-2xl border border-border bg-card px-4 py-3 shadow-soft">
                     <div className="flex items-center gap-2.5">
                       <span className="text-sm font-medium text-muted-foreground">
-                        Pensando
+                        Analisando
                       </span>
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold [animation-delay:-0.3s]" />
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold [animation-delay:-0.15s]" />
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-azure [animation-delay:-0.3s]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-azure [animation-delay:-0.15s]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-azure" />
                     </div>
                   </div>
                 </div>
               )}
+
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -325,7 +320,8 @@ function Index() {
 
       <div className="shrink-0 border-t border-border/60 bg-card/70 px-4 py-4 backdrop-blur-md sm:px-6">
         <div className="mx-auto max-w-3xl">
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all focus-within:border-gold focus-within:shadow-gold">
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-200 focus-within:border-azure/70 focus-within:shadow-azure">
+
             <div className="p-2 sm:p-3">
               <label htmlFor="question" className="sr-only">
                 Digite sua pergunta
@@ -343,7 +339,7 @@ function Index() {
               />
 
               <div className="mt-1 flex items-center justify-between gap-2 px-2">
-                <div className="text-[11px] text-muted-foreground">
+                <div className="hidden text-[11px] text-muted-foreground sm:block">
                   <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
                     Enter
                   </kbd>{" "}
@@ -358,14 +354,21 @@ function Index() {
                   onClick={handleSubmit}
                   disabled={!input.trim() || isLoading}
                   size="sm"
-                  className="gap-1.5 rounded-full bg-navy px-4 text-primary-foreground shadow-gold hover:bg-navy-light disabled:opacity-50"
+                  className="ml-auto gap-1.5 rounded-full bg-gradient-azure px-4 text-primary-foreground shadow-azure transition-all hover:brightness-110 disabled:opacity-50 disabled:shadow-none"
                 >
-                  <span>Enviar</span>
-                  <Send className="h-3.5 w-3.5" />
+                  {isLoading ? (
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <>
+                      <span>Enviar</span>
+                      <Send className="h-3.5 w-3.5" />
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
           </div>
+
 
           <p className="mt-2.5 text-center text-[11px] leading-relaxed text-muted-foreground">
             As respostas possuem caráter informativo e devem ser conferidas na

@@ -75,7 +75,7 @@ const statusMap: Record<
   { label: string; icon: typeof CheckCircle2; className: string }
 > = {
   aguardando: { label: "Aguardando", icon: Clock, className: "bg-muted text-muted-foreground border-border" },
-  indexando: { label: "Indexando", icon: Loader2, className: "bg-gold/10 text-gold-dark border-gold/30" },
+  indexando: { label: "Indexando", icon: Loader2, className: "bg-azure/10 text-azure-dark border-azure/30" },
   concluído: {
     label: "Concluído",
     icon: CheckCircle2,
@@ -169,7 +169,7 @@ function KnowledgePage() {
       <Card
         className={cn(
           "border-2 border-dashed transition-all",
-          dragOver ? "border-gold bg-gold/5 shadow-gold" : "border-border bg-card/50",
+          dragOver ? "border-azure bg-azure/5 shadow-azure" : "border-border bg-card/50",
         )}
         onDragOver={(e) => {
           e.preventDefault();
@@ -226,7 +226,7 @@ function KnowledgePage() {
               {mockCategories.map((c) => (
                 <li
                   key={c.name}
-                  className="flex items-center justify-between rounded-lg border border-border/60 p-3 transition hover:border-gold hover:bg-gold/5"
+                  className="flex items-center justify-between rounded-lg border border-border/60 p-3 transition hover:border-azure hover:bg-azure/5"
                 >
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold text-foreground">{c.name}</div>

@@ -143,8 +143,8 @@ function SettingsPage() {
                       className={cn(
                         "flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition",
                         active
-                          ? "border-gold bg-gold/5 shadow-gold"
-                          : "border-border hover:border-gold/60 hover:bg-muted/40",
+                          ? "border-azure bg-azure/5 shadow-azure"
+                          : "border-border hover:border-azure/60 hover:bg-muted/40",
                       )}
                     >
                       <div className="grid h-9 w-9 place-items-center rounded-lg bg-navy/5 text-navy">
@@ -273,7 +273,7 @@ function SettingsPage() {
                 <div>
                   <dt className="text-xs uppercase tracking-wide text-muted-foreground">Ambiente</dt>
                   <dd>
-                    <Badge variant="outline" className="border-gold/40 bg-gold/10 text-gold-dark">
+                    <Badge variant="outline" className="border-azure/40 bg-azure/10 text-azure-dark">
                       Preview
                     </Badge>
                   </dd>

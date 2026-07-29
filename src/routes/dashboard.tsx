@@ -85,7 +85,7 @@ const stats = [
     value: "4.821",
     delta: "+318 esta semana",
     icon: Database,
-    color: "bg-gold/10 text-gold-dark",
+    color: "bg-azure/10 text-azure-dark",
   },
   {
     label: "Consultas realizadas",
@@ -152,7 +152,7 @@ const recentDocs = [
 const statusColor: Record<string, string> = {
   concluído:
     "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800",
-  indexando: "bg-gold/10 text-gold-dark border-gold/30",
+  indexando: "bg-azure/10 text-azure-dark border-azure/30",
   aguardando: "bg-muted text-muted-foreground border-border",
   erro: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900",
 };
@@ -244,8 +244,8 @@ function DashboardPage() {
                     <stop offset="100%" stopColor="var(--color-navy)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="c2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-gold)" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="var(--color-gold)" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--color-azure)" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="var(--color-azure)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
@@ -270,7 +270,7 @@ function DashboardPage() {
                 <Area
                   type="monotone"
                   dataKey="indexacoes"
-                  stroke="var(--color-gold)"
+                  stroke="var(--color-azure)"
                   strokeWidth={2}
                   fill="url(#c2)"
                 />
@@ -305,7 +305,7 @@ function DashboardPage() {
                     fontSize: 12,
                   }}
                 />
-                <Bar dataKey="total" fill="var(--color-gold)" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="total" fill="var(--color-azure)" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

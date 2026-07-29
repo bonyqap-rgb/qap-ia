@@ -59,7 +59,7 @@ function HelpPage() {
           { icon: MessageCircle, title: "Chat", desc: "Fale com a equipe" },
           { icon: Mail, title: "E-mail", desc: "contato@qapia.com" },
         ].map((c) => (
-          <Card key={c.title} className="transition hover:border-gold hover:shadow-gold">
+          <Card key={c.title} className="transition hover:border-azure hover:shadow-azure">
             <CardContent className="flex items-center gap-3 p-4">
               <div className="grid h-10 w-10 place-items-center rounded-lg bg-navy/5 text-navy">
                 <c.icon className="h-5 w-5" />
