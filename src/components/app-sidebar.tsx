@@ -61,39 +61,59 @@ export function AppSidebar() {
 
   const renderGroup = (label: string, items: NavItem[]) => (
     <SidebarGroup>
-      {!collapsed && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
+      {!collapsed && (
+        <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
+          {label}
+        </SidebarGroupLabel>
+      )}
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                isActive={isActive(item.url)}
-                tooltip={item.title}
-              >
-                <Link to={item.url} className="flex items-center gap-2">
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  {!collapsed && (
-                    <>
-                      <span className="flex-1 truncate">{item.title}</span>
-                      {item.badge && (
-                        <Badge
-                          variant="outline"
-                          className="h-5 border-azure/40 bg-azure/10 px-1.5 text-[10px] font-semibold text-azure-dark"
-                        >
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </>
+          {items.map((item) => {
+            const active = isActive(item.url);
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={active}
+                  tooltip={item.title}
+                  className={cn(
+                    "relative rounded-lg transition-colors",
+                    active &&
+                      "nav-active before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-r-full before:bg-azure",
                   )}
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+                >
+                  <Link to={item.url} className="flex items-center gap-2.5">
+                    <item.icon
+                      className={cn(
+                        "h-4 w-4 shrink-0",
+                        active ? "text-azure" : "text-muted-foreground",
+                      )}
+                    />
+                    {!collapsed && (
+                      <>
+                        <span className="flex-1 truncate text-[13px]">
+                          {item.title}
+                        </span>
+                        {item.badge && (
+                          <Badge
+                            variant="outline"
+                            className="h-5 border-azure/40 bg-azure/10 px-1.5 text-[10px] font-semibold text-azure-dark"
+                          >
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </>
+                    )}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
   );
+
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/60">
