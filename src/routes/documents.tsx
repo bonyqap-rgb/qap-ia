@@ -94,7 +94,7 @@ const statusMap: Record<
   indexando: {
     label: "Indexando",
     icon: Loader2,
-    className: "bg-gold/10 text-gold-dark border-gold/30",
+    className: "bg-azure/10 text-azure-dark border-azure/30",
   },
   concluído: {
     label: "Indexado",

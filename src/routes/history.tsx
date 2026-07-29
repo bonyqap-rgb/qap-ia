@@ -133,7 +133,7 @@ function HistoryPage() {
                 <div className="truncate text-sm font-semibold text-foreground">
                   {c.title}
                 </div>
-                {c.favorite && <Star className="h-3.5 w-3.5 fill-gold text-gold" />}
+                {c.favorite && <Star className="h-3.5 w-3.5 fill-azure text-azure" />}
               </div>
               <div className="mt-0.5 truncate text-xs text-muted-foreground">
                 {c.preview}
@@ -160,7 +160,7 @@ function HistoryPage() {
                 <Star
                   className={cn(
                     "h-4 w-4",
-                    c.favorite ? "fill-gold text-gold" : "text-muted-foreground",
+                    c.favorite ? "fill-azure text-azure" : "text-muted-foreground",
                   )}
                 />
               </Button>
