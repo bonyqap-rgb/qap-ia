@@ -28,6 +28,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BrandLogo } from "@/components/brand-logo";
+import { cn } from "@/lib/utils";
+
 
 
 type NavItem = { title: string; url: string; icon: typeof BookOpen; badge?: string };
