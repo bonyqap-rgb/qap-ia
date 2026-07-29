@@ -110,6 +110,15 @@ function ThemeToggle() {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
+  if (PUBLIC_ROUTES.has(pathname.replace(/(.)\/$/, "$1"))) {
+    return (
+      <>
+        {children}
+        <Toaster position="top-right" />
+      </>
+    );
+  }
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
