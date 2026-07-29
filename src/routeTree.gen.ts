@@ -14,6 +14,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -48,6 +49,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LgpdRoute = LgpdRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/knowledge': typeof KnowledgeRoute
   '/lgpd': typeof LgpdRoute
+  '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/knowledge': typeof KnowledgeRoute
   '/lgpd': typeof LgpdRoute
+  '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/knowledge': typeof KnowledgeRoute
   '/lgpd': typeof LgpdRoute
+  '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/knowledge'
     | '/lgpd'
+    | '/login'
     | '/pricing'
     | '/privacy'
     | '/settings'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/knowledge'
     | '/lgpd'
+    | '/login'
     | '/pricing'
     | '/privacy'
     | '/settings'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/knowledge'
     | '/lgpd'
+    | '/login'
     | '/pricing'
     | '/privacy'
     | '/settings'
@@ -218,6 +230,7 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   KnowledgeRoute: typeof KnowledgeRoute
   LgpdRoute: typeof LgpdRoute
+  LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
@@ -260,6 +273,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lgpd': {
@@ -346,6 +366,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   KnowledgeRoute: KnowledgeRoute,
   LgpdRoute: LgpdRoute,
+  LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
