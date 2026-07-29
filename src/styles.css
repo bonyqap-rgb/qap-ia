@@ -255,3 +255,102 @@
     background-color: color-mix(in oklab, var(--color-steel-dark) 60%, transparent);
   }
 }
+
+/* ============ Microinterações e refinamento premium ============ */
+
+@utility bg-grid-subtle {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-border) 55%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@utility bg-glow-azure {
+  background-image: radial-gradient(
+    60% 60% at 50% 0%,
+    color-mix(in oklab, var(--color-azure) 18%, transparent) 0%,
+    transparent 100%
+  );
+}
+
+@utility shadow-elevated {
+  box-shadow:
+    0 1px 2px oklch(0.2 0.03 258 / 0.06),
+    0 4px 12px -6px oklch(0.2 0.03 258 / 0.16),
+    0 24px 48px -28px oklch(0.2 0.03 258 / 0.4);
+}
+
+@utility hover-lift {
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 1px 2px oklch(0.2 0.03 258 / 0.05),
+      0 18px 40px -24px color-mix(in oklab, var(--color-azure) 55%, transparent);
+  }
+}
+
+@utility shimmer-line {
+  position: relative;
+  overflow: hidden;
+  background-color: color-mix(in oklab, var(--color-muted) 90%, transparent);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklab, var(--color-card) 80%, transparent) 50%,
+      transparent 100%
+    );
+    animation: qap-shimmer 1.6s infinite;
+  }
+}
+
+@utility caret-blink {
+  display: inline-block;
+  width: 0.5ch;
+  animation: qap-blink 1s steps(2, start) infinite;
+}
+
+@utility animate-rise {
+  animation: qap-rise 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes qap-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes qap-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes qap-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
