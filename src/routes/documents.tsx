@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FileText,
   Search,
@@ -13,7 +13,11 @@ import {
   Loader2,
   AlertCircle,
   ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  X,
 } from "lucide-react";
+
 
 import {
   Card,
