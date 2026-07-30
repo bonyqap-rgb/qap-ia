@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Sun, Moon, Monitor, Bell, Sparkles, History, Download, Trash2 } from "lucide-react";
+import { Sun, Moon, Bell, Sparkles, History, Download, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -102,7 +102,7 @@ function SettingsPage() {
             <CardTitle className="text-[15px]">Aparência</CardTitle>
             <CardDescription>Tema da interface</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {themes.map((option) => (
               <button
                 key={option.value}
