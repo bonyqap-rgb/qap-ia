@@ -30,6 +30,16 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminSistemaRouteImport } from './routes/admin.sistema'
+import { Route as AdminSegurancaRouteImport } from './routes/admin.seguranca'
+import { Route as AdminRagRouteImport } from './routes/admin.rag'
+import { Route as AdminMonitoramentoRouteImport } from './routes/admin.monitoramento'
+import { Route as AdminLogsRouteImport } from './routes/admin.logs'
+import { Route as AdminIaRouteImport } from './routes/admin.ia'
+import { Route as AdminBaseRouteImport } from './routes/admin.base'
+import { Route as AdminBackupRouteImport } from './routes/admin.backup'
+import { Route as AdminApiRouteImport } from './routes/admin.api'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -136,10 +146,60 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSistemaRoute = AdminSistemaRouteImport.update({
+  id: '/sistema',
+  path: '/sistema',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSegurancaRoute = AdminSegurancaRouteImport.update({
+  id: '/seguranca',
+  path: '/seguranca',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRagRoute = AdminRagRouteImport.update({
+  id: '/rag',
+  path: '/rag',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMonitoramentoRoute = AdminMonitoramentoRouteImport.update({
+  id: '/monitoramento',
+  path: '/monitoramento',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLogsRoute = AdminLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminIaRoute = AdminIaRouteImport.update({
+  id: '/ia',
+  path: '/ia',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBaseRoute = AdminBaseRouteImport.update({
+  id: '/base',
+  path: '/base',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBackupRoute = AdminBackupRouteImport.update({
+  id: '/backup',
+  path: '/backup',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApiRoute = AdminApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/chat': typeof ChatRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -159,10 +219,19 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/api': typeof AdminApiRoute
+  '/admin/backup': typeof AdminBackupRoute
+  '/admin/base': typeof AdminBaseRoute
+  '/admin/ia': typeof AdminIaRoute
+  '/admin/logs': typeof AdminLogsRoute
+  '/admin/monitoramento': typeof AdminMonitoramentoRoute
+  '/admin/rag': typeof AdminRagRoute
+  '/admin/seguranca': typeof AdminSegurancaRoute
+  '/admin/sistema': typeof AdminSistemaRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -182,11 +251,21 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/api': typeof AdminApiRoute
+  '/admin/backup': typeof AdminBackupRoute
+  '/admin/base': typeof AdminBaseRoute
+  '/admin/ia': typeof AdminIaRoute
+  '/admin/logs': typeof AdminLogsRoute
+  '/admin/monitoramento': typeof AdminMonitoramentoRoute
+  '/admin/rag': typeof AdminRagRoute
+  '/admin/seguranca': typeof AdminSegurancaRoute
+  '/admin/sistema': typeof AdminSistemaRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/chat': typeof ChatRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -206,6 +285,16 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/api': typeof AdminApiRoute
+  '/admin/backup': typeof AdminBackupRoute
+  '/admin/base': typeof AdminBaseRoute
+  '/admin/ia': typeof AdminIaRoute
+  '/admin/logs': typeof AdminLogsRoute
+  '/admin/monitoramento': typeof AdminMonitoramentoRoute
+  '/admin/rag': typeof AdminRagRoute
+  '/admin/seguranca': typeof AdminSegurancaRoute
+  '/admin/sistema': typeof AdminSistemaRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -231,10 +320,19 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/verify-email'
+    | '/admin/api'
+    | '/admin/backup'
+    | '/admin/base'
+    | '/admin/ia'
+    | '/admin/logs'
+    | '/admin/monitoramento'
+    | '/admin/rag'
+    | '/admin/seguranca'
+    | '/admin/sistema'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/chat'
     | '/contact'
     | '/dashboard'
@@ -254,6 +352,16 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/verify-email'
+    | '/admin/api'
+    | '/admin/backup'
+    | '/admin/base'
+    | '/admin/ia'
+    | '/admin/logs'
+    | '/admin/monitoramento'
+    | '/admin/rag'
+    | '/admin/seguranca'
+    | '/admin/sistema'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -277,11 +385,21 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/verify-email'
+    | '/admin/api'
+    | '/admin/backup'
+    | '/admin/base'
+    | '/admin/ia'
+    | '/admin/logs'
+    | '/admin/monitoramento'
+    | '/admin/rag'
+    | '/admin/seguranca'
+    | '/admin/sistema'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ChatRoute: typeof ChatRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
@@ -452,12 +570,110 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sistema': {
+      id: '/admin/sistema'
+      path: '/sistema'
+      fullPath: '/admin/sistema'
+      preLoaderRoute: typeof AdminSistemaRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/seguranca': {
+      id: '/admin/seguranca'
+      path: '/seguranca'
+      fullPath: '/admin/seguranca'
+      preLoaderRoute: typeof AdminSegurancaRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/rag': {
+      id: '/admin/rag'
+      path: '/rag'
+      fullPath: '/admin/rag'
+      preLoaderRoute: typeof AdminRagRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/monitoramento': {
+      id: '/admin/monitoramento'
+      path: '/monitoramento'
+      fullPath: '/admin/monitoramento'
+      preLoaderRoute: typeof AdminMonitoramentoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/logs': {
+      id: '/admin/logs'
+      path: '/logs'
+      fullPath: '/admin/logs'
+      preLoaderRoute: typeof AdminLogsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/ia': {
+      id: '/admin/ia'
+      path: '/ia'
+      fullPath: '/admin/ia'
+      preLoaderRoute: typeof AdminIaRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/base': {
+      id: '/admin/base'
+      path: '/base'
+      fullPath: '/admin/base'
+      preLoaderRoute: typeof AdminBaseRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/backup': {
+      id: '/admin/backup'
+      path: '/backup'
+      fullPath: '/admin/backup'
+      preLoaderRoute: typeof AdminBackupRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/api': {
+      id: '/admin/api'
+      path: '/api'
+      fullPath: '/admin/api'
+      preLoaderRoute: typeof AdminApiRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminApiRoute: typeof AdminApiRoute
+  AdminBackupRoute: typeof AdminBackupRoute
+  AdminBaseRoute: typeof AdminBaseRoute
+  AdminIaRoute: typeof AdminIaRoute
+  AdminLogsRoute: typeof AdminLogsRoute
+  AdminMonitoramentoRoute: typeof AdminMonitoramentoRoute
+  AdminRagRoute: typeof AdminRagRoute
+  AdminSegurancaRoute: typeof AdminSegurancaRoute
+  AdminSistemaRoute: typeof AdminSistemaRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminApiRoute: AdminApiRoute,
+  AdminBackupRoute: AdminBackupRoute,
+  AdminBaseRoute: AdminBaseRoute,
+  AdminIaRoute: AdminIaRoute,
+  AdminLogsRoute: AdminLogsRoute,
+  AdminMonitoramentoRoute: AdminMonitoramentoRoute,
+  AdminRagRoute: AdminRagRoute,
+  AdminSegurancaRoute: AdminSegurancaRoute,
+  AdminSistemaRoute: AdminSistemaRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   ChatRoute: ChatRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
