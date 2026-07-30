@@ -264,6 +264,107 @@ function AdminPage() {
 
       </div>
 
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base">Histórico de indexações</CardTitle>
+            <CardDescription>
+              Últimos processamentos e tempo médio por documento
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {history.data.length === 0 ? (
+              <EmptyState
+                icon={FileText}
+                title="Nenhuma indexação registrada"
+                description="Assim que documentos forem processados, o histórico aparecerá aqui."
+              />
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Documento</TableHead>
+                      <TableHead className="hidden sm:table-cell">Início</TableHead>
+                      <TableHead>Duração</TableHead>
+                      <TableHead className="hidden sm:table-cell">Chunks</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {history.data.slice(0, 8).map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="max-w-[220px] truncate font-medium">
+                          {item.documentName}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                          {new Date(item.startedAt).toLocaleString("pt-BR", {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          })}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {item.durationSeconds ? `${item.durationSeconds}s` : "—"}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-sm">
+                          {item.chunks ?? "—"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "font-normal",
+                              item.status === "erro" &&
+                                "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300",
+                              item.status === "concluído" &&
+                                "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
+                            )}
+                          >
+                            {item.status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Erros recentes</CardTitle>
+            <CardDescription>Logs resumidos do backend</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {(metrics.data.recentErrors ?? []).length === 0 ? (
+              <EmptyState
+                icon={CheckCircle2}
+                title="Nenhum erro recente"
+                description="A plataforma não registrou falhas na janela monitorada."
+              />
+            ) : (
+              <ul className="space-y-2.5">
+                {(metrics.data.recentErrors ?? []).slice(0, 6).map((err, i) => (
+                  <li
+                    key={`${err.at}-${i}`}
+                    className="rounded-lg border border-border/60 bg-muted/30 p-3"
+                  >
+                    <p className="text-sm text-foreground">{err.message}</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      {err.scope ? `${err.scope} · ` : ""}
+                      {new Date(err.at).toLocaleString("pt-BR")}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+
       <Card className="mt-6">
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <div>
