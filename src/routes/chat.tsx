@@ -463,13 +463,20 @@ function ChatPage() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-7 pb-4">
+                <div
+                  className="space-y-7 pb-4"
+                  role="log"
+                  aria-live="polite"
+                  aria-relevant="additions text"
+                  aria-busy={isLoading}
+                >
                   {messages.map((message, i) => {
                     const isUser = message.role === "user";
                     const isLast = i === messages.length - 1;
                     return (
-                      <div
+                      <article
                         key={message.id}
+                        aria-label={isUser ? "Sua consulta" : "Resposta do QAP IA"}
                         className={cn(
                           "flex items-start gap-3 animate-rise sm:gap-4",
                           isUser && "flex-row-reverse",
@@ -477,7 +484,7 @@ function ChatPage() {
                       >
                         {isUser ? (
                           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground ring-1 ring-border">
-                            <User className="h-4 w-4" />
+                            <User className="h-4 w-4" aria-hidden />
                           </div>
                         ) : (
                           <BrandLogo size={36} className="rounded-full" />
@@ -487,19 +494,45 @@ function ChatPage() {
                             "group relative min-w-0 rounded-2xl px-4 py-3 transition-shadow",
                             isUser
                               ? "max-w-[85%] bg-primary text-primary-foreground shadow-azure sm:max-w-[75%]"
-                              : "w-full max-w-full border border-border/70 bg-card text-foreground shadow-soft sm:px-5 sm:py-4",
+                              : "w-full max-w-full border bg-card text-foreground shadow-soft sm:px-5 sm:py-4",
+                            !isUser &&
+                              (message.error
+                                ? "border-destructive/40 bg-destructive/5"
+                                : "border-border/70"),
                           )}
                         >
                           {isUser ? (
                             <p className="whitespace-pre-wrap text-sm leading-relaxed sm:text-[15px]">
                               {message.content}
                             </p>
+                          ) : message.error ? (
+                            <div className="flex items-start gap-2.5">
+                              <AlertTriangle
+                                className="mt-0.5 h-4 w-4 shrink-0 text-destructive"
+                                aria-hidden
+                              />
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-foreground">
+                                  {message.content}
+                                </p>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="mt-2.5 gap-1.5"
+                                  onClick={handleRegenerate}
+                                >
+                                  <RefreshCw className="h-3.5 w-3.5" />
+                                  Tentar novamente
+                                </Button>
+                              </div>
+                            </div>
                           ) : (
                             <AssistantBubble
                               message={message}
                               animate={animatedIdRef.current === message.id}
                             />
                           )}
+
 
                           <div
                             className={cn(
