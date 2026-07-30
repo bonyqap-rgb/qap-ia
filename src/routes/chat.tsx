@@ -25,6 +25,7 @@ import {
 import { sendChatMessage } from "@/lib/ai-service.functions";
 import { AnswerMeta, CitationList } from "@/components/chat/answer-meta";
 import { chatService } from "@/services/chat.service";
+import { ApiError } from "@/services/api-client";
 import type { Citation } from "@/types/api";
 import { Markdown } from "@/components/chat/markdown";
 import { SourceCards, extractSources } from "@/components/chat/source-cards";
@@ -179,6 +180,11 @@ function ChatPage() {
   const animatedIdRef = useRef<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<Message[]>([]);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
