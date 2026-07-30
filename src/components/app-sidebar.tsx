@@ -78,10 +78,18 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
+  const inAdmin = currentPath.startsWith("/admin/");
+  const [adminOpen, setAdminOpen] = useState(inAdmin);
+
+  useEffect(() => {
+    if (inAdmin) setAdminOpen(true);
+  }, [inAdmin]);
+
   const isActive = (path: string) =>
     path === "/" || path === "/admin"
       ? currentPath === path
       : currentPath === path || currentPath.startsWith(`${path}/`);
+
 
   const renderItems = (items: NavItem[], nested?: boolean) => (
     <SidebarMenu>
