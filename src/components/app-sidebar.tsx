@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   MessageSquarePlus,
   BookOpen,
@@ -17,8 +18,10 @@ import {
   Activity,
   ScrollText,
   Lock,
+  ChevronRight,
   DatabaseBackup,
 } from "lucide-react";
+
 
 import {
   Sidebar,
@@ -33,10 +36,16 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BrandLogo } from "@/components/brand-logo";
 import { cn } from "@/lib/utils";
+
 
 type NavItem = { title: string; url: string; icon: typeof BookOpen; badge?: string };
 
@@ -69,10 +78,18 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
+  const inAdmin = currentPath.startsWith("/admin/");
+  const [adminOpen, setAdminOpen] = useState(inAdmin);
+
+  useEffect(() => {
+    if (inAdmin) setAdminOpen(true);
+  }, [inAdmin]);
+
   const isActive = (path: string) =>
     path === "/" || path === "/admin"
       ? currentPath === path
       : currentPath === path || currentPath.startsWith(`${path}/`);
+
 
   const renderItems = (items: NavItem[], nested?: boolean) => (
     <SidebarMenu>
@@ -191,11 +208,32 @@ export function AppSidebar() {
                 badge: "Admin",
               },
             ])}
-            <div className={cn(!collapsed && "ml-3 border-l border-border/60 pl-1.5")}>
-              {renderItems(adminItems, true)}
-            </div>
+            {!collapsed && (
+              <Collapsible open={adminOpen} onOpenChange={setAdminOpen}>
+                <CollapsibleTrigger className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/80 transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <ChevronRight
+                    className={cn(
+                      "h-3 w-3 shrink-0 transition-transform duration-200",
+                      adminOpen && "rotate-90",
+                    )}
+                    aria-hidden
+                  />
+                  Seções técnicas
+                  <span className="ml-auto text-[10px] font-medium normal-case tracking-normal text-muted-foreground/70">
+                    {adminItems.length}
+                  </span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                  <div className="ml-3 mt-1 border-l border-border/60 pl-1.5">
+                    {renderItems(adminItems, true)}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+            {collapsed && renderItems(adminItems, true)}
           </SidebarGroupContent>
         </SidebarGroup>
+
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border/60">
