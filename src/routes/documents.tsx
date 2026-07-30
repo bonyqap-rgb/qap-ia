@@ -422,6 +422,44 @@ function DocumentsPage() {
         </CardHeader>
 
         <CardContent>
+          {selected.length > 0 && (
+            <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-azure/30 bg-azure/5 px-3 py-2">
+              <span className="text-[13px] font-medium text-foreground">
+                {selected.length} selecionado(s)
+              </span>
+              <div className="ml-auto flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5"
+                  disabled={reindex.isPending}
+                  onClick={bulkReindex}
+                >
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  Reindexar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 text-red-600 dark:text-red-400"
+                  onClick={() => setBulkDelete(true)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Excluir
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="gap-1.5"
+                  onClick={() => setSelected([])}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Limpar
+                </Button>
+              </div>
+            </div>
+          )}
+
           {isLoading ? (
             <ListSkeleton rows={6} />
           ) : filtered.length === 0 ? (
@@ -429,95 +467,172 @@ function DocumentsPage() {
               icon={FileText}
               title="Nenhum documento encontrado"
               description="Ajuste os filtros de busca ou envie um novo documento para a base de conhecimento."
+              action={
+                (query || category !== "all" || status !== "all") && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setQuery("");
+                      setCategory("all");
+                      setStatus("all");
+                    }}
+                  >
+                    Limpar filtros
+                  </Button>
+                )
+              }
             />
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Documento</TableHead>
-                    <TableHead className="hidden md:table-cell">Categoria</TableHead>
-                    <TableHead className="hidden lg:table-cell">Páginas</TableHead>
-                    <TableHead className="hidden lg:table-cell">Chunks</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="hidden sm:table-cell">Atualizado</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((doc) => (
-                    <TableRow key={doc.id} className="transition-colors hover:bg-muted/40">
-                      <TableCell className="max-w-[260px]">
-                        <div className="flex min-w-0 items-center gap-2">
-                          <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                          <span className="truncate text-sm font-medium">{doc.name}</span>
-                        </div>
-                        {doc.size && (
-                          <span className="ml-6 text-[11px] text-muted-foreground">{doc.size}</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
-                        {doc.category ?? "—"}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell text-sm">{doc.pages ?? "—"}</TableCell>
-                      <TableCell className="hidden lg:table-cell text-sm">{doc.chunks ?? "—"}</TableCell>
-                      <TableCell>
-                        <StatusBadge status={doc.status} />
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
-                        {formatDate(doc.updatedAt ?? doc.uploadedAt)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                aria-label={`Ver detalhes de ${doc.name}`}
-                                onClick={() => setView(doc)}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Detalhes</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                aria-label={`Reindexar ${doc.name}`}
-                                disabled={reindex.isPending}
-                                onClick={() => reindex.mutate(doc.id)}
-                              >
-                                <RefreshCw className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Reindexar</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                aria-label={`Excluir ${doc.name}`}
-                                onClick={() => setToDelete(doc)}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Excluir</TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </TableCell>
+            <>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={allPageSelected}
+                          onCheckedChange={toggleAllOnPage}
+                          aria-label="Selecionar todos os documentos desta página"
+                        />
+                      </TableHead>
+                      <TableHead>Documento</TableHead>
+                      <TableHead className="hidden md:table-cell">Categoria</TableHead>
+                      <TableHead className="hidden lg:table-cell">Páginas</TableHead>
+                      <TableHead className="hidden lg:table-cell">Chunks</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="hidden sm:table-cell">Atualizado</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {paged.map((doc) => {
+                      const isSelected = selected.includes(doc.id);
+                      return (
+                        <TableRow
+                          key={doc.id}
+                          data-state={isSelected ? "selected" : undefined}
+                          className="transition-colors hover:bg-muted/40"
+                        >
+                          <TableCell>
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={() => toggleOne(doc.id)}
+                              aria-label={`Selecionar ${doc.name}`}
+                            />
+                          </TableCell>
+                          <TableCell className="max-w-[260px]">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                              <span className="truncate text-sm font-medium">{doc.name}</span>
+                            </div>
+                            {doc.size && (
+                              <span className="ml-6 text-[11px] text-muted-foreground">
+                                {doc.size}
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                            {doc.category ?? "—"}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-sm">
+                            {doc.pages ?? "—"}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-sm">
+                            {doc.chunks ?? "—"}
+                          </TableCell>
+                          <TableCell>
+                            <StatusBadge status={doc.status} />
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                            {formatDate(doc.updatedAt ?? doc.uploadedAt)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label={`Ver detalhes de ${doc.name}`}
+                                    onClick={() => setView(doc)}
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Detalhes</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label={`Reindexar ${doc.name}`}
+                                    disabled={reindex.isPending}
+                                    onClick={() => reindex.mutate(doc.id)}
+                                  >
+                                    <RefreshCw className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Reindexar</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label={`Excluir ${doc.name}`}
+                                    onClick={() => setToDelete(doc)}
+                                  >
+                                    <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Excluir</TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-3">
+                <p className="text-[12px] text-muted-foreground" aria-live="polite">
+                  Exibindo {(page - 1) * PAGE_SIZE + 1}–
+                  {Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1"
+                    disabled={page === 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                    Anterior
+                  </Button>
+                  <span className="text-[12px] font-medium tabular-nums text-muted-foreground">
+                    {page} / {totalPages}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1"
+                    disabled={page === totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    Próxima
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            </>
           )}
         </CardContent>
+
       </Card>
 
       <Dialog open={!!view} onOpenChange={(open) => !open && setView(null)}>
