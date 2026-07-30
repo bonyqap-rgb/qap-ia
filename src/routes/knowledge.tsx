@@ -214,6 +214,11 @@ function KnowledgePage() {
                 title="Faça uma busca na base"
                 description="Digite um tema jurídico ou administrativo para localizar os trechos mais relevantes."
               />
+            ) : searchFailed ? (
+              <ApiErrorNotice
+                error={search.error instanceof ApiError ? search.error : null}
+                onRetry={() => search.mutate(submitted)}
+              />
             ) : results.length === 0 ? (
               <EmptyState
                 icon={SearchX}
