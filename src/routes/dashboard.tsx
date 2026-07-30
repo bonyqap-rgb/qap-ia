@@ -2,16 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   FileText,
   Database,
-  MessageSquare,
   Clock,
   Activity,
-  TrendingUp,
   CheckCircle2,
-  Users,
   Cpu,
   UploadCloud,
-  AlertTriangle,
-  Layers,
 } from "lucide-react";
 import {
   Card,
@@ -69,65 +64,6 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-const stats = [
-  {
-    label: "Documentos indexados",
-    value: "128",
-    delta: "+12 este mês",
-    icon: FileText,
-    color: "bg-navy/5 text-navy",
-  },
-  {
-    label: "Páginas processadas",
-    value: "9.842",
-    delta: "+412 esta semana",
-    icon: Layers,
-    color: "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300",
-  },
-  {
-    label: "Chunks vetorizados",
-    value: "4.821",
-    delta: "+318 esta semana",
-    icon: Database,
-    color: "bg-azure/10 text-azure-dark",
-  },
-  {
-    label: "Consultas realizadas",
-    value: "12.940",
-    delta: "+8% vs semana anterior",
-    icon: MessageSquare,
-    color: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300",
-  },
-  {
-    label: "Usuários ativos",
-    value: "42",
-    delta: "+3 esta semana",
-    icon: Users,
-    color: "bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300",
-  },
-  {
-    label: "Tempo médio de resposta",
-    value: "1,4s",
-    delta: "-0,2s vs média",
-    icon: Clock,
-    color: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
-  },
-  {
-    label: "Último upload",
-    value: "agora",
-    delta: "Portaria 001-2025.docx",
-    icon: UploadCloud,
-    color: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300",
-  },
-  {
-    label: "Modelo em uso",
-    value: "Gemini",
-    delta: "gemini-flash-latest",
-    icon: Cpu,
-    color: "bg-pink-50 text-pink-700 dark:bg-pink-950/40 dark:text-pink-300",
-  },
-];
-
 const usageData = [
   { day: "Seg", consultas: 320, indexacoes: 12 },
   { day: "Ter", consultas: 410, indexacoes: 18 },
@@ -159,30 +95,6 @@ const statusColor: Record<string, string> = {
   indexando: "bg-azure/10 text-azure-dark border-azure/30",
   aguardando: "bg-muted text-muted-foreground border-border",
   erro: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900",
-};
-
-const svcMeta: Record<
-  string,
-  { label: string; className: string; icon: typeof CheckCircle2 }
-> = {
-  online: {
-    label: "Operacional",
-    className:
-      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800",
-    icon: CheckCircle2,
-  },
-  degraded: {
-    label: "Degradado",
-    className:
-      "border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800",
-    icon: AlertTriangle,
-  },
-  offline: {
-    label: "Offline",
-    className:
-      "border-red-200 bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900",
-    icon: AlertTriangle,
-  },
 };
 
 const serviceLabels: Array<{ key: string; label: string }> = [
