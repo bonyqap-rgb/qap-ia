@@ -23,6 +23,9 @@ import {
   CornerDownLeft,
 } from "lucide-react";
 import { sendChatMessage } from "@/lib/ai-service.functions";
+import { AnswerMeta, CitationList } from "@/components/chat/answer-meta";
+import { chatService } from "@/services/chat.service";
+import type { Citation } from "@/types/api";
 import { Markdown } from "@/components/chat/markdown";
 import { SourceCards, extractSources } from "@/components/chat/source-cards";
 import { useTypewriter } from "@/components/chat/use-typewriter";
