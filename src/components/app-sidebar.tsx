@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   MessageSquarePlus,
   BookOpen,
@@ -17,8 +18,10 @@ import {
   Activity,
   ScrollText,
   Lock,
+  ChevronRight,
   DatabaseBackup,
 } from "lucide-react";
+
 
 import {
   Sidebar,
