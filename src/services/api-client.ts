@@ -1,11 +1,11 @@
 /**
  * Camada única de comunicação HTTP com a API QAP RAG.
- * URL base configurável via VITE_API_URL (default: http://localhost:3001).
+ * URL base configurável via VITE_API_URL (default: https://qap-rag.onrender.com).
  * Recursos: timeout, retry com backoff, erros tipados e parse seguro.
  */
 
 export const API_BASE_URL = (
-  (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:3001"
+  (import.meta.env.VITE_API_URL as string | undefined) ?? "https://qap-rag.onrender.com"
 ).replace(/\/$/, "");
 
 export class ApiError extends Error {
