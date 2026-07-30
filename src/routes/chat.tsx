@@ -76,7 +76,9 @@ type Message = {
   confidence?: number;
   citations?: Citation[];
   usedDocuments?: Array<{ id?: string; name: string }>;
+  error?: boolean;
 };
+
 
 
 const suggestions = [
