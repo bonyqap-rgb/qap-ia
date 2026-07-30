@@ -21,6 +21,8 @@ import {
   ThumbsUp,
   ThumbsDown,
   CornerDownLeft,
+  AlertTriangle,
+
 } from "lucide-react";
 import { sendChatMessage } from "@/lib/ai-service.functions";
 import { AnswerMeta, CitationList } from "@/components/chat/answer-meta";
