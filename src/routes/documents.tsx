@@ -223,6 +223,9 @@ function DocumentsPage() {
   const [sort, setSort] = useState<SortKey>("recent");
   const [view, setView] = useState<ApiDocument | null>(null);
   const [toDelete, setToDelete] = useState<ApiDocument | null>(null);
+  const [bulkDelete, setBulkDelete] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
   const [progress, setProgress] = useState(0);
 
   const categories = useMemo(
@@ -244,6 +247,49 @@ function DocumentsPage() {
       return (b.uploadedAt ?? "").localeCompare(a.uploadedAt ?? "");
     });
   }, [docs, query, category, status, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = useMemo(
+    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filtered, page],
+  );
+
+  // Filtros alterados voltam para a primeira página e limpam a seleção.
+  useEffect(() => {
+    setPage(1);
+    setSelected([]);
+  }, [query, category, status, sort]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const pageIds = paged.map((d) => d.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.includes(id));
+
+  const toggleAllOnPage = () =>
+    setSelected((prev) =>
+      allPageSelected
+        ? prev.filter((id) => !pageIds.includes(id))
+        : Array.from(new Set([...prev, ...pageIds])),
+    );
+
+  const toggleOne = (id: string) =>
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  const bulkReindex = () => {
+    selected.forEach((id) => reindex.mutate(id));
+    toast.success(`${selected.length} documento(s) enviados para reindexação.`);
+    setSelected([]);
+  };
+
+  const confirmBulkDelete = () => {
+    selected.forEach((id) => remove.mutate(id));
+    toast.success(`${selected.length} documento(s) removidos.`);
+    setSelected([]);
+    setBulkDelete(false);
+  };
+
 
   const handleFiles = async (files: File[]) => {
     if (!files.length) return;
