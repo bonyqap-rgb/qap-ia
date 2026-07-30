@@ -33,7 +33,7 @@ import { Markdown } from "@/components/chat/markdown";
 import { SourceCards, extractSources } from "@/components/chat/source-cards";
 import { useTypewriter } from "@/components/chat/use-typewriter";
 import { BrandLogo } from "@/components/brand-logo";
-import { mockConversations } from "@/lib/mock-data";
+import { DataGap } from "@/components/common/page-primitives";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
