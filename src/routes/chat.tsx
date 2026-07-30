@@ -23,6 +23,10 @@ import {
   CornerDownLeft,
 } from "lucide-react";
 import { sendChatMessage } from "@/lib/ai-service.functions";
+import { AnswerMeta, CitationList } from "@/components/chat/answer-meta";
+import { chatService } from "@/services/chat.service";
+import { ApiError } from "@/services/api-client";
+import type { Citation } from "@/types/api";
 import { Markdown } from "@/components/chat/markdown";
 import { SourceCards, extractSources } from "@/components/chat/source-cards";
 import { useTypewriter } from "@/components/chat/use-typewriter";
@@ -67,7 +71,13 @@ type Message = {
   role: "user" | "assistant";
   content: string;
   createdAt: number;
+  model?: string;
+  latencyMs?: number;
+  confidence?: number;
+  citations?: Citation[];
+  usedDocuments?: Array<{ id?: string; name: string }>;
 };
+
 
 const suggestions = [
   {
@@ -106,7 +116,7 @@ function formatTime(ts: number) {
   });
 }
 
-/** Bolha do assistente com revelação progressiva e cartões de fonte. */
+/** Bolha do assistente com revelação progressiva, metadados e citações. */
 const AssistantBubble = memo(function AssistantBubble({
   message,
   animate,
@@ -115,16 +125,27 @@ const AssistantBubble = memo(function AssistantBubble({
   animate: boolean;
 }) {
   const { shown, done } = useTypewriter(message.content, animate);
-  const sources = done ? extractSources(message.content) : [];
+  const citations = message.citations ?? [];
+  const sources = done && citations.length === 0 ? extractSources(message.content) : [];
 
   return (
     <>
       <Markdown content={shown} />
       {!done && <span className="caret-blink text-azure">▍</span>}
+      {done && (
+        <AnswerMeta
+          model={message.model}
+          latencyMs={message.latencyMs}
+          confidence={message.confidence}
+          usedDocuments={message.usedDocuments}
+        />
+      )}
+      {done && citations.length > 0 && <CitationList citations={citations} />}
       <SourceCards sources={sources} />
     </>
   );
 });
+
 
 function ThinkingBubble() {
   return (
@@ -159,6 +180,11 @@ function ChatPage() {
   const animatedIdRef = useRef<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<Message[]>([]);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -190,14 +216,47 @@ function ChatPage() {
       setInput("");
       setIsLoading(true);
 
+      const startedAt = performance.now();
       try {
-        const { reply } = await sendChatMessage({ data: { message: trimmed } });
         const id = crypto.randomUUID();
         animatedIdRef.current = id;
-        setMessages((prev) => [
-          ...prev,
-          { id, role: "assistant", content: reply, createdAt: Date.now() },
-        ]);
+
+        // Caminho principal: chat RAG do backend (POST /chat).
+        try {
+          const response = await chatService.ask({
+            question: trimmed,
+            history: messagesRef.current.map((m) => ({ role: m.role, content: m.content })),
+          });
+          setMessages((prev) => [
+            ...prev,
+            {
+              id,
+              role: "assistant",
+              content: response.answer,
+              createdAt: Date.now(),
+              model: response.model,
+              confidence: response.confidence,
+              latencyMs: response.latencyMs ?? Math.round(performance.now() - startedAt),
+              citations: response.citations,
+              usedDocuments: response.usedDocuments,
+            },
+          ]);
+        } catch (apiError) {
+          // Fallback: serviço de IA direto, quando a API RAG não está acessível.
+          if (!(apiError instanceof ApiError) || !apiError.isNetwork) throw apiError;
+          const { reply } = await sendChatMessage({ data: { message: trimmed } });
+          setMessages((prev) => [
+            ...prev,
+            {
+              id,
+              role: "assistant",
+              content: reply,
+              createdAt: Date.now(),
+              latencyMs: Math.round(performance.now() - startedAt),
+            },
+          ]);
+        }
+
       } catch (error) {
         setMessages((prev) => [
           ...prev,
