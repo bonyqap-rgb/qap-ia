@@ -46,8 +46,8 @@ export const Route = createFileRoute("/settings")({
 const themes = [
   { value: "light", label: "Claro", icon: Sun },
   { value: "dark", label: "Escuro", icon: Moon },
-  { value: "system", label: "Sistema", icon: Monitor },
 ] as const;
+
 
 function PreferenceRow({
   icon: Icon,
