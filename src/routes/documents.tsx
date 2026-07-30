@@ -134,6 +134,10 @@ const statusMap: Record<
 
 type SortKey = "recent" | "name" | "chunks";
 
+/** Registros por página no catálogo de documentos. */
+const PAGE_SIZE = 10;
+
+
 function StatusBadge({ status }: { status: DocumentStatus }) {
   const meta = statusMap[status] ?? statusMap.aguardando;
   const Icon = meta.icon;
