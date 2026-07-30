@@ -533,7 +533,6 @@ function ChatPage() {
                             />
                           )}
 
-
                           <div
                             className={cn(
                               "mt-2 flex items-center gap-2 text-[10px] font-medium",
@@ -542,62 +541,67 @@ function ChatPage() {
                                 : "text-muted-foreground",
                             )}
                           >
-                            <span>{formatTime(message.createdAt)}</span>
-                            {!isUser && (
-                              <div className="ml-auto flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                            <time dateTime={new Date(message.createdAt).toISOString()}>
+                              {formatTime(message.createdAt)}
+                            </time>
+                            {!isUser && !message.error && (
+                              <div className="ml-auto flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
                                 <button
+                                  type="button"
                                   onClick={() => handleCopy(message)}
-                                  className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                                  title="Copiar resposta"
+                                  className="inline-flex min-h-8 min-w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                  aria-label="Copiar resposta"
                                 >
                                   {copiedId === message.id ? (
-                                    <Check className="h-3 w-3 text-emerald-600" />
+                                    <Check className="h-3.5 w-3.5 text-emerald-600" />
                                   ) : (
-                                    <Copy className="h-3 w-3" />
+                                    <Copy className="h-3.5 w-3.5" />
                                   )}
                                 </button>
                                 <button
-                                  onClick={() =>
-                                    setRated((p) => ({ ...p, [message.id]: "up" }))
-                                  }
+                                  type="button"
+                                  onClick={() => setRated((p) => ({ ...p, [message.id]: "up" }))}
+                                  aria-label="Marcar resposta como útil"
+                                  aria-pressed={rated[message.id] === "up"}
                                   className={cn(
-                                    "inline-flex rounded-md px-1.5 py-1 transition hover:bg-muted hover:text-foreground",
+                                    "inline-flex min-h-8 min-w-8 items-center justify-center rounded-md transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                                     rated[message.id] === "up"
                                       ? "text-emerald-600"
                                       : "text-muted-foreground",
                                   )}
-                                  title="Resposta útil"
                                 >
-                                  <ThumbsUp className="h-3 w-3" />
+                                  <ThumbsUp className="h-3.5 w-3.5" />
                                 </button>
                                 <button
-                                  onClick={() =>
-                                    setRated((p) => ({ ...p, [message.id]: "down" }))
-                                  }
+                                  type="button"
+                                  onClick={() => setRated((p) => ({ ...p, [message.id]: "down" }))}
+                                  aria-label="Marcar resposta como imprecisa"
+                                  aria-pressed={rated[message.id] === "down"}
                                   className={cn(
-                                    "inline-flex rounded-md px-1.5 py-1 transition hover:bg-muted hover:text-foreground",
+                                    "inline-flex min-h-8 min-w-8 items-center justify-center rounded-md transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                                     rated[message.id] === "down"
                                       ? "text-destructive"
                                       : "text-muted-foreground",
                                   )}
-                                  title="Resposta imprecisa"
                                 >
-                                  <ThumbsDown className="h-3 w-3" />
+                                  <ThumbsDown className="h-3.5 w-3.5" />
                                 </button>
                                 {isLast && (
                                   <button
+                                    type="button"
                                     onClick={handleRegenerate}
-                                    className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                                    title="Regenerar resposta"
+                                    aria-label="Regenerar resposta"
+                                    className="inline-flex min-h-8 min-w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                   >
-                                    <RefreshCw className="h-3 w-3" />
+                                    <RefreshCw className="h-3.5 w-3.5" />
                                   </button>
                                 )}
                               </div>
                             )}
                           </div>
                         </div>
-                      </div>
+                      </article>
+
                     );
                   })}
 
