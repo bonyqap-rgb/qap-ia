@@ -74,22 +74,8 @@ function KnowledgePage() {
     mutationFn: (q: string) => chatService.search({ query: q, limit: 12 }),
   });
 
-  const localResults = useMemo<SearchResult[]>(() => {
-    const q = submitted.trim().toLowerCase();
-    if (!q) return [];
-    return (documents.data ?? [])
-      .filter((d) => d.name.toLowerCase().includes(q) || d.category?.toLowerCase().includes(q))
-      .slice(0, 12)
-      .map((d) => ({
-        documentId: d.id,
-        documentName: d.name,
-        score: 0.72,
-        snippet: `Documento ${d.category ? `da categoria ${d.category} ` : ""}com ${d.chunks ?? 0} trechos indexados.`,
-      }));
-  }, [documents.data, submitted]);
-
-  const results: SearchResult[] = search.data ?? (search.isError ? localResults : []);
-  const isDemoResults = search.isError;
+  const results: SearchResult[] = search.data ?? [];
+  const searchFailed = search.isError;
 
   const onSubmit = (value: string) => {
     const q = value.trim();
@@ -241,12 +227,6 @@ function KnowledgePage() {
               />
             ) : (
               <>
-                {isDemoResults && (
-                  <p className="mb-3 text-[11px] text-muted-foreground">
-                    Serviço de busca indisponível — exibindo correspondências locais de
-                    demonstração.
-                  </p>
-                )}
                 <ul className="space-y-2">
                   {results.map((r, i) => (
                     <li
