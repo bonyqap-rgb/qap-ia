@@ -31,6 +31,7 @@ import {
 } from "@/components/common/page-primitives";
 import { StatCard } from "@/components/common/stat-card";
 import { useDocuments, useDocumentStatistics } from "@/hooks/use-documents";
+import { ApiError } from "@/services/api-client";
 import { chatService } from "@/services/chat.service";
 import { cn } from "@/lib/utils";
 import type { SearchResult } from "@/types/api";
