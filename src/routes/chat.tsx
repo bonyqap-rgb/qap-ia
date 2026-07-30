@@ -210,14 +210,47 @@ function ChatPage() {
       setInput("");
       setIsLoading(true);
 
+      const startedAt = performance.now();
       try {
-        const { reply } = await sendChatMessage({ data: { message: trimmed } });
         const id = crypto.randomUUID();
         animatedIdRef.current = id;
-        setMessages((prev) => [
-          ...prev,
-          { id, role: "assistant", content: reply, createdAt: Date.now() },
-        ]);
+
+        // Caminho principal: chat RAG do backend (POST /chat).
+        try {
+          const response = await chatService.ask({
+            question: trimmed,
+            history: messagesRef.current.map((m) => ({ role: m.role, content: m.content })),
+          });
+          setMessages((prev) => [
+            ...prev,
+            {
+              id,
+              role: "assistant",
+              content: response.answer,
+              createdAt: Date.now(),
+              model: response.model,
+              confidence: response.confidence,
+              latencyMs: response.latencyMs ?? Math.round(performance.now() - startedAt),
+              citations: response.citations,
+              usedDocuments: response.usedDocuments,
+            },
+          ]);
+        } catch (apiError) {
+          // Fallback: serviço de IA direto, quando a API RAG não está acessível.
+          if (!(apiError instanceof ApiError) || !apiError.isNetwork) throw apiError;
+          const { reply } = await sendChatMessage({ data: { message: trimmed } });
+          setMessages((prev) => [
+            ...prev,
+            {
+              id,
+              role: "assistant",
+              content: reply,
+              createdAt: Date.now(),
+              latencyMs: Math.round(performance.now() - startedAt),
+            },
+          ]);
+        }
+
       } catch (error) {
         setMessages((prev) => [
           ...prev,
