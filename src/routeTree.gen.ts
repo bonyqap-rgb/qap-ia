@@ -31,6 +31,7 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminRagRouteImport } from './routes/admin.rag'
 import { Route as AdminIaRouteImport } from './routes/admin.ia'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -143,6 +144,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminRagRoute = AdminRagRouteImport.update({
+  id: '/rag',
+  path: '/rag',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminIaRoute = AdminIaRouteImport.update({
   id: '/ia',
   path: '/ia',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/ia': typeof AdminIaRoute
+  '/admin/rag': typeof AdminRagRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/ia': typeof AdminIaRoute
+  '/admin/rag': typeof AdminRagRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/ia': typeof AdminIaRoute
+  '/admin/rag': typeof AdminRagRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/admin/ia'
+    | '/admin/rag'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/admin/ia'
+    | '/admin/rag'
     | '/admin'
   id:
     | '__root__'
@@ -298,6 +309,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/admin/ia'
+    | '/admin/rag'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -481,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/rag': {
+      id: '/admin/rag'
+      path: '/rag'
+      fullPath: '/admin/rag'
+      preLoaderRoute: typeof AdminRagRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/ia': {
       id: '/admin/ia'
       path: '/ia'
@@ -493,11 +512,13 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminIaRoute: typeof AdminIaRoute
+  AdminRagRoute: typeof AdminRagRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminIaRoute: AdminIaRoute,
+  AdminRagRoute: AdminRagRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
