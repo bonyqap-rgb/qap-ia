@@ -218,9 +218,28 @@ function ProfilePage() {
 
           <Card className="surface-panel">
             <CardHeader>
+              <CardTitle className="text-base">Segurança da conta</CardTitle>
+              <CardDescription>Credenciais de acesso institucional.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground">Senha</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Atualizada há 3 meses · gerenciada pela unidade
+                </p>
+              </div>
+              <Button variant="outline" size="sm" disabled>
+                Alterar senha
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="surface-panel">
+            <CardHeader>
               <CardTitle className="text-base">Atividade recente</CardTitle>
               <CardDescription>Últimas ações registradas.</CardDescription>
             </CardHeader>
+
             <CardContent className="space-y-3">
               {activity.map((a) => (
                 <div key={a.title} className="flex items-start gap-3">
