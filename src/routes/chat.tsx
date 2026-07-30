@@ -67,7 +67,13 @@ type Message = {
   role: "user" | "assistant";
   content: string;
   createdAt: number;
+  model?: string;
+  latencyMs?: number;
+  confidence?: number;
+  citations?: Citation[];
+  usedDocuments?: Array<{ id?: string; name: string }>;
 };
+
 
 const suggestions = [
   {
@@ -106,7 +112,7 @@ function formatTime(ts: number) {
   });
 }
 
-/** Bolha do assistente com revelação progressiva e cartões de fonte. */
+/** Bolha do assistente com revelação progressiva, metadados e citações. */
 const AssistantBubble = memo(function AssistantBubble({
   message,
   animate,
@@ -115,16 +121,27 @@ const AssistantBubble = memo(function AssistantBubble({
   animate: boolean;
 }) {
   const { shown, done } = useTypewriter(message.content, animate);
-  const sources = done ? extractSources(message.content) : [];
+  const citations = message.citations ?? [];
+  const sources = done && citations.length === 0 ? extractSources(message.content) : [];
 
   return (
     <>
       <Markdown content={shown} />
       {!done && <span className="caret-blink text-azure">▍</span>}
+      {done && (
+        <AnswerMeta
+          model={message.model}
+          latencyMs={message.latencyMs}
+          confidence={message.confidence}
+          usedDocuments={message.usedDocuments}
+        />
+      )}
+      {done && citations.length > 0 && <CitationList citations={citations} />}
       <SourceCards sources={sources} />
     </>
   );
 });
+
 
 function ThinkingBubble() {
   return (
