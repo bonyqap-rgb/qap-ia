@@ -52,7 +52,7 @@ function AdminBase() {
 
   const rows = useMemo(
     () =>
-      documents.data
+      (documents.data ?? [])
         .filter((doc) => (status === "all" ? true : doc.status === status))
         .filter((doc) =>
           query.trim() ? doc.name.toLowerCase().includes(query.trim().toLowerCase()) : true,

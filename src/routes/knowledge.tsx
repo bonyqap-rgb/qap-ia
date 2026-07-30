@@ -77,7 +77,7 @@ function KnowledgePage() {
   const localResults = useMemo<SearchResult[]>(() => {
     const q = submitted.trim().toLowerCase();
     if (!q) return [];
-    return documents.data
+    return (documents.data ?? [])
       .filter((d) => d.name.toLowerCase().includes(q) || d.category?.toLowerCase().includes(q))
       .slice(0, 12)
       .map((d) => ({
@@ -101,7 +101,7 @@ function KnowledgePage() {
 
   const categories = useMemo(() => {
     const map = new Map<string, number>();
-    for (const d of documents.data) {
+    for (const d of documents.data ?? []) {
       const key = d.category ?? "Sem categoria";
       map.set(key, (map.get(key) ?? 0) + 1);
     }
@@ -134,24 +134,38 @@ function KnowledgePage() {
       />
 
       {(documents.isUnavailable || statistics.isUnavailable) && (
-        <ApiErrorNotice onRetry={() => { documents.refetch(); statistics.refetch(); }} />
+        <ApiErrorNotice
+          error={documents.error ?? statistics.error}
+          onRetry={() => {
+            documents.refetch();
+            statistics.refetch();
+          }}
+        />
       )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           label="Documentos"
-          value={String(stats.totalDocuments)}
+          value={stats?.totalDocuments}
+          loading={statistics.isLoading}
           icon={FileText}
         />
         <StatCard
           label="Indexados"
-          value={String(stats.indexedDocuments)}
+          value={stats?.indexedDocuments}
+          loading={statistics.isLoading}
           icon={Database}
         />
-        <StatCard label="Trechos vetoriais" value={String(stats.totalChunks)} icon={Layers} />
+        <StatCard
+          label="Trechos vetoriais"
+          value={stats?.totalChunks}
+          icon={Layers}
+          loading={statistics.isLoading}
+        />
         <StatCard
           label="Páginas"
-          value={String(stats.totalPages ?? "—")}
+          value={stats?.totalPages}
+          loading={statistics.isLoading}
           icon={BookOpen}
         />
       </div>

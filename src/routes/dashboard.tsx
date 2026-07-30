@@ -196,7 +196,15 @@ function DashboardPage() {
         }
       />
 
-      {isDemo && <ApiErrorNotice onRetry={() => { statistics.refetch(); health.refetch(); }} />}
+      {(statistics.isUnavailable || health.isUnavailable) && (
+        <ApiErrorNotice
+          error={statistics.error ?? health.error}
+          onRetry={() => {
+            statistics.refetch();
+            health.refetch();
+          }}
+        />
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {liveStats.map((s) => (

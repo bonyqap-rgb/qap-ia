@@ -218,7 +218,9 @@ function UploadZone({
 }
 
 function DocumentsPage() {
-  const { data: docs, isLoading, isDemo, refetch } = useDocuments();
+  const documentsQuery = useDocuments();
+  const { isLoading, isUnavailable, error, refetch } = documentsQuery;
+  const docs = documentsQuery.data ?? [];
   const { remove, reindex, upload } = useDocumentMutations();
 
   const [query, setQuery] = useState("");
@@ -339,7 +341,7 @@ function DocumentsPage() {
         }
       />
 
-      {isDemo && <ApiErrorNotice onRetry={refetch} />}
+      {isUnavailable && <ApiErrorNotice error={error} onRetry={refetch} />}
 
       <Card className="surface-panel mb-5">
         <CardHeader className="pb-3">
