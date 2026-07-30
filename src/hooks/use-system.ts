@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import { systemService } from "@/services/system.service";
 import { ApiError } from "@/services/api-client";
-import { fallbackHealth, fallbackMetrics } from "@/lib/api-fallback";
 import type { HealthResponse, MetricsResponse, ReadyResponse } from "@/types/api";
+import type { ApiData } from "@/hooks/use-documents";
 
 export const systemKeys = {
   health: ["system", "health"] as const,
@@ -11,7 +11,13 @@ export const systemKeys = {
   metrics: ["system", "metrics"] as const,
 };
 
-export function useHealth() {
+function toApiError(error: unknown): ApiError | null {
+  if (error instanceof ApiError) return error;
+  if (error instanceof Error) return new ApiError(error.message, 0, "");
+  return null;
+}
+
+export function useHealth(): ApiData<HealthResponse> {
   const query = useQuery({
     queryKey: systemKeys.health,
     queryFn: ({ signal }) => systemService.health(signal),
@@ -19,17 +25,16 @@ export function useHealth() {
     refetchInterval: 20_000,
   });
 
-  const data: HealthResponse = query.data ?? fallbackHealth;
   return {
-    data,
+    data: query.data,
     isLoading: query.isLoading,
-    isDemo: !query.data,
-    error: query.error instanceof ApiError ? query.error : null,
+    isUnavailable: query.isError,
+    error: toApiError(query.error),
     refetch: () => void query.refetch(),
   };
 }
 
-export function useReady() {
+export function useReady(): ApiData<ReadyResponse> {
   const query = useQuery({
     queryKey: systemKeys.ready,
     queryFn: ({ signal }) => systemService.ready(signal),
@@ -37,11 +42,16 @@ export function useReady() {
     refetchInterval: 30_000,
   });
 
-  const data: ReadyResponse = query.data ?? { ready: false };
-  return { data, isLoading: query.isLoading, isDemo: !query.data };
+  return {
+    data: query.data,
+    isLoading: query.isLoading,
+    isUnavailable: query.isError,
+    error: toApiError(query.error),
+    refetch: () => void query.refetch(),
+  };
 }
 
-export function useMetrics() {
+export function useMetrics(): ApiData<MetricsResponse> {
   const query = useQuery({
     queryKey: systemKeys.metrics,
     queryFn: ({ signal }) => systemService.metrics(signal),
@@ -49,6 +59,11 @@ export function useMetrics() {
     refetchInterval: 30_000,
   });
 
-  const data: MetricsResponse = query.data ?? fallbackMetrics;
-  return { data, isLoading: query.isLoading, isDemo: !query.data };
+  return {
+    data: query.data,
+    isLoading: query.isLoading,
+    isUnavailable: query.isError,
+    error: toApiError(query.error),
+    refetch: () => void query.refetch(),
+  };
 }

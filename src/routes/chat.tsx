@@ -33,7 +33,7 @@ import { Markdown } from "@/components/chat/markdown";
 import { SourceCards, extractSources } from "@/components/chat/source-cards";
 import { useTypewriter } from "@/components/chat/use-typewriter";
 import { BrandLogo } from "@/components/brand-logo";
-import { mockConversations } from "@/lib/mock-data";
+import { DataGap } from "@/components/common/page-primitives";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -706,42 +706,48 @@ function ChatPage() {
           </div>
         </div>
 
-        {/* Histórico lateral da conversa */}
+        {/* Consultas desta sessão (o backend ainda não persiste conversas) */}
         {railOpen && (
           <aside className="hidden w-72 shrink-0 flex-col border-l border-border/60 bg-card/40 lg:flex">
             <div className="border-b border-border/60 px-4 py-3">
               <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                Consultas recentes
+                Consultas desta sessão
               </div>
             </div>
             <div className="flex-1 overflow-y-auto p-2">
-              {mockConversations.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => send(c.preview.replace(/\.\.\.$/, ""))}
-                  className="group mb-1 w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-muted/70"
-                >
-                  <div className="flex items-center gap-1.5">
-                    {c.favorite && (
-                      <Star className="h-3 w-3 shrink-0 fill-azure text-azure" />
-                    )}
-                    <span className="truncate text-[13px] font-medium text-foreground">
-                      {c.title}
-                    </span>
-                  </div>
-                  <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                    {c.preview}
-                  </div>
-                  <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <span>{c.updatedAt}</span>
-                    <span>·</span>
-                    <span>{c.messages} mensagens</span>
-                  </div>
-                </button>
-              ))}
+              {messages.filter((m) => m.role === "user").length === 0 ? (
+                <DataGap
+                  compact
+                  title="Sem histórico persistente"
+                  endpoint="GET /conversations"
+                  description="As perguntas desta sessão aparecem aqui."
+                  className="m-1"
+                />
+              ) : (
+                messages
+                  .filter((m) => m.role === "user")
+                  .map((m, i) => (
+                    <button
+                      key={`${m.id ?? i}-rail`}
+                      onClick={() => send(m.content)}
+                      className="group mb-1 w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-muted/70"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <MessageSquare className="h-3 w-3 shrink-0 text-azure" />
+                        <span className="truncate text-[13px] font-medium text-foreground">
+                          {m.content.slice(0, 40)}
+                        </span>
+                      </div>
+                      <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                        {m.content}
+                      </div>
+                    </button>
+                  ))
+              )}
             </div>
           </aside>
         )}
+
       </div>
     </TooltipProvider>
   );

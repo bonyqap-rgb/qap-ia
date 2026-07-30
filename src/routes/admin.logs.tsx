@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ScrollText, Search } from "lucide-react";
 
 import { AdminCard, AdminPage } from "@/components/admin/admin-primitives";
-import { EmptyState } from "@/components/common/page-primitives";
+import { ApiErrorNotice, DataGap, EmptyState } from "@/components/common/page-primitives";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { adminLogs, type AdminLogLevel } from "@/lib/admin-config";
+import type { AdminLogLevel } from "@/lib/admin-config";
 import { useMetrics } from "@/hooks/use-system";
 
 export const Route = createFileRoute("/admin/logs")({
@@ -42,14 +42,14 @@ function AdminLogs() {
   const [level, setLevel] = useState<"all" | AdminLogLevel>("all");
 
   const rows = useMemo(() => {
-    const apiErrors = (metrics.data.recentErrors ?? []).map((err, i) => ({
+    const apiErrors = (metrics.data?.recentErrors ?? []).map((err, i) => ({
       id: `api-${i}`,
       at: err.at,
       level: "error" as AdminLogLevel,
       scope: err.scope ?? "api",
       message: err.message,
     }));
-    return [...apiErrors, ...adminLogs]
+    return apiErrors
       .filter((log) => (level === "all" ? true : log.level === level))
       .filter((log) =>
         query.trim()
@@ -57,14 +57,18 @@ function AdminLogs() {
           : true,
       )
       .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
-  }, [metrics.data.recentErrors, level, query]);
+  }, [metrics.data?.recentErrors, level, query]);
 
   return (
     <AdminPage
       title="Logs"
-      description="Eventos operacionais recentes do backend, com filtros e pesquisa."
+      description="Erros recentes reportados pelo endpoint de métricas do backend."
       icon={ScrollText}
     >
+      {metrics.isUnavailable && (
+        <ApiErrorNotice error={metrics.error} onRetry={metrics.refetch} />
+      )}
+
       <AdminCard title="Eventos" description={`${rows.length} registros`}>
         <div className="mb-4 flex flex-col gap-2 sm:flex-row">
           <div className="relative flex-1">
@@ -93,7 +97,7 @@ function AdminLogs() {
           <EmptyState
             icon={ScrollText}
             title="Nenhum registro encontrado"
-            description="Ajuste os filtros ou a pesquisa para visualizar eventos."
+            description="O backend não reportou erros na janela monitorada, ou os filtros estão restritos demais."
           />
         ) : (
           <div className="overflow-x-auto">
@@ -133,6 +137,14 @@ function AdminLogs() {
             </Table>
           </div>
         )}
+      </AdminCard>
+
+      <AdminCard title="Log operacional completo" description="Info e alertas de todos os escopos">
+        <DataGap
+          title="Stream de logs"
+          endpoint="GET /logs"
+          description="Somente erros agregados chegam por /metrics; não há endpoint de logs completos."
+        />
       </AdminCard>
     </AdminPage>
   );

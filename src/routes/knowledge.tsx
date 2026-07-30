@@ -25,12 +25,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ApiOfflineNotice,
+  ApiErrorNotice,
   EmptyState,
   PageHeader,
 } from "@/components/common/page-primitives";
 import { StatCard } from "@/components/common/stat-card";
 import { useDocuments, useDocumentStatistics } from "@/hooks/use-documents";
+import { ApiError } from "@/services/api-client";
 import { chatService } from "@/services/chat.service";
 import { cn } from "@/lib/utils";
 import type { SearchResult } from "@/types/api";
@@ -74,22 +75,8 @@ function KnowledgePage() {
     mutationFn: (q: string) => chatService.search({ query: q, limit: 12 }),
   });
 
-  const localResults = useMemo<SearchResult[]>(() => {
-    const q = submitted.trim().toLowerCase();
-    if (!q) return [];
-    return documents.data
-      .filter((d) => d.name.toLowerCase().includes(q) || d.category?.toLowerCase().includes(q))
-      .slice(0, 12)
-      .map((d) => ({
-        documentId: d.id,
-        documentName: d.name,
-        score: 0.72,
-        snippet: `Documento ${d.category ? `da categoria ${d.category} ` : ""}com ${d.chunks ?? 0} trechos indexados.`,
-      }));
-  }, [documents.data, submitted]);
-
-  const results: SearchResult[] = search.data ?? (search.isError ? localResults : []);
-  const isDemoResults = search.isError;
+  const results: SearchResult[] = search.data ?? [];
+  const searchFailed = search.isError;
 
   const onSubmit = (value: string) => {
     const q = value.trim();
@@ -101,7 +88,7 @@ function KnowledgePage() {
 
   const categories = useMemo(() => {
     const map = new Map<string, number>();
-    for (const d of documents.data) {
+    for (const d of documents.data ?? []) {
       const key = d.category ?? "Sem categoria";
       map.set(key, (map.get(key) ?? 0) + 1);
     }
@@ -133,25 +120,39 @@ function KnowledgePage() {
         }
       />
 
-      {(documents.isDemo || statistics.isDemo) && (
-        <ApiOfflineNotice onRetry={() => { documents.refetch(); statistics.refetch(); }} />
+      {(documents.isUnavailable || statistics.isUnavailable) && (
+        <ApiErrorNotice
+          error={documents.error ?? statistics.error}
+          onRetry={() => {
+            documents.refetch();
+            statistics.refetch();
+          }}
+        />
       )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           label="Documentos"
-          value={String(stats.totalDocuments)}
+          value={stats?.totalDocuments}
+          loading={statistics.isLoading}
           icon={FileText}
         />
         <StatCard
           label="Indexados"
-          value={String(stats.indexedDocuments)}
+          value={stats?.indexedDocuments}
+          loading={statistics.isLoading}
           icon={Database}
         />
-        <StatCard label="Trechos vetoriais" value={String(stats.totalChunks)} icon={Layers} />
+        <StatCard
+          label="Trechos vetoriais"
+          value={stats?.totalChunks}
+          icon={Layers}
+          loading={statistics.isLoading}
+        />
         <StatCard
           label="Páginas"
-          value={String(stats.totalPages ?? "—")}
+          value={stats?.totalPages}
+          loading={statistics.isLoading}
           icon={BookOpen}
         />
       </div>
@@ -214,6 +215,11 @@ function KnowledgePage() {
                 title="Faça uma busca na base"
                 description="Digite um tema jurídico ou administrativo para localizar os trechos mais relevantes."
               />
+            ) : searchFailed ? (
+              <ApiErrorNotice
+                error={search.error instanceof ApiError ? search.error : null}
+                onRetry={() => search.mutate(submitted)}
+              />
             ) : results.length === 0 ? (
               <EmptyState
                 icon={SearchX}
@@ -227,12 +233,6 @@ function KnowledgePage() {
               />
             ) : (
               <>
-                {isDemoResults && (
-                  <p className="mb-3 text-[11px] text-muted-foreground">
-                    Serviço de busca indisponível — exibindo correspondências locais de
-                    demonstração.
-                  </p>
-                )}
                 <ul className="space-y-2">
                   {results.map((r, i) => (
                     <li

@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Layers, RefreshCw } from "lucide-react";
 
-import { AdminCard, AdminPage, SettingRow } from "@/components/admin/admin-primitives";
+import { AdminCard, AdminPage } from "@/components/admin/admin-primitives";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/common/stat-card";
-import { ApiOfflineNotice } from "@/components/common/page-primitives";
+import { ApiErrorNotice, DataGap } from "@/components/common/page-primitives";
 import { useDocumentStatistics, useDocuments, useDocumentMutations } from "@/hooks/use-documents";
-import { ragConfig } from "@/lib/admin-config";
 
 export const Route = createFileRoute("/admin/rag")({
   component: AdminRag,
@@ -17,9 +16,8 @@ function AdminRag() {
   const documents = useDocuments();
   const { reindex } = useDocumentMutations();
 
-  const reindexAll = () => {
-    documents.data.forEach((doc) => reindex.mutate(doc.id));
-  };
+  const docs = documents.data ?? [];
+  const stats = statistics.data;
 
   return (
     <AdminPage
@@ -31,34 +29,40 @@ function AdminRag() {
         <Button
           size="sm"
           variant="outline"
-          onClick={reindexAll}
-          disabled={reindex.isPending || documents.data.length === 0}
+          onClick={() => docs.forEach((doc) => reindex.mutate(doc.id))}
+          disabled={reindex.isPending || docs.length === 0}
         >
           <RefreshCw className="mr-1.5 h-4 w-4" />
           Reindexar base
         </Button>
       }
     >
-      {statistics.isDemo && <ApiOfflineNotice onRetry={statistics.refetch} />}
+      {statistics.isUnavailable && (
+        <ApiErrorNotice error={statistics.error} onRetry={statistics.refetch} />
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label="Documentos indexados"
-          value={statistics.data.indexedDocuments}
-          hint={`${statistics.data.totalDocuments} no total`}
+          value={stats?.indexedDocuments}
+          hint={stats ? `${stats.totalDocuments} no total` : undefined}
           icon={Layers}
           loading={statistics.isLoading}
         />
         <StatCard
           label="Chunks totais"
-          value={(statistics.data.totalChunks ?? 0).toLocaleString("pt-BR")}
-          hint={ragConfig.vectorStore}
+          value={stats?.totalChunks?.toLocaleString("pt-BR")}
+          hint="Trechos vetorizados"
           icon={Layers}
           loading={statistics.isLoading}
         />
         <StatCard
           label="Tempo médio"
-          value={`${Math.round(statistics.data.averageIndexingSeconds ?? 0)}s`}
+          value={
+            stats?.averageIndexingSeconds != null
+              ? `${Math.round(stats.averageIndexingSeconds)}s`
+              : undefined
+          }
           hint="Por documento indexado"
           icon={RefreshCw}
           loading={statistics.isLoading}
@@ -67,15 +71,21 @@ function AdminRag() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <AdminCard title="Segmentação" description="Como os documentos são divididos">
-          <SettingRow label="Chunk size" value={`${ragConfig.chunkSize} tokens`} />
-          <SettingRow label="Chunk overlap" value={`${ragConfig.chunkOverlap} tokens`} />
+          <DataGap
+            compact
+            title="Chunk size e overlap"
+            endpoint="GET /config/rag"
+            description="A API ainda não expõe os parâmetros de segmentação aplicados na indexação."
+          />
         </AdminCard>
 
         <AdminCard title="Recuperação" description="Busca vetorial e relevância">
-          <SettingRow label="Embedding model" value={ragConfig.embeddingModel} />
-          <SettingRow label="Similarity threshold" value={ragConfig.similarityThreshold} />
-          <SettingRow label="Top K search" value={ragConfig.topKSearch} />
-          <SettingRow label="Distância" value={ragConfig.distance} />
+          <DataGap
+            compact
+            title="Modelo de embeddings e limiar de similaridade"
+            endpoint="GET /config/rag"
+            description="Sem endpoint de configuração, esses valores não podem ser exibidos com fidelidade."
+          />
         </AdminCard>
       </div>
     </AdminPage>

@@ -4,6 +4,7 @@ import { Plug } from "lucide-react";
 import { AdminCard, AdminPage, SettingRow } from "@/components/admin/admin-primitives";
 import { Badge } from "@/components/ui/badge";
 import { StatusPill } from "@/components/common/stat-card";
+import { ApiErrorNotice } from "@/components/common/page-primitives";
 import {
   Table,
   TableBody,
@@ -13,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useHealth } from "@/hooks/use-system";
-import { apiConfig, apiEndpoints } from "@/lib/admin-config";
+import { apiEndpoints, httpClientConfig } from "@/lib/admin-config";
 import { API_BASE_URL } from "@/services/api-client";
 
 export const Route = createFileRoute("/admin/api")({
@@ -26,27 +27,29 @@ function AdminApi() {
   return (
     <AdminPage
       title="API"
-      description="Endpoint, resiliência e endpoints REST disponíveis no backend."
+      description="Endpoint, resiliência e endpoints REST consumidos pelo frontend."
       icon={Plug}
       readOnly
     >
+      {health.isUnavailable && (
+        <ApiErrorNotice error={health.error} onRetry={health.refetch} />
+      )}
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <AdminCard title="Conexão" description="Configuração efetiva do cliente HTTP">
           <SettingRow label="Endpoint" value={API_BASE_URL} />
-          <SettingRow label="Timeout" value={`${apiConfig.timeoutMs / 1000}s`} />
-          <SettingRow label="Retry" value={`${apiConfig.retries} tentativas`} />
-          <SettingRow label="Backoff" value={apiConfig.retryBackoff} />
+          <SettingRow label="Timeout" value={`${httpClientConfig.timeoutMs / 1000}s`} />
+          <SettingRow label="Retry" value={`${httpClientConfig.retries} tentativas`} />
+          <SettingRow label="Backoff" value={httpClientConfig.retryBackoff} />
         </AdminCard>
 
-        <AdminCard title="Proteções" description="Limites e tolerância a falhas" contentClassName="space-y-3">
-          <SettingRow label="Circuit breaker" value={apiConfig.circuitBreaker} />
-          <SettingRow label="Rate limit" value={apiConfig.rateLimit} />
+        <AdminCard title="Disponibilidade" description="Leitura em tempo real de /health" contentClassName="space-y-3">
           <StatusPill
             label="Status da API"
-            status={health.data.status}
-            detail={health.isDemo ? "Sem conexão — exibindo demonstração" : undefined}
+            status={health.data?.status}
             loading={health.isLoading}
           />
+          <SettingRow label="Versão do backend" value={health.data?.version ?? "—"} />
         </AdminCard>
       </div>
 
