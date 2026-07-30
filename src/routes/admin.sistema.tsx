@@ -3,7 +3,7 @@ import { Server, Clock, Gauge, Database, Activity } from "lucide-react";
 
 import { AdminCard, AdminPage, SettingRow } from "@/components/admin/admin-primitives";
 import { StatCard, StatusPill } from "@/components/common/stat-card";
-import { ApiOfflineNotice } from "@/components/common/page-primitives";
+import { ApiErrorNotice } from "@/components/common/page-primitives";
 import { Progress } from "@/components/ui/progress";
 import { useHealth, useMetrics, useReady } from "@/hooks/use-system";
 import { useDocumentStatistics } from "@/hooks/use-documents";
@@ -33,34 +33,34 @@ function AdminSistema() {
       description="Estado do serviço, prontidão, versão e recursos de infraestrutura."
       icon={Server}
     >
-      {health.isDemo && <ApiOfflineNotice onRetry={health.refetch} />}
+      {health.isUnavailable && <ApiErrorNotice error={health.error} onRetry={health.refetch} />}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Tempo online"
-          value={formatUptime(health.data.uptimeSeconds)}
-          hint={`Versão ${health.data.version ?? "—"}`}
+          value={formatUptime(health.data?.uptimeSeconds)}
+          hint={`Versão ${health.data?.version ?? "—"}`}
           icon={Clock}
           loading={health.isLoading}
         />
         <StatCard
           label="Latência média"
-          value={`${Math.round(metrics.data.averageLatencyMs ?? 0)} ms`}
-          hint={`p95 ${Math.round(metrics.data.p95LatencyMs ?? 0)} ms`}
+          value={`${Math.round(metrics.data?.averageLatencyMs ?? 0)} ms`}
+          hint={`p95 ${Math.round(metrics.data?.p95LatencyMs ?? 0)} ms`}
           icon={Gauge}
           loading={metrics.isLoading}
         />
         <StatCard
           label="Vetores"
-          value={(statistics.data.totalChunks ?? 0).toLocaleString("pt-BR")}
+          value={(statistics.data?.totalChunks ?? 0).toLocaleString("pt-BR")}
           hint="Chunks em pgvector"
           icon={Database}
           loading={statistics.isLoading}
         />
         <StatCard
           label="Uso da API (24h)"
-          value={(metrics.data.requestsLast24h ?? 0).toLocaleString("pt-BR")}
-          hint={`${(metrics.data.requestsTotal ?? 0).toLocaleString("pt-BR")} no total`}
+          value={(metrics.data?.requestsLast24h ?? 0).toLocaleString("pt-BR")}
+          hint={`${(metrics.data?.requestsTotal ?? 0).toLocaleString("pt-BR")} no total`}
           icon={Activity}
           loading={metrics.isLoading}
         />
@@ -74,12 +74,12 @@ function AdminSistema() {
             { key: "ai", label: "Modelo de IA" },
             { key: "vector", label: "Índice vetorial" },
           ].map((svc) => {
-            const service = health.data.services?.[svc.key];
+            const service = health.data?.services?.[svc.key];
             return (
               <StatusPill
                 key={svc.key}
                 label={svc.label}
-                status={service?.status ?? health.data.status}
+                status={service?.status ?? health.data?.status}
                 detail={service?.detail}
                 loading={health.isLoading}
               />
@@ -89,24 +89,24 @@ function AdminSistema() {
             <div className="mb-1.5 flex items-center justify-between text-xs">
               <span className="font-medium">Prontidão (/ready)</span>
               <span className="text-muted-foreground">
-                {ready.data.ready ? "Pronto" : "Não pronto"}
+                {ready.data?.ready ? "Pronto" : "Não pronto"}
               </span>
             </div>
-            <Progress value={ready.data.ready ? 100 : 15} className="h-1.5" />
+            <Progress value={ready.data?.ready ? 100 : 15} className="h-1.5" />
           </div>
         </AdminCard>
 
         <AdminCard title="Ambiente" description="Configuração efetiva do frontend">
           <SettingRow label="Endpoint base" value={API_BASE_URL} />
-          <SettingRow label="Status geral" value={health.data.status} />
-          <SettingRow label="Versão do backend" value={health.data.version ?? "—"} />
+          <SettingRow label="Status geral" value={health.data?.status} />
+          <SettingRow label="Versão do backend" value={health.data?.version ?? "—"} />
           <SettingRow
             label="Embeddings gerados"
-            value={(metrics.data.embeddingsGenerated ?? 0).toLocaleString("pt-BR")}
+            value={(metrics.data?.embeddingsGenerated ?? 0).toLocaleString("pt-BR")}
           />
           <SettingRow
             label="Tokens consumidos"
-            value={(metrics.data.tokensUsed ?? 0).toLocaleString("pt-BR")}
+            value={(metrics.data?.tokensUsed ?? 0).toLocaleString("pt-BR")}
           />
         </AdminCard>
       </div>

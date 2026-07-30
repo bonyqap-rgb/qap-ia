@@ -74,7 +74,7 @@ import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import {
-  ApiOfflineNotice,
+  ApiErrorNotice,
   EmptyState,
   ListSkeleton,
   PageHeader,
@@ -339,7 +339,7 @@ function DocumentsPage() {
         }
       />
 
-      {isDemo && <ApiOfflineNotice onRetry={refetch} />}
+      {isDemo && <ApiErrorNotice onRetry={refetch} />}
 
       <Card className="surface-panel mb-5">
         <CardHeader className="pb-3">

@@ -3,7 +3,7 @@ import { BookOpen, FileText, RefreshCw, Trash2, UploadCloud } from "lucide-react
 import { useMemo, useState } from "react";
 
 import { AdminCard, AdminPage } from "@/components/admin/admin-primitives";
-import { ApiOfflineNotice, EmptyState, ListSkeleton } from "@/components/common/page-primitives";
+import { ApiErrorNotice, EmptyState, ListSkeleton } from "@/components/common/page-primitives";
 import { StatCard } from "@/components/common/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -74,30 +74,30 @@ function AdminBase() {
         </Button>
       }
     >
-      {documents.isDemo && <ApiOfflineNotice onRetry={documents.refetch} />}
+      {documents.isUnavailable && <ApiErrorNotice error={documents.error} onRetry={documents.refetch} />}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Documentos"
-          value={statistics.data.totalDocuments}
+          value={statistics.data?.totalDocuments}
           icon={FileText}
           loading={statistics.isLoading}
         />
         <StatCard
           label="Indexados"
-          value={statistics.data.indexedDocuments}
+          value={statistics.data?.indexedDocuments}
           icon={BookOpen}
           loading={statistics.isLoading}
         />
         <StatCard
           label="Em processamento"
-          value={statistics.data.pendingDocuments}
+          value={statistics.data?.pendingDocuments}
           icon={RefreshCw}
           loading={statistics.isLoading}
         />
         <StatCard
           label="Chunks"
-          value={(statistics.data.totalChunks ?? 0).toLocaleString("pt-BR")}
+          value={(statistics.data?.totalChunks ?? 0).toLocaleString("pt-BR")}
           icon={FileText}
           loading={statistics.isLoading}
         />
@@ -199,7 +199,7 @@ function AdminBase() {
       </AdminCard>
 
       <AdminCard title="Histórico de indexações" description="Últimos processamentos executados">
-        {history.data.length === 0 ? (
+        {history.data?.length === 0 ? (
           <EmptyState
             icon={FileText}
             title="Nenhuma indexação registrada"
@@ -218,7 +218,7 @@ function AdminBase() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {history.data.slice(0, 10).map((item) => (
+                {history.data?.slice(0, 10).map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="max-w-[220px] truncate font-medium">
                       {item.documentName}

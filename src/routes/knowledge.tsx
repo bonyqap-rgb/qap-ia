@@ -25,7 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ApiOfflineNotice,
+  ApiErrorNotice,
   EmptyState,
   PageHeader,
 } from "@/components/common/page-primitives";
@@ -133,8 +133,8 @@ function KnowledgePage() {
         }
       />
 
-      {(documents.isDemo || statistics.isDemo) && (
-        <ApiOfflineNotice onRetry={() => { documents.refetch(); statistics.refetch(); }} />
+      {(documents.isUnavailable || statistics.isUnavailable) && (
+        <ApiErrorNotice onRetry={() => { documents.refetch(); statistics.refetch(); }} />
       )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

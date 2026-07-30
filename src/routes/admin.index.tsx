@@ -11,7 +11,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ApiOfflineNotice, EmptyState } from "@/components/common/page-primitives";
+import { ApiErrorNotice, EmptyState } from "@/components/common/page-primitives";
 import { StatCard, StatusPill } from "@/components/common/stat-card";
 import { AdminCard, AdminPage } from "@/components/admin/admin-primitives";
 import { adminItems } from "@/components/app-sidebar";
@@ -33,34 +33,34 @@ function AdminOverview() {
       title="Visão geral"
       description="Estado consolidado da plataforma e atalhos para as áreas técnicas."
     >
-      {(metrics.isDemo || health.isDemo) && <ApiOfflineNotice onRetry={health.refetch} />}
+      {(metrics.isUnavailable || health.isUnavailable) && <ApiErrorNotice error={health.error} onRetry={health.refetch} />}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Requisições (24h)"
-          value={(metrics.data.requestsLast24h ?? 0).toLocaleString("pt-BR")}
-          hint={`${(metrics.data.requestsTotal ?? 0).toLocaleString("pt-BR")} no total`}
+          value={(metrics.data?.requestsLast24h ?? 0).toLocaleString("pt-BR")}
+          hint={`${(metrics.data?.requestsTotal ?? 0).toLocaleString("pt-BR")} no total`}
           icon={Activity}
           loading={metrics.isLoading}
         />
         <StatCard
           label="Latência média"
-          value={`${Math.round(metrics.data.averageLatencyMs ?? 0)} ms`}
-          hint={`p95 ${Math.round(metrics.data.p95LatencyMs ?? 0)} ms`}
+          value={`${Math.round(metrics.data?.averageLatencyMs ?? 0)} ms`}
+          hint={`p95 ${Math.round(metrics.data?.p95LatencyMs ?? 0)} ms`}
           icon={Cpu}
           loading={metrics.isLoading}
         />
         <StatCard
           label="Taxa de erro"
-          value={`${((metrics.data.errorRate ?? 0) * 100).toFixed(2)}%`}
+          value={`${((metrics.data?.errorRate ?? 0) * 100).toFixed(2)}%`}
           hint="Janela de 24 horas"
           icon={AlertTriangle}
           loading={metrics.isLoading}
         />
         <StatCard
           label="Chunks na base"
-          value={(statistics.data.totalChunks ?? 0).toLocaleString("pt-BR")}
-          hint={`${statistics.data.totalDocuments} documentos · pgvector`}
+          value={(statistics.data?.totalChunks ?? 0).toLocaleString("pt-BR")}
+          hint={`${statistics.data?.totalDocuments} documentos · pgvector`}
           icon={Database}
           loading={statistics.isLoading}
         />
@@ -78,12 +78,12 @@ function AdminOverview() {
             { key: "ai", label: "Modelo de IA" },
             { key: "vector", label: "Índice vetorial" },
           ].map((svc) => {
-            const service = health.data.services?.[svc.key];
+            const service = health.data?.services?.[svc.key];
             return (
               <StatusPill
                 key={svc.key}
                 label={svc.label}
-                status={service?.status ?? health.data.status}
+                status={service?.status ?? health.data?.status}
                 detail={service?.detail}
                 loading={health.isLoading}
               />
@@ -93,10 +93,10 @@ function AdminOverview() {
             <div className="mb-1.5 flex items-center justify-between text-xs">
               <span className="font-medium">Prontidão (/ready)</span>
               <span className="text-muted-foreground">
-                {ready.data.ready ? "Pronto" : "Não pronto"}
+                {ready.data?.ready ? "Pronto" : "Não pronto"}
               </span>
             </div>
-            <Progress value={ready.data.ready ? 100 : 15} className="h-1.5" />
+            <Progress value={ready.data?.ready ? 100 : 15} className="h-1.5" />
           </div>
         </AdminCard>
 
@@ -105,7 +105,7 @@ function AdminOverview() {
           description="Logs resumidos do backend"
           className="lg:col-span-2"
         >
-          {(metrics.data.recentErrors ?? []).length === 0 ? (
+          {(metrics.data?.recentErrors ?? []).length === 0 ? (
             <EmptyState
               icon={CheckCircle2}
               title="Nenhum erro recente"
@@ -113,7 +113,7 @@ function AdminOverview() {
             />
           ) : (
             <ul className="space-y-2.5">
-              {(metrics.data.recentErrors ?? []).slice(0, 6).map((err, i) => (
+              {(metrics.data?.recentErrors ?? []).slice(0, 6).map((err, i) => (
                 <li
                   key={`${err.at}-${i}`}
                   className="rounded-lg border border-border/60 bg-muted/30 p-3"
@@ -166,9 +166,9 @@ function AdminOverview() {
         }
       >
         <p className="text-sm text-muted-foreground">
-          {statistics.data.indexedDocuments} documentos indexados ·{" "}
-          {statistics.data.pendingDocuments} em processamento ·{" "}
-          {statistics.data.failedDocuments ?? 0} com falha.
+          {statistics.data?.indexedDocuments} documentos indexados ·{" "}
+          {statistics.data?.pendingDocuments} em processamento ·{" "}
+          {statistics.data?.failedDocuments ?? 0} com falha.
         </p>
       </AdminCard>
     </AdminPage>

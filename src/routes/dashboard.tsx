@@ -36,7 +36,7 @@ import {
   Bar,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { PageHeader, ApiOfflineNotice } from "@/components/common/page-primitives";
+import { PageHeader, ApiErrorNotice } from "@/components/common/page-primitives";
 import { StatCard, StatusPill } from "@/components/common/stat-card";
 import { useDocumentStatistics } from "@/hooks/use-documents";
 import { useHealth } from "@/hooks/use-system";
@@ -114,47 +114,47 @@ function formatDate(value?: string | null) {
 function DashboardPage() {
   const statistics = useDocumentStatistics();
   const health = useHealth();
-  const isDemo = statistics.isDemo || health.isDemo;
+  const isDemo = statistics.isUnavailable || health.isUnavailable;
 
   const liveStats = [
     {
       label: "Total de documentos",
-      value: statistics.data.totalDocuments.toLocaleString("pt-BR"),
+      value: statistics.data?.totalDocuments.toLocaleString("pt-BR"),
       hint: "Base documental completa",
       icon: FileText,
     },
     {
       label: "Documentos indexados",
-      value: statistics.data.indexedDocuments.toLocaleString("pt-BR"),
+      value: statistics.data?.indexedDocuments.toLocaleString("pt-BR"),
       hint: "Prontos para busca semântica",
       icon: CheckCircle2,
     },
     {
       label: "Documentos pendentes",
-      value: statistics.data.pendingDocuments.toLocaleString("pt-BR"),
+      value: statistics.data?.pendingDocuments.toLocaleString("pt-BR"),
       hint: "Aguardando ou em indexação",
       icon: Clock,
     },
     {
       label: "Chunks vetorizados",
-      value: statistics.data.totalChunks.toLocaleString("pt-BR"),
-      hint: `${(statistics.data.totalPages ?? 0).toLocaleString("pt-BR")} páginas processadas`,
+      value: statistics.data?.totalChunks.toLocaleString("pt-BR"),
+      hint: `${(statistics.data?.totalPages ?? 0).toLocaleString("pt-BR")} páginas processadas`,
       icon: Database,
     },
     {
       label: "Última indexação",
-      value: formatDate(statistics.data.lastIndexedAt),
+      value: formatDate(statistics.data?.lastIndexedAt),
       hint:
-        statistics.data.averageIndexingSeconds
-          ? `Média de ${statistics.data.averageIndexingSeconds}s por documento`
+        statistics.data?.averageIndexingSeconds
+          ? `Média de ${statistics.data?.averageIndexingSeconds}s por documento`
           : undefined,
       icon: UploadCloud,
     },
     {
       label: "Versão do backend",
-      value: health.data.version ?? "—",
-      hint: health.data.uptimeSeconds
-        ? `Uptime ${(health.data.uptimeSeconds / 3600).toFixed(1)}h`
+      value: health.data?.version ?? "—",
+      hint: health.data?.uptimeSeconds
+        ? `Uptime ${(health.data?.uptimeSeconds / 3600).toFixed(1)}h`
         : "Sem dados de uptime",
       icon: Cpu,
     },
@@ -170,7 +170,7 @@ function DashboardPage() {
             variant="outline"
             className={cn(
               "w-fit gap-1.5",
-              health.data.status === "online"
+              health.data?.status === "online"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
                 : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
             )}
@@ -179,24 +179,24 @@ function DashboardPage() {
               <span
                 className={cn(
                   "absolute inline-flex h-full w-full animate-ping rounded-full opacity-60",
-                  health.data.status === "online" ? "bg-emerald-500" : "bg-amber-500",
+                  health.data?.status === "online" ? "bg-emerald-500" : "bg-amber-500",
                 )}
               />
               <span
                 className={cn(
                   "relative inline-flex h-2 w-2 rounded-full",
-                  health.data.status === "online" ? "bg-emerald-500" : "bg-amber-500",
+                  health.data?.status === "online" ? "bg-emerald-500" : "bg-amber-500",
                 )}
               />
             </span>
-            {health.data.status === "online"
+            {health.data?.status === "online"
               ? "Todos os serviços operacionais"
               : "Integridade parcial"}
           </Badge>
         }
       />
 
-      {isDemo && <ApiOfflineNotice onRetry={() => { statistics.refetch(); health.refetch(); }} />}
+      {isDemo && <ApiErrorNotice onRetry={() => { statistics.refetch(); health.refetch(); }} />}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {liveStats.map((s) => (
@@ -349,12 +349,12 @@ function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2.5">
             {serviceLabels.map((svc) => {
-              const service = health.data.services?.[svc.key];
+              const service = health.data?.services?.[svc.key];
               return (
                 <StatusPill
                   key={svc.key}
                   label={svc.label}
-                  status={service?.status ?? health.data.status}
+                  status={service?.status ?? health.data?.status}
                   detail={
                     service?.detail ??
                     (service?.latencyMs ? `${service.latencyMs} ms` : undefined)
