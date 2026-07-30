@@ -265,13 +265,15 @@ function ChatPage() {
           {
             id: crypto.randomUUID(),
             role: "assistant",
+            error: true,
             content:
               error instanceof Error
-                ? `Erro ao processar sua pergunta: ${error.message}`
-                : "Erro ao processar sua pergunta.",
+                ? `Não foi possível concluir a consulta. ${error.message}`
+                : "Não foi possível concluir a consulta. Tente novamente em instantes.",
             createdAt: Date.now(),
           },
         ]);
+
       } finally {
         setIsLoading(false);
         textareaRef.current?.focus();
