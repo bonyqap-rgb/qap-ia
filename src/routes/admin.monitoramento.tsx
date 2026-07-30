@@ -1,77 +1,63 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { Activity, Gauge, AlertTriangle, UploadCloud } from "lucide-react";
 
 import { AdminCard, AdminPage } from "@/components/admin/admin-primitives";
 import { StatCard } from "@/components/common/stat-card";
+import { ApiErrorNotice, DataGap } from "@/components/common/page-primitives";
 import { useMetrics } from "@/hooks/use-system";
 import { useDocumentStatistics } from "@/hooks/use-documents";
-import { monitoringSeries } from "@/lib/admin-config";
 
 export const Route = createFileRoute("/admin/monitoramento")({
   component: AdminMonitoramento,
 });
 
-const axisProps = {
-  stroke: "hsl(var(--muted-foreground))",
-  fontSize: 11,
-  tickLine: false,
-  axisLine: false,
-} as const;
-
-const tooltipStyle = {
-  borderRadius: 12,
-  border: "1px solid hsl(var(--border))",
-  background: "hsl(var(--popover))",
-  fontSize: 12,
-} as const;
-
 function AdminMonitoramento() {
   const metrics = useMetrics();
   const statistics = useDocumentStatistics();
 
+  const m = metrics.data;
+  const stats = statistics.data;
+
   return (
     <AdminPage
       title="Monitoramento"
-      description="Consultas, latência, erros, uploads e indexações da última semana."
+      description="Indicadores agregados reportados pelo backend em tempo real."
       icon={Activity}
     >
+      {metrics.isUnavailable && (
+        <ApiErrorNotice error={metrics.error} onRetry={metrics.refetch} />
+      )}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Consultas (24h)"
-          value={(metrics.data.requestsLast24h ?? 0).toLocaleString("pt-BR")}
+          value={m?.requestsLast24h?.toLocaleString("pt-BR")}
           icon={Activity}
           loading={metrics.isLoading}
         />
         <StatCard
           label="Latência p95"
-          value={`${Math.round(metrics.data.p95LatencyMs ?? 0)} ms`}
-          hint={`média ${Math.round(metrics.data.averageLatencyMs ?? 0)} ms`}
+          value={m?.p95LatencyMs != null ? `${Math.round(m.p95LatencyMs)} ms` : undefined}
+          hint={
+            m?.averageLatencyMs != null ? `média ${Math.round(m.averageLatencyMs)} ms` : undefined
+          }
           icon={Gauge}
           loading={metrics.isLoading}
         />
         <StatCard
           label="Taxa de erro"
-          value={`${((metrics.data.errorRate ?? 0) * 100).toFixed(2)}%`}
+          value={m?.errorRate != null ? `${(m.errorRate * 100).toFixed(2)}%` : undefined}
           icon={AlertTriangle}
           loading={metrics.isLoading}
         />
         <StatCard
           label="Tempo médio de indexação"
-          value={`${Math.round(statistics.data.averageIndexingSeconds ?? 0)}s`}
-          hint={`${statistics.data.indexedDocuments} documentos`}
+          value={
+            stats?.averageIndexingSeconds != null
+              ? `${Math.round(stats.averageIndexingSeconds)}s`
+              : undefined
+          }
+          hint={stats ? `${stats.indexedDocuments} documentos` : undefined}
           icon={UploadCloud}
           loading={statistics.isLoading}
         />
@@ -79,78 +65,35 @@ function AdminMonitoramento() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <AdminCard title="Consultas por dia" description="Volume de perguntas ao assistente">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monitoringSeries}>
-                <defs>
-                  <linearGradient id="gradConsultas" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-azure)" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="var(--color-azure)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
-                <XAxis dataKey="day" {...axisProps} />
-                <YAxis {...axisProps} width={34} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Area
-                  type="monotone"
-                  dataKey="consultas"
-                  stroke="var(--color-azure)"
-                  strokeWidth={2}
-                  fill="url(#gradConsultas)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          <DataGap
+            title="Série temporal de consultas"
+            endpoint="GET /metrics/timeseries"
+            description="A API expõe apenas totais agregados, sem histórico por dia."
+          />
         </AdminCard>
 
-        <AdminCard title="Latência média (ms)" description="Tempo de resposta do pipeline RAG">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monitoringSeries}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
-                <XAxis dataKey="day" {...axisProps} />
-                <YAxis {...axisProps} width={44} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Line
-                  type="monotone"
-                  dataKey="latencia"
-                  stroke="var(--color-azure-dark)"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+        <AdminCard title="Latência ao longo do tempo" description="Evolução do pipeline RAG">
+          <DataGap
+            title="Série temporal de latência"
+            endpoint="GET /metrics/timeseries"
+            description="Somente a média e o p95 atuais estão disponíveis."
+          />
         </AdminCard>
 
         <AdminCard title="Erros por dia" description="Falhas registradas no backend">
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monitoringSeries}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
-                <XAxis dataKey="day" {...axisProps} />
-                <YAxis {...axisProps} width={28} allowDecimals={false} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="erros" fill="var(--color-azure)" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <DataGap
+            title="Série temporal de erros"
+            endpoint="GET /metrics/timeseries"
+            description="Os erros recentes podem ser consultados na área de Logs."
+          />
         </AdminCard>
 
-        <AdminCard title="Uploads e indexações" description="Ingestão documental semanal">
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monitoringSeries}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
-                <XAxis dataKey="day" {...axisProps} />
-                <YAxis {...axisProps} width={28} allowDecimals={false} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="uploads" fill="var(--color-azure)" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="indexacoes" fill="var(--color-azure-dark)" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+        <AdminCard title="Uploads e indexações" description="Ingestão documental ao longo do tempo">
+          <DataGap
+            title="Série temporal de ingestão"
+            endpoint="GET /indexing/history?groupBy=day"
+            description="O histórico atual não é agregado por período."
+          />
         </AdminCard>
       </div>
     </AdminPage>
