@@ -41,7 +41,11 @@ import {
   Bar,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { systemStatus } from "@/lib/mock-data";
+import { PageHeader, ApiOfflineNotice } from "@/components/common/page-primitives";
+import { StatCard, StatusPill } from "@/components/common/stat-card";
+import { useDocumentStatistics } from "@/hooks/use-documents";
+import { useHealth } from "@/hooks/use-system";
+
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -181,53 +185,120 @@ const svcMeta: Record<
   },
 };
 
+const serviceLabels: Array<{ key: string; label: string }> = [
+  { key: "api", label: "Backend (API)" },
+  { key: "database", label: "Banco de dados" },
+  { key: "ai", label: "Modelo de IA" },
+  { key: "vector", label: "Índice vetorial" },
+];
+
+function formatDate(value?: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
 function DashboardPage() {
+  const statistics = useDocumentStatistics();
+  const health = useHealth();
+  const isDemo = statistics.isDemo || health.isDemo;
+
+  const liveStats = [
+    {
+      label: "Total de documentos",
+      value: statistics.data.totalDocuments.toLocaleString("pt-BR"),
+      hint: "Base documental completa",
+      icon: FileText,
+    },
+    {
+      label: "Documentos indexados",
+      value: statistics.data.indexedDocuments.toLocaleString("pt-BR"),
+      hint: "Prontos para busca semântica",
+      icon: CheckCircle2,
+    },
+    {
+      label: "Documentos pendentes",
+      value: statistics.data.pendingDocuments.toLocaleString("pt-BR"),
+      hint: "Aguardando ou em indexação",
+      icon: Clock,
+    },
+    {
+      label: "Chunks vetorizados",
+      value: statistics.data.totalChunks.toLocaleString("pt-BR"),
+      hint: `${(statistics.data.totalPages ?? 0).toLocaleString("pt-BR")} páginas processadas`,
+      icon: Database,
+    },
+    {
+      label: "Última indexação",
+      value: formatDate(statistics.data.lastIndexedAt),
+      hint:
+        statistics.data.averageIndexingSeconds
+          ? `Média de ${statistics.data.averageIndexingSeconds}s por documento`
+          : undefined,
+      icon: UploadCloud,
+    },
+    {
+      label: "Versão do backend",
+      value: health.data.version ?? "—",
+      hint: health.data.uptimeSeconds
+        ? `Uptime ${(health.data.uptimeSeconds / 3600).toFixed(1)}h`
+        : "Sem dados de uptime",
+      icon: Cpu,
+    },
+  ];
+
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 md:px-8">
-      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Dashboard
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Visão institucional de uso, integridade e produtividade da plataforma.
-          </p>
-        </div>
-        <Badge
-          variant="outline"
-          className="w-fit gap-1.5 border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-          </span>
-          Todos os serviços operacionais
-        </Badge>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description="Visão institucional de uso, integridade e produtividade da plataforma."
+        actions={
+          <Badge
+            variant="outline"
+            className={cn(
+              "w-fit gap-1.5",
+              health.data.status === "online"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
+            )}
+          >
+            <span className="relative flex h-2 w-2" aria-hidden>
+              <span
+                className={cn(
+                  "absolute inline-flex h-full w-full animate-ping rounded-full opacity-60",
+                  health.data.status === "online" ? "bg-emerald-500" : "bg-amber-500",
+                )}
+              />
+              <span
+                className={cn(
+                  "relative inline-flex h-2 w-2 rounded-full",
+                  health.data.status === "online" ? "bg-emerald-500" : "bg-amber-500",
+                )}
+              />
+            </span>
+            {health.data.status === "online"
+              ? "Todos os serviços operacionais"
+              : "Integridade parcial"}
+          </Badge>
+        }
+      />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((s) => (
-          <Card key={s.label} className="overflow-hidden transition hover:shadow-md">
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between">
-                <div className={cn("grid h-10 w-10 place-items-center rounded-lg", s.color)}>
-                  <s.icon className="h-5 w-5" />
-                </div>
-                <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="mt-4 text-2xl font-bold tracking-tight text-foreground">
-                {s.value}
-              </div>
-              <div className="mt-1 text-xs font-medium text-muted-foreground">
-                {s.label}
-              </div>
-              <div className="mt-2 truncate text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
-                {s.delta}
-              </div>
-            </CardContent>
-          </Card>
+      {isDemo && <ApiOfflineNotice onRetry={() => { statistics.refetch(); health.refetch(); }} />}
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {liveStats.map((s) => (
+          <StatCard
+            key={s.label}
+            label={s.label}
+            value={s.value}
+            hint={s.hint}
+            icon={s.icon}
+            loading={statistics.isLoading || health.isLoading}
+          />
         ))}
       </div>
+
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -362,30 +433,27 @@ function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Status dos serviços</CardTitle>
-            <CardDescription>Integridade da infraestrutura</CardDescription>
+            <CardDescription>Integridade da infraestrutura em tempo real</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2.5">
-            {systemStatus.map((s) => {
-              const meta = svcMeta[s.status];
-              const Icon = meta.icon;
+            {serviceLabels.map((svc) => {
+              const service = health.data.services?.[svc.key];
               return (
-                <div
-                  key={s.label}
-                  className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/30 p-3"
-                >
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold">{s.label}</div>
-                    <div className="truncate text-[11px] text-muted-foreground">{s.detail}</div>
-                  </div>
-                  <Badge variant="outline" className={cn("gap-1", meta.className)}>
-                    <Icon className="h-3 w-3" />
-                    {meta.label}
-                  </Badge>
-                </div>
+                <StatusPill
+                  key={svc.key}
+                  label={svc.label}
+                  status={service?.status ?? health.data.status}
+                  detail={
+                    service?.detail ??
+                    (service?.latencyMs ? `${service.latencyMs} ms` : undefined)
+                  }
+                  loading={health.isLoading}
+                />
               );
             })}
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
