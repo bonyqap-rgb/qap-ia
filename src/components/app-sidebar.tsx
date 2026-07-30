@@ -70,7 +70,9 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (path: string) =>
-    path === "/" ? currentPath === "/" : currentPath === path || currentPath.startsWith(`${path}/`);
+    path === "/" || path === "/admin"
+      ? currentPath === path
+      : currentPath === path || currentPath.startsWith(`${path}/`);
 
   const renderItems = (items: NavItem[], nested?: boolean) => (
     <SidebarMenu>
