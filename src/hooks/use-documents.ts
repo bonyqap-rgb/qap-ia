@@ -3,11 +3,6 @@ import { toast } from "sonner";
 
 import { documentsService } from "@/services/documents.service";
 import { ApiError } from "@/services/api-client";
-import {
-  fallbackDocuments,
-  fallbackIndexingHistory,
-  fallbackStatistics,
-} from "@/lib/api-fallback";
 import type { ApiDocument, DocumentStatistics, IndexingHistoryItem } from "@/types/api";
 
 export const documentKeys = {
@@ -17,17 +12,26 @@ export const documentKeys = {
   history: () => ["indexing", "history"] as const,
 };
 
-/** Resultado padrão: dados reais da API ou fallback de demonstração. */
+/**
+ * Resultado padrão dos hooks de dados.
+ *
+ * `data` é sempre o retorno real da API. Quando a requisição falha, `data`
+ * fica `undefined` — nenhum dado é inventado — e a tela deve renderizar o
+ * estado de erro correspondente.
+ */
 export type ApiData<T> = {
-  data: T;
+  data: T | undefined;
   isLoading: boolean;
-  isDemo: boolean;
+  /** true quando a API respondeu com erro ou está inacessível. */
+  isUnavailable: boolean;
   error: ApiError | null;
   refetch: () => void;
 };
 
 function toApiError(error: unknown): ApiError | null {
-  return error instanceof ApiError ? error : null;
+  if (error instanceof ApiError) return error;
+  if (error instanceof Error) return new ApiError(error.message, 0, "");
+  return null;
 }
 
 export function useDocuments(): ApiData<ApiDocument[]> {
@@ -39,9 +43,9 @@ export function useDocuments(): ApiData<ApiDocument[]> {
   });
 
   return {
-    data: query.data ?? fallbackDocuments,
+    data: query.data,
     isLoading: query.isLoading,
-    isDemo: !query.data,
+    isUnavailable: query.isError,
     error: toApiError(query.error),
     refetch: () => void query.refetch(),
   };
@@ -56,9 +60,9 @@ export function useDocumentStatistics(): ApiData<DocumentStatistics> {
   });
 
   return {
-    data: query.data ?? fallbackStatistics,
+    data: query.data,
     isLoading: query.isLoading,
-    isDemo: !query.data,
+    isUnavailable: query.isError,
     error: toApiError(query.error),
     refetch: () => void query.refetch(),
   };
@@ -73,9 +77,9 @@ export function useIndexingHistory(): ApiData<IndexingHistoryItem[]> {
   });
 
   return {
-    data: query.data ?? fallbackIndexingHistory,
+    data: query.data,
     isLoading: query.isLoading,
-    isDemo: !query.data,
+    isUnavailable: query.isError,
     error: toApiError(query.error),
     refetch: () => void query.refetch(),
   };
@@ -120,9 +124,7 @@ export function useDocumentMutations() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(
-        error instanceof ApiError ? error.message : "Falha ao enviar o documento.",
-      ),
+      toast.error(error instanceof ApiError ? error.message : "Falha ao enviar o documento."),
   });
 
   return { remove, reindex, upload };
