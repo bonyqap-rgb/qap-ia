@@ -22,7 +22,7 @@ export function normalizeForMatch(value: unknown): string {
 }
 
 /** Códigos de manuais/regulamentos: I-2-PM, I 36 PM, M-1-PM, RDPM, RISG... */
-const CODE_PATTERN = /\b[a-z]{1,4}\s*-?\s*\d{1,3}\s*-?\s*pm\b|\b[a-z]{3,8}pm\b/g;
+const CODE_PATTERN = /\b[a-z]{1,4}\s*-?\s*\d{1,3}\s*-?\s*pm\b|\b[a-z]{2,8}pm\b/g;
 
 /** Chaves de identificação extraídas do nome de um documento. */
 export function documentKeys(name: unknown): string[] {
