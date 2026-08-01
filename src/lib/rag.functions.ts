@@ -41,7 +41,7 @@ export const ragChat = createServerFn({ method: "POST" })
     }
 
     try {
-      return JSON.parse(text) as unknown;
+      return JSON.parse(text) as Record<string, unknown>;
     } catch {
       throw new Error("Resposta inválida da API RAG.");
     }
