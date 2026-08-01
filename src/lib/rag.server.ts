@@ -1,6 +1,10 @@
 import { API_BASE_URL } from "@/services/api-client";
 import { fixMojibake } from "@/lib/text-encoding";
-import { AI_DEFAULT_MODEL, AI_SYSTEM_PROMPT } from "@/lib/ai-config";
+import { AI_SYSTEM_PROMPT } from "@/lib/ai-config";
+import {
+  generateWithSelectedProvider,
+  inspectLlmProviders,
+} from "@/lib/llm-provider.server";
 import {
   chunkInScope,
   detectDocumentScope,
