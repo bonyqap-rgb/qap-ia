@@ -137,6 +137,29 @@ type SortKey = "recent" | "name" | "chunks";
 /** Registros por página no catálogo de documentos. */
 const PAGE_SIZE = 10;
 
+/** Converte qualquer campo instável da API em texto seguro para a interface. */
+function safeText(value: unknown, fallback = "") {
+  if (value === null || value === undefined) return fallback;
+  return String(value);
+}
+
+function safeLower(value: unknown) {
+  return safeText(value).toLocaleLowerCase("pt-BR");
+}
+
+function safeStatus(value: unknown): DocumentStatus {
+  const normalized = safeLower(value);
+  if (
+    normalized === "aguardando" ||
+    normalized === "indexando" ||
+    normalized === "concluído" ||
+    normalized === "erro"
+  ) {
+    return normalized;
+  }
+  return "aguardando";
+}
+
 
 function StatusBadge({ status }: { status: DocumentStatus }) {
   const meta = statusMap[status] ?? statusMap.aguardando;
@@ -225,21 +248,22 @@ function DocumentsPage() {
    * status, id) recebem valores seguros para que a tela nunca quebre.
    */
   const docs = useMemo<ApiDocument[]>(() => {
-    const raw = (documentsQuery.data ?? []) as Array<Record<string, unknown>>;
+    const raw = documentsQuery.data as unknown;
     if (!Array.isArray(raw)) return [];
-    return raw.filter(Boolean).map((d, i) => {
-      const name =
-        (d["name"] as string | undefined) ??
-        (d["file_name"] as string | undefined) ??
-        (d["fileName"] as string | undefined) ??
-        (d["title"] as string | undefined) ??
-        "Documento sem nome";
-      const status = (d["status"] as DocumentStatus | undefined) ?? "aguardando";
+    return raw.map((item, i) => {
+      const d = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
+      const nameSource = d["name"] ?? d["file_name"] ?? d["fileName"] ?? d["title"];
+      const name = safeText(nameSource).trim() || "Documento sem nome";
       return {
         ...(d as unknown as ApiDocument),
-        id: String((d["id"] as string | undefined) ?? `doc-${i}`),
+        id: safeText(d["id"], `doc-${i}`),
         name,
-        status,
+        category: safeText(d["category"]).trim() || undefined,
+        size: safeText(d["size"]).trim() || undefined,
+        uploadedAt: safeText(d["uploadedAt"] ?? d["uploaded_at"]).trim() || undefined,
+        updatedAt: safeText(d["updatedAt"] ?? d["updated_at"]).trim() || undefined,
+        uploadedBy: safeText(d["uploadedBy"] ?? d["uploaded_by"]).trim() || undefined,
+        status: safeStatus(d["status"]),
       };
     });
   }, [documentsQuery.data]);
@@ -257,22 +281,25 @@ function DocumentsPage() {
   const [progress, setProgress] = useState(0);
 
   const categories = useMemo(
-    () => Array.from(new Set(docs.map((d) => d.category).filter(Boolean))) as string[],
+    () =>
+      Array.from(
+        new Set(docs.map((d) => safeText(d.category).trim()).filter((value) => value.length > 0)),
+      ),
     [docs],
   );
 
   const filtered = useMemo(() => {
     const list = docs.filter((d) => {
-      const matchesQuery = (d.name ?? "").toLowerCase().includes((query ?? "").toLowerCase());
-      const matchesCategory = category === "all" || d.category === category;
-      const matchesStatus = status === "all" || d.status === status;
+      const matchesQuery = safeLower(d.name).includes(safeLower(query));
+      const matchesCategory = category === "all" || safeText(d.category) === safeText(category);
+      const matchesStatus = status === "all" || safeText(d.status) === safeText(status);
       return matchesQuery && matchesCategory && matchesStatus;
     });
 
     return [...list].sort((a, b) => {
-      if (sort === "name") return (a.name ?? "").localeCompare(b.name ?? "", "pt-BR");
+      if (sort === "name") return safeText(a.name).localeCompare(safeText(b.name), "pt-BR");
       if (sort === "chunks") return (b.chunks ?? 0) - (a.chunks ?? 0);
-      return (b.uploadedAt ?? "").localeCompare(a.uploadedAt ?? "");
+      return safeText(b.uploadedAt).localeCompare(safeText(a.uploadedAt));
     });
   }, [docs, query, category, status, sort]);
 
