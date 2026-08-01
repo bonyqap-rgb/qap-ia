@@ -1,5 +1,5 @@
-import { api } from "./api-client";
-import { ragChat } from "@/lib/rag.functions";
+import { ragChat, ragSearch } from "@/lib/rag.functions";
+import { fixMojibake } from "@/lib/text-encoding";
 import type { Citation, ChatRequest, ChatResponse, SearchRequest, SearchResult } from "@/types/api";
 
 /**
@@ -48,8 +48,9 @@ function parseMs(value: string | undefined): number | undefined {
 }
 
 function toCitation(source: BackendSource): Citation {
-  const documentName =
-    source.documentName ?? source.filename ?? source.title ?? "Documento indexado";
+  const documentName = fixMojibake(
+    source.documentName ?? source.filename ?? source.title ?? "Documento indexado",
+  );
   return {
     id: source.chunkId ?? `${source.documentId ?? "doc"}-${source.chunkIndex ?? 0}`,
     documentId: source.documentId,
@@ -86,7 +87,9 @@ function normalizeSearch(raw: BackendSearchResponse): SearchResult[] {
   return results.map((item) => ({
     chunkId: item.chunkId ?? (item.chunkIndex != null ? String(item.chunkIndex) : undefined),
     documentId: item.documentId,
-    documentName: item.documentName ?? item.filename ?? item.title ?? "Documento indexado",
+    documentName: fixMojibake(
+      item.documentName ?? item.filename ?? item.title ?? "Documento indexado",
+    ),
     page: item.page ?? item.pageNumber,
     score: item.score ?? 0,
     snippet: item.snippet ?? item.text ?? item.content ?? "",
@@ -108,11 +111,9 @@ export const chatService = {
     return normalizeChat(raw as BackendChatResponse);
   },
 
-  search: async (payload: SearchRequest, signal?: AbortSignal): Promise<SearchResult[]> => {
-    const raw = await api.post<BackendSearchResponse>("/search", payload, {
-      signal,
-      timeoutMs: 30_000,
-    });
-    return normalizeSearch(raw ?? []);
+  search: async (payload: SearchRequest): Promise<SearchResult[]> => {
+    // Proxy server-side (CORS) + resolução do nome do documento por id.
+    const raw = await ragSearch({ data: { query: payload.query, limit: payload.limit } });
+    return normalizeSearch((raw ?? []) as BackendSearchResponse);
   },
 };
