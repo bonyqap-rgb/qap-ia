@@ -31,7 +31,6 @@ export function documentKeys(name: unknown): string[] {
   for (const match of normalized.matchAll(CODE_PATTERN)) {
     keys.add(match[0].replace(/[\s-]+/g, ""));
   }
-  if (normalized.length >= 4) keys.add(normalized);
   return Array.from(keys);
 }
 
@@ -96,9 +95,7 @@ export function detectDocumentScope(
   const matched: Array<{ id?: string; name?: string }> = [];
   for (const doc of documents) {
     const docKeys = documentKeys(doc.name);
-    const hit = keys.some((key) =>
-      docKeys.some((docKey) => docKey === key || docKey.includes(key)),
-    );
+    const hit = keys.some((key) => docKeys.some((docKey) => docKey === key));
     if (hit) matched.push({ id: doc.id, name: doc.name });
   }
 
@@ -111,9 +108,12 @@ export function chunkInScope(
   scope: DetectedScope,
 ): boolean {
   if (!scope.keys.length) return true;
-  if (scope.documents.some((d) => d.id && d.id === chunk.documentId)) return true;
+  const scopeIds = scope.documents.map((document) => document.id).filter(Boolean);
+  // Quando ambos os lados têm ID, ele é autoritativo: um ID diferente nunca
+  // pode ser admitido por semelhança do nome do arquivo.
+  if (scopeIds.length && chunk.documentId) return scopeIds.includes(chunk.documentId);
   const name = chunk.documentName ?? chunk.filename;
   if (!name) return false;
   const docKeys = documentKeys(name);
-  return scope.keys.some((key) => docKeys.some((docKey) => docKey === key || docKey.includes(key)));
+  return scope.keys.some((key) => docKeys.some((docKey) => docKey === key));
 }
