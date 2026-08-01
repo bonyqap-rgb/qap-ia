@@ -318,23 +318,27 @@ export async function runScopedRagChat(input: {
   };
 }
 
-/** Busca semântica com priorização do documento citado na consulta. */
+/** Busca semântica restrita ao documento citado na consulta, quando houver. */
 export async function runScopedRagSearch(input: {
   query: string;
   limit?: number;
 }): Promise<RagSource[]> {
-  const results = await searchChunks(input.query, input.limit ?? 10);
+  const documents = await fetchDocumentList();
+  const scope = detectDocumentScope(input.query, documents);
+  const scopeIds = scope.documents.map((d) => d.id).filter((id): id is string => Boolean(id));
+  const scoped = scope.keys.length && !scope.comparison;
+
+  const results = await searchChunks(
+    input.query,
+    scoped ? Math.max(input.limit ?? 10, 30) : (input.limit ?? 10),
+    scoped ? scopeIds : [],
+  );
   const needsNames = results.some((r) => !r.filename && !r.documentName && !r.title);
   const names = needsNames ? await fetchDocumentNames() : new Map<string, string>();
   const normalized = normalizeSources(results, names);
 
-  const documents = await fetchDocumentList();
-  const scope = detectDocumentScope(input.query, documents);
-  if (!scope.keys.length || scope.comparison) return normalized;
+  if (!scoped) return normalized;
 
-  const inScope = normalized.filter((r) => chunkInScope(r, scope));
-  // Documento citado primeiro; os demais permanecem como complemento.
-  return inScope.length
-    ? [...inScope, ...normalized.filter((r) => !chunkInScope(r, scope))]
-    : normalized;
+  // Somente trechos do documento citado — nunca complementa com outros.
+  return normalized.filter((r) => chunkInScope(r, scope)).slice(0, input.limit ?? 10);
 }
