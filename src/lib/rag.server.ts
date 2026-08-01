@@ -4,6 +4,7 @@ import { AI_DEFAULT_MODEL, AI_SYSTEM_PROMPT } from "@/lib/ai-config";
 import {
   chunkInScope,
   detectDocumentScope,
+  formatDocumentKey,
   type DetectedScope,
 } from "@/lib/rag-scope";
 
@@ -248,9 +249,7 @@ export async function runScopedRagChat(input: {
     .map((d) => d.name)
     .filter((n): n is string => Boolean(n));
 
-  const requested = scopeNames.length
-    ? scopeNames.join(", ")
-    : scope.keys.map((k) => k.toUpperCase()).join(", ");
+  const requested = scope.keys.map(formatDocumentKey).join(", ");
 
   if (scope.keys.length) {
     const scopeIds = scope.documents
@@ -264,7 +263,7 @@ export async function runScopedRagChat(input: {
         answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
         sources: [],
         resultsCount: 0,
-        scopedTo: scope.keys.map((key) => key.toUpperCase()),
+        scopedTo: scope.keys.map(formatDocumentKey),
       };
     }
 
@@ -278,14 +277,14 @@ export async function runScopedRagChat(input: {
         answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
         sources: scoped,
         resultsCount: scoped.length,
-        scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+        scopedTo: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
       };
     }
 
     const generated = await answerFromChunks({
       question: input.question,
       chunks: scoped.slice(0, 12),
-      scopeNames: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+      scopeNames: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
       history: input.history,
     });
 
@@ -300,7 +299,7 @@ export async function runScopedRagChat(input: {
       model: generated.model,
       sources: scoped.slice(0, 12),
       resultsCount: scoped.length,
-      scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+      scopedTo: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
     };
   }
 

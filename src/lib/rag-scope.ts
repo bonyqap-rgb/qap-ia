@@ -45,6 +45,14 @@ export function questionKeys(question: unknown): string[] {
   return Array.from(keys);
 }
 
+/** Exibe a chave normalizada no formato jurídico usual (ex.: i2pm → I-2-PM). */
+export function formatDocumentKey(key: unknown): string {
+  const normalized = String(key ?? "").toLowerCase();
+  const numbered = normalized.match(/^([a-z]{1,4})(\d{1,3})pm$/);
+  if (numbered) return `${numbered[1].toUpperCase()}-${numbered[2]}-PM`;
+  return normalized.toUpperCase();
+}
+
 const COMPARISON_TERMS = [
   "compare",
   "comparar",
