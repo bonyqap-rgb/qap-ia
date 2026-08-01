@@ -1,12 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { AI_DEFAULT_MODEL, AI_SYSTEM_PROMPT } from "@/lib/ai-config";
+import { AI_SYSTEM_PROMPT } from "@/lib/ai-config";
+import { generateWithSelectedProvider, inspectLlmProviders } from "@/lib/llm-provider.server";
 
 /**
  * AI Service
  *
- * Ponto único de integração com o provedor de IA (Google Gemini).
- * A chave vive apenas no servidor (secret `GEMINI_API_KEY`).
+ * Ponto único de integração com o provedor de IA. A seleção do provedor
+ * (Groq → Gemini AI Studio → Lovable AI) vive em `llm-provider.server.ts`;
+ * as chaves permanecem apenas no servidor.
  */
 export const sendChatMessage = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => {
@@ -23,65 +25,43 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     return { message: trimmed };
   })
   .handler(async ({ data }) => {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const providers = inspectLlmProviders();
+    console.info("[QAP IA][chat] provedor selecionado", {
+      selectedProvider: providers.selected?.provider,
+      selectedModel: providers.selected?.model,
+      selectionReason: providers.selected?.reason,
+      providerCandidates: providers.candidates,
+    });
 
-    if (!apiKey) {
-      return { reply: "⚠️ Gemini ainda não configurado." };
+    if (!providers.selected) {
+      return { reply: "⚠️ Nenhum provedor de IA configurado (defina GROQ_API_KEY ou GEMINI_API_KEY)." };
     }
 
-    const model = process.env.GEMINI_MODEL ?? AI_DEFAULT_MODEL;
+    const outcome = await generateWithSelectedProvider({
+      systemPrompt: AI_SYSTEM_PROMPT,
+      question: data.message,
+      history: [],
+    });
 
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            systemInstruction: {
-              role: "system",
-              parts: [{ text: AI_SYSTEM_PROMPT }],
-            },
-            contents: [{ role: "user", parts: [{ text: data.message }] }],
-          }),
-        },
+    if (!outcome.ok) {
+      console.error(
+        `[QAP IA][chat] falha na geração (${outcome.failure.stage})`,
+        outcome.failure.detail,
+        outcome.failure.cause ?? new Error(outcome.failure.message).stack,
       );
-
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error(
-          `[QAP IA] Gemini request failed [${response.status}]: ${errorBody}`,
-        );
-        return {
-          reply: `❌ Gemini [${response.status}]: ${errorBody}`,
-        };
-      }
-
-      const json = (await response.json()) as {
-        candidates?: Array<{
-          content?: { parts?: Array<{ text?: string }> };
-        }>;
-      };
-
-      const reply =
-        json?.candidates?.[0]?.content?.parts
-          ?.map((p) => p.text ?? "")
-          .join("")
-          .trim() ?? "";
-
-      if (!reply) {
-        return {
-          reply:
-            "❌ O Gemini não retornou uma resposta. Tente reformular sua pergunta.",
-        };
-      }
-
-      return { reply };
-    } catch (error) {
-      console.error("[QAP IA] Gemini request error:", error);
-      return {
-        reply:
-          "❌ Erro de conexão com o Gemini. Verifique sua rede e tente novamente.",
-      };
+      return { reply: `❌ ${outcome.failure.message}` };
     }
+
+    console.info("[QAP IA][chat] resposta do provedor", {
+      provider: outcome.result.provider,
+      model: outcome.result.model,
+      status: outcome.result.status,
+      durationMs: outcome.result.durationMs,
+      answerChars: outcome.result.answer.length,
+      finishReason: outcome.result.finishReason,
+      usage: outcome.result.usage,
+    });
+
+    return { reply: outcome.result.answer };
   });
+

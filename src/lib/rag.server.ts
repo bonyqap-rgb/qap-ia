@@ -1,6 +1,10 @@
 import { API_BASE_URL } from "@/services/api-client";
 import { fixMojibake } from "@/lib/text-encoding";
-import { AI_DEFAULT_MODEL, AI_SYSTEM_PROMPT } from "@/lib/ai-config";
+import { AI_SYSTEM_PROMPT } from "@/lib/ai-config";
+import {
+  generateWithSelectedProvider,
+  inspectLlmProviders,
+} from "@/lib/llm-provider.server";
 import {
   chunkInScope,
   detectDocumentScope,
@@ -171,6 +175,10 @@ export class ScopedGenerationError extends Error {
  * Geração restrita ao contexto informado (documento citado pelo usuário).
  * Usada apenas quando há escopo detectado; caso contrário o /chat responde.
  *
+ * O provedor não é mais fixo no Gemini: `llm-provider.server.ts` escolhe entre
+ * Groq (igual ao backend RAG), Gemini do AI Studio e Lovable AI, conforme as
+ * chaves realmente presentes no servidor.
+ *
  * Toda falha é logada com stack trace e detalhe do provedor, e propagada
  * como ScopedGenerationError — nunca convertida em `null` silencioso.
  */
@@ -179,20 +187,8 @@ export async function answerFromChunks(input: {
   chunks: RagSource[];
   scopeNames: string[];
   history: HistoryMessage[];
-}): Promise<{ answer: string; model?: string }> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL ?? AI_DEFAULT_MODEL;
+}): Promise<{ answer: string; model?: string; provider?: string }> {
   const scope = input.scopeNames.join(", ");
-
-  if (!apiKey) {
-    const error = new ScopedGenerationError("GEMINI_API_KEY ausente no servidor.", {
-      stage: "config",
-      model,
-      scope,
-    });
-    console.error("[QAP IA][scoped] GEMINI_API_KEY ausente", error.detail, error.stack);
-    throw error;
-  }
 
   const context = input.chunks
     .map((c, i) => {
@@ -213,134 +209,63 @@ export async function answerFromChunks(input: {
 Trechos recuperados:
 ${context}`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-  const payload = {
-    systemInstruction: {
-      role: "system",
-      parts: [{ text: `${AI_SYSTEM_PROMPT}\n\n${scopeInstruction}` }],
-    },
-    contents: [
-      ...input.history.slice(-6).map((m) => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }],
-      })),
-      { role: "user", parts: [{ text: input.question }] },
-    ],
-  };
-  const serializedPayload = JSON.stringify(payload);
+  const providers = inspectLlmProviders();
 
   // Diagnóstico do que efetivamente vai ao provedor (sem a chave).
-  console.info("[QAP IA][scoped] payload", {
-    model,
-    url,
+  console.info("[QAP IA][scoped] provedor e payload", {
+    selectedProvider: providers.selected?.provider,
+    selectedModel: providers.selected?.model,
+    selectionReason: providers.selected?.reason,
+    providerCandidates: providers.candidates,
     scope,
     chunksUsed: input.chunks.length,
     chunkIds: input.chunks.map((c) => c.chunkId ?? c.chunkIndex),
     contextChars: context.length,
     systemChars: AI_SYSTEM_PROMPT.length + scopeInstruction.length,
-    payloadBytes: serializedPayload.length,
     historyMessages: Math.min(input.history.length, 6),
     question: input.question,
-    payloadPreview: serializedPayload.slice(0, 4000),
+    contextPreview: context.slice(0, 4000),
   });
 
-  let response: Response;
-  const startedAt = Date.now();
-  try {
-    response = await fetch(`${url}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: serializedPayload,
+  const outcome = await generateWithSelectedProvider({
+    systemPrompt: `${AI_SYSTEM_PROMPT}\n\n${scopeInstruction}`,
+    question: input.question,
+    history: input.history,
+  });
+
+  if (!outcome.ok) {
+    const error = new ScopedGenerationError(outcome.failure.message, {
+      ...outcome.failure.detail,
+      stage: outcome.failure.stage,
+      scope,
+      chunksUsed: input.chunks.length,
+      contextChars: context.length,
     });
-  } catch (cause) {
-    const error = new ScopedGenerationError(
-      `Falha de rede ao chamar ${model}: ${cause instanceof Error ? cause.message : String(cause)}`,
-      { stage: "fetch", model, url, scope, contextChars: context.length },
-      { cause },
+    console.error(
+      `[QAP IA][scoped] falha na geração (${outcome.failure.stage})`,
+      error.detail,
+      outcome.failure.cause ?? error.stack,
     );
-    console.error("[QAP IA][scoped] erro de rede", error.detail, cause);
     throw error;
   }
-
-  const rawBody = await response.text();
-
-  if (!response.ok) {
-    const error = new ScopedGenerationError(
-      `Gemini ${model} respondeu HTTP ${response.status}: ${rawBody.slice(0, 800)}`,
-      {
-        stage: "http",
-        model,
-        url,
-        scope,
-        status: response.status,
-        statusText: response.statusText,
-        durationMs: Date.now() - startedAt,
-        contextChars: context.length,
-        chunksUsed: input.chunks.length,
-        providerBody: rawBody.slice(0, 4000),
-      },
-    );
-    console.error("[QAP IA][scoped] provedor retornou erro", error.detail, error.stack);
-    throw error;
-  }
-
-  let json: {
-    candidates?: Array<{
-      content?: { parts?: Array<{ text?: string }> };
-      finishReason?: string;
-      safetyRatings?: unknown;
-    }>;
-    promptFeedback?: unknown;
-    usageMetadata?: unknown;
-  };
-  try {
-    json = JSON.parse(rawBody);
-  } catch (cause) {
-    const error = new ScopedGenerationError(
-      `Resposta não-JSON do ${model}: ${rawBody.slice(0, 800)}`,
-      { stage: "parse", model, url, scope, providerBody: rawBody.slice(0, 4000) },
-      { cause },
-    );
-    console.error("[QAP IA][scoped] resposta inválida", error.detail, cause);
-    throw error;
-  }
-
-  const answer =
-    json?.candidates?.[0]?.content?.parts
-      ?.map((p) => p.text ?? "")
-      .join("")
-      .trim() ?? "";
 
   console.info("[QAP IA][scoped] resposta do provedor", {
-    model,
-    scope,
-    durationMs: Date.now() - startedAt,
-    answerChars: answer.length,
-    finishReason: json?.candidates?.[0]?.finishReason,
-    usageMetadata: json?.usageMetadata,
-    promptFeedback: json?.promptFeedback,
+    provider: outcome.result.provider,
+    model: outcome.result.model,
+    status: outcome.result.status,
+    durationMs: outcome.result.durationMs,
+    answerChars: outcome.result.answer.length,
+    finishReason: outcome.result.finishReason,
+    usage: outcome.result.usage,
   });
 
-  if (!answer) {
-    const error = new ScopedGenerationError(
-      `Gemini ${model} retornou resposta vazia (finishReason=${json?.candidates?.[0]?.finishReason ?? "desconhecido"}).`,
-      {
-        stage: "empty",
-        model,
-        url,
-        scope,
-        finishReason: json?.candidates?.[0]?.finishReason,
-        safetyRatings: json?.candidates?.[0]?.safetyRatings,
-        promptFeedback: json?.promptFeedback,
-        providerBody: rawBody.slice(0, 4000),
-      },
-    );
-    console.error("[QAP IA][scoped] resposta vazia", error.detail, error.stack);
-    throw error;
-  }
-
-  return { answer, model };
+  return {
+    answer: outcome.result.answer,
+    model: outcome.result.model,
+    provider: outcome.result.provider,
+  };
 }
+
 
 /** Número mínimo de trechos do documento citado para responder só com ele. */
 const MIN_SCOPED_CHUNKS = 2;
