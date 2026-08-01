@@ -9,6 +9,7 @@ import type {
   UploadResult,
 } from "@/types/api";
 import { chatService } from "./chat.service";
+import { fixMojibake } from "@/lib/text-encoding";
 
 /**
  * Contrato real do backend QAP RAG para documentos:
@@ -77,7 +78,9 @@ function normalizeDocument(raw: BackendDocument, index: number): ApiDocument {
   const sizeBytes = raw.fileSize ?? raw.file_size;
   return {
     id: String(raw.id ?? `doc-${index}`),
-    name: String(raw.title ?? raw.filename ?? raw.file_name ?? raw.name ?? "Documento sem nome"),
+    name: fixMojibake(
+      String(raw.title ?? raw.filename ?? raw.file_name ?? raw.name ?? "Documento sem nome"),
+    ),
     category: raw.category,
     size: formatSize(sizeBytes),
     sizeBytes,
