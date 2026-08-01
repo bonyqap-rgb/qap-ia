@@ -1,4 +1,5 @@
 import { api } from "./api-client";
+import { ragChat } from "@/lib/rag.functions";
 import type { Citation, ChatRequest, ChatResponse, SearchRequest, SearchResult } from "@/types/api";
 
 /**
@@ -94,13 +95,17 @@ function normalizeSearch(raw: BackendSearchResponse): SearchResult[] {
 
 /** Serviço de chat RAG e busca semântica. */
 export const chatService = {
-  ask: async (payload: ChatRequest, signal?: AbortSignal): Promise<ChatResponse> => {
-    const raw = await api.post<BackendChatResponse>(
-      "/chat",
-      { question: payload.question, message: payload.question, conversationId: payload.conversationId, history: payload.history },
-      { signal, timeoutMs: 60_000 },
-    );
-    return normalizeChat(raw ?? {});
+  ask: async (payload: ChatRequest): Promise<ChatResponse> => {
+    // Proxy server-side: evita o bloqueio de CORS do backend, que fazia a
+    // consulta RAG falhar e a UI responder sem contexto documental.
+    const raw = await ragChat({
+      data: {
+        question: payload.question,
+        conversationId: payload.conversationId,
+        history: payload.history,
+      },
+    });
+    return normalizeChat(raw as BackendChatResponse);
   },
 
   search: async (payload: SearchRequest, signal?: AbortSignal): Promise<SearchResult[]> => {
