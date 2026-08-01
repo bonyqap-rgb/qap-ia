@@ -263,14 +263,14 @@ function DocumentsPage() {
 
   const filtered = useMemo(() => {
     const list = docs.filter((d) => {
-      const matchesQuery = d.name.toLowerCase().includes(query.toLowerCase());
+      const matchesQuery = (d.name ?? "").toLowerCase().includes((query ?? "").toLowerCase());
       const matchesCategory = category === "all" || d.category === category;
       const matchesStatus = status === "all" || d.status === status;
       return matchesQuery && matchesCategory && matchesStatus;
     });
 
     return [...list].sort((a, b) => {
-      if (sort === "name") return a.name.localeCompare(b.name, "pt-BR");
+      if (sort === "name") return (a.name ?? "").localeCompare(b.name ?? "", "pt-BR");
       if (sort === "chunks") return (b.chunks ?? 0) - (a.chunks ?? 0);
       return (b.uploadedAt ?? "").localeCompare(a.uploadedAt ?? "");
     });

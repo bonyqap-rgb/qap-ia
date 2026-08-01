@@ -53,7 +53,7 @@ function AdminLogs() {
       .filter((log) => (level === "all" ? true : log.level === level))
       .filter((log) =>
         query.trim()
-          ? `${log.message} ${log.scope}`.toLowerCase().includes(query.trim().toLowerCase())
+          ? `${log.message ?? ""} ${log.scope ?? ""}`.toLowerCase().includes(query.trim().toLowerCase())
           : true,
       )
       .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
