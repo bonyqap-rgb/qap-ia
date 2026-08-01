@@ -244,36 +244,52 @@ export async function runScopedRagChat(input: {
     .map((d) => d.name)
     .filter((n): n is string => Boolean(n));
 
-  if (scope.keys.length && !scope.comparison) {
-    try {
-      const raw = await searchChunks(input.question, 24);
-      const names = await fetchDocumentNames();
-      const normalized = normalizeSources(raw, names);
-      const scoped = normalized.filter((c) => chunkInScope(c, scope));
+  const requested = scopeNames.length
+    ? scopeNames.join(", ")
+    : scope.keys.map((k) => k.toUpperCase()).join(", ");
 
-      if (scoped.length >= MIN_SCOPED_CHUNKS) {
-        const generated = await answerFromChunks({
-          question: input.question,
-          chunks: scoped.slice(0, 12),
-          scopeNames: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
-          history: input.history,
-        });
-        if (generated) {
-          return {
-            answer: generated.answer,
-            model: generated.model,
-            sources: scoped.slice(0, 12),
-            resultsCount: scoped.length,
-            scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
-          };
-        }
-      }
-    } catch (error) {
-      console.error("[QAP IA] Recuperação com escopo falhou, usando /chat:", error);
+  if (scope.keys.length && !scope.comparison) {
+    const scopeIds = scope.documents
+      .map((d) => d.id)
+      .filter((id): id is string => Boolean(id));
+
+    // Busca vetorial restrita ao documento citado — sem fallback para outros.
+    const raw = await searchChunks(input.question, 30, scopeIds);
+    const names = await fetchDocumentNames();
+    const scoped = normalizeSources(raw, names).filter((c) => chunkInScope(c, scope));
+
+    if (scoped.length < MIN_SCOPED_CHUNKS) {
+      return {
+        answer: `Não há contexto suficiente indexado de ${requested} para responder a essa pergunta.\n\nO documento citado não retornou trechos relevantes na busca vetorial, e outros documentos não serão utilizados como substituto. Verifique se ${requested} está corretamente indexado (reindexação pode ser necessária) ou reformule a pergunta com os termos usados no próprio documento.`,
+        sources: scoped,
+        resultsCount: scoped.length,
+        scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+      };
     }
+
+    const generated = await answerFromChunks({
+      question: input.question,
+      chunks: scoped.slice(0, 12),
+      scopeNames: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+      history: input.history,
+    });
+
+    if (!generated) {
+      throw new Error(
+        `Não foi possível gerar a resposta restrita a ${requested}. Verifique a configuração do modelo de IA.`,
+      );
+    }
+
+    return {
+      answer: generated.answer,
+      model: generated.model,
+      sources: scoped.slice(0, 12),
+      resultsCount: scoped.length,
+      scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+    };
   }
 
-  // Fluxo original do backend.
+  // Sem documento citado (ou pedido de comparação): fluxo original do backend.
   const parsed = await backendChat(input);
   const rawSources = parsed.sources ?? parsed.citations ?? [];
   const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
@@ -281,16 +297,7 @@ export async function runScopedRagChat(input: {
     : new Map<string, string>();
   const sources = normalizeSources(rawSources, names);
 
-  let answer = parsed.answer ?? parsed.response ?? "";
-  if (scope.keys.length && !scope.comparison) {
-    const outside = sources.filter((s) => !chunkInScope(s, scope));
-    const requested = scopeNames.length
-      ? scopeNames.join(", ")
-      : scope.keys.map((k) => k.toUpperCase()).join(", ");
-    if (sources.length && outside.length) {
-      answer = `⚠️ Atenção: não foram encontrados trechos suficientes de ${requested}. A resposta abaixo utiliza também outros documentos — confira o documento de origem em cada citação.\n\n${answer}`;
-    }
-  }
+  const answer = parsed.answer ?? parsed.response ?? "";
 
   return {
     answer,
