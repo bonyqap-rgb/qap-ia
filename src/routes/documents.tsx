@@ -220,7 +220,29 @@ function UploadZone({
 function DocumentsPage() {
   const documentsQuery = useDocuments();
   const { isLoading, isUnavailable, error, refetch } = documentsQuery;
-  const docs = documentsQuery.data ?? [];
+  /**
+   * Normaliza os registros vindos da API: campos ausentes (name/file_name/title,
+   * status, id) recebem valores seguros para que a tela nunca quebre.
+   */
+  const docs = useMemo<ApiDocument[]>(() => {
+    const raw = (documentsQuery.data ?? []) as Array<Record<string, unknown>>;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(Boolean).map((d, i) => {
+      const name =
+        (d["name"] as string | undefined) ??
+        (d["file_name"] as string | undefined) ??
+        (d["fileName"] as string | undefined) ??
+        (d["title"] as string | undefined) ??
+        "Documento sem nome";
+      const status = (d["status"] as DocumentStatus | undefined) ?? "aguardando";
+      return {
+        ...(d as unknown as ApiDocument),
+        id: String((d["id"] as string | undefined) ?? `doc-${i}`),
+        name,
+        status,
+      };
+    });
+  }, [documentsQuery.data]);
   const { remove, reindex, upload } = useDocumentMutations();
 
   const [query, setQuery] = useState("");
@@ -241,14 +263,14 @@ function DocumentsPage() {
 
   const filtered = useMemo(() => {
     const list = docs.filter((d) => {
-      const matchesQuery = d.name.toLowerCase().includes(query.toLowerCase());
+      const matchesQuery = (d.name ?? "").toLowerCase().includes((query ?? "").toLowerCase());
       const matchesCategory = category === "all" || d.category === category;
       const matchesStatus = status === "all" || d.status === status;
       return matchesQuery && matchesCategory && matchesStatus;
     });
 
     return [...list].sort((a, b) => {
-      if (sort === "name") return a.name.localeCompare(b.name, "pt-BR");
+      if (sort === "name") return (a.name ?? "").localeCompare(b.name ?? "", "pt-BR");
       if (sort === "chunks") return (b.chunks ?? 0) - (a.chunks ?? 0);
       return (b.uploadedAt ?? "").localeCompare(a.uploadedAt ?? "");
     });
