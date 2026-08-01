@@ -88,12 +88,29 @@ export function normalizeSources(
   });
 }
 
-/** POST /search — recuperação vetorial crua. */
-export async function searchChunks(query: string, limit: number): Promise<RagSource[]> {
+/**
+ * POST /search — recuperação vetorial crua.
+ *
+ * Quando há documento citado, os ids vão no corpo (documentId/documentIds/
+ * filter) para que o backend possa restringir a busca vetorial na origem.
+ * Campos extras são ignorados por backends que ainda não os suportam, e o
+ * escopo continua garantido pela filtragem aplicada aqui.
+ */
+export async function searchChunks(
+  query: string,
+  limit: number,
+  documentIds: string[] = [],
+): Promise<RagSource[]> {
+  const body: Record<string, unknown> = { query, limit };
+  if (documentIds.length) {
+    body.documentId = documentIds[0];
+    body.documentIds = documentIds;
+    body.filter = { documentId: documentIds.length === 1 ? documentIds[0] : documentIds };
+  }
   const response = await fetch(`${API_BASE_URL}/search`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ query, limit }),
+    body: JSON.stringify(body),
   });
   const text = await response.text();
   if (!response.ok) throw new Error(`RAG /search [${response.status}]: ${text.slice(0, 300)}`);
