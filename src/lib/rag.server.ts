@@ -155,19 +155,44 @@ export async function backendChat(input: {
   }
 }
 
+/** Erro com detalhe técnico real da geração restrita (nunca genérico). */
+export class ScopedGenerationError extends Error {
+  constructor(
+    message: string,
+    readonly detail: Record<string, unknown>,
+    options?: { cause?: unknown },
+  ) {
+    super(message, options);
+    this.name = "ScopedGenerationError";
+  }
+}
+
 /**
  * Geração restrita ao contexto informado (documento citado pelo usuário).
  * Usada apenas quando há escopo detectado; caso contrário o /chat responde.
+ *
+ * Toda falha é logada com stack trace e detalhe do provedor, e propagada
+ * como ScopedGenerationError — nunca convertida em `null` silencioso.
  */
 export async function answerFromChunks(input: {
   question: string;
   chunks: RagSource[];
   scopeNames: string[];
   history: HistoryMessage[];
-}): Promise<{ answer: string; model?: string } | null> {
+}): Promise<{ answer: string; model?: string }> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return null;
   const model = process.env.GEMINI_MODEL ?? AI_DEFAULT_MODEL;
+  const scope = input.scopeNames.join(", ");
+
+  if (!apiKey) {
+    const error = new ScopedGenerationError("GEMINI_API_KEY ausente no servidor.", {
+      stage: "config",
+      model,
+      scope,
+    });
+    console.error("[QAP IA][scoped] GEMINI_API_KEY ausente", error.detail, error.stack);
+    throw error;
+  }
 
   const context = input.chunks
     .map((c, i) => {
@@ -178,7 +203,7 @@ export async function answerFromChunks(input: {
     .join("\n\n");
 
   const scopeInstruction = `Restrição de escopo documental (prioridade máxima):
-- O usuário citou explicitamente: ${input.scopeNames.join(", ")}.
+- O usuário citou explicitamente: ${scope}.
 - Responda EXCLUSIVAMENTE com base nos trechos fornecidos abaixo, que pertencem a esse(s) documento(s).
 - Nunca utilize artigos, dispositivos ou numerações de outros documentos.
 - Se existirem artigos com o mesmo número em outros documentos, ignore-os.
@@ -188,41 +213,133 @@ export async function answerFromChunks(input: {
 Trechos recuperados:
 ${context}`;
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-    {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  const payload = {
+    systemInstruction: {
+      role: "system",
+      parts: [{ text: `${AI_SYSTEM_PROMPT}\n\n${scopeInstruction}` }],
+    },
+    contents: [
+      ...input.history.slice(-6).map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      })),
+      { role: "user", parts: [{ text: input.question }] },
+    ],
+  };
+  const serializedPayload = JSON.stringify(payload);
+
+  // Diagnóstico do que efetivamente vai ao provedor (sem a chave).
+  console.info("[QAP IA][scoped] payload", {
+    model,
+    url,
+    scope,
+    chunksUsed: input.chunks.length,
+    chunkIds: input.chunks.map((c) => c.chunkId ?? c.chunkIndex),
+    contextChars: context.length,
+    systemChars: AI_SYSTEM_PROMPT.length + scopeInstruction.length,
+    payloadBytes: serializedPayload.length,
+    historyMessages: Math.min(input.history.length, 6),
+    question: input.question,
+    payloadPreview: serializedPayload.slice(0, 4000),
+  });
+
+  let response: Response;
+  const startedAt = Date.now();
+  try {
+    response = await fetch(`${url}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: {
-          role: "system",
-          parts: [{ text: `${AI_SYSTEM_PROMPT}\n\n${scopeInstruction}` }],
-        },
-        contents: [
-          ...input.history.slice(-6).map((m) => ({
-            role: m.role === "assistant" ? "model" : "user",
-            parts: [{ text: m.content }],
-          })),
-          { role: "user", parts: [{ text: input.question }] },
-        ],
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    console.error(`[QAP IA] Gemini escopo falhou [${response.status}]`);
-    return null;
+      body: serializedPayload,
+    });
+  } catch (cause) {
+    const error = new ScopedGenerationError(
+      `Falha de rede ao chamar ${model}: ${cause instanceof Error ? cause.message : String(cause)}`,
+      { stage: "fetch", model, url, scope, contextChars: context.length },
+      { cause },
+    );
+    console.error("[QAP IA][scoped] erro de rede", error.detail, cause);
+    throw error;
   }
 
-  const json = (await response.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  const rawBody = await response.text();
+
+  if (!response.ok) {
+    const error = new ScopedGenerationError(
+      `Gemini ${model} respondeu HTTP ${response.status}: ${rawBody.slice(0, 800)}`,
+      {
+        stage: "http",
+        model,
+        url,
+        scope,
+        status: response.status,
+        statusText: response.statusText,
+        durationMs: Date.now() - startedAt,
+        contextChars: context.length,
+        chunksUsed: input.chunks.length,
+        providerBody: rawBody.slice(0, 4000),
+      },
+    );
+    console.error("[QAP IA][scoped] provedor retornou erro", error.detail, error.stack);
+    throw error;
+  }
+
+  let json: {
+    candidates?: Array<{
+      content?: { parts?: Array<{ text?: string }> };
+      finishReason?: string;
+      safetyRatings?: unknown;
+    }>;
+    promptFeedback?: unknown;
+    usageMetadata?: unknown;
   };
+  try {
+    json = JSON.parse(rawBody);
+  } catch (cause) {
+    const error = new ScopedGenerationError(
+      `Resposta não-JSON do ${model}: ${rawBody.slice(0, 800)}`,
+      { stage: "parse", model, url, scope, providerBody: rawBody.slice(0, 4000) },
+      { cause },
+    );
+    console.error("[QAP IA][scoped] resposta inválida", error.detail, cause);
+    throw error;
+  }
+
   const answer =
     json?.candidates?.[0]?.content?.parts
       ?.map((p) => p.text ?? "")
       .join("")
       .trim() ?? "";
-  return answer ? { answer, model } : null;
+
+  console.info("[QAP IA][scoped] resposta do provedor", {
+    model,
+    scope,
+    durationMs: Date.now() - startedAt,
+    answerChars: answer.length,
+    finishReason: json?.candidates?.[0]?.finishReason,
+    usageMetadata: json?.usageMetadata,
+    promptFeedback: json?.promptFeedback,
+  });
+
+  if (!answer) {
+    const error = new ScopedGenerationError(
+      `Gemini ${model} retornou resposta vazia (finishReason=${json?.candidates?.[0]?.finishReason ?? "desconhecido"}).`,
+      {
+        stage: "empty",
+        model,
+        url,
+        scope,
+        finishReason: json?.candidates?.[0]?.finishReason,
+        safetyRatings: json?.candidates?.[0]?.safetyRatings,
+        promptFeedback: json?.promptFeedback,
+        providerBody: rawBody.slice(0, 4000),
+      },
+    );
+    console.error("[QAP IA][scoped] resposta vazia", error.detail, error.stack);
+    throw error;
+  }
+
+  return { answer, model };
 }
 
 /** Número mínimo de trechos do documento citado para responder só com ele. */
@@ -272,6 +389,17 @@ export async function runScopedRagChat(input: {
     const names = await fetchDocumentNames();
     const scoped = normalizeSources(raw, names).filter((c) => chunkInScope(c, scope));
 
+    console.info("[QAP IA][scoped] recuperação", {
+      question: input.question,
+      requested,
+      scopeIds,
+      scopeNames,
+      rawChunks: raw.length,
+      scopedChunks: scoped.length,
+      scopedContextChars: scoped.reduce((sum, c) => sum + (c.snippet?.length ?? 0), 0),
+      topScores: scoped.slice(0, 5).map((c) => c.score),
+    });
+
     if (scoped.length < MIN_SCOPED_CHUNKS) {
       return {
         answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
@@ -281,6 +409,7 @@ export async function runScopedRagChat(input: {
       };
     }
 
+    // Sem catch genérico: erros reais do provedor sobem com stack e detalhe.
     const generated = await answerFromChunks({
       question: input.question,
       chunks: scoped.slice(0, 12),
@@ -288,11 +417,6 @@ export async function runScopedRagChat(input: {
       history: input.history,
     });
 
-    if (!generated) {
-      throw new Error(
-        `Não foi possível gerar a resposta restrita a ${requested}. Verifique a configuração do modelo de IA.`,
-      );
-    }
 
     return {
       answer: generated.answer,
