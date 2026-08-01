@@ -1,0 +1,316 @@
+import { API_BASE_URL } from "@/services/api-client";
+import { fixMojibake } from "@/lib/text-encoding";
+import { AI_DEFAULT_MODEL, AI_SYSTEM_PROMPT } from "@/lib/ai-config";
+import {
+  chunkInScope,
+  detectDocumentScope,
+  type DetectedScope,
+} from "@/lib/rag-scope";
+
+export type RagSource = {
+  documentId?: string;
+  filename?: string;
+  documentName?: string;
+  title?: string;
+  chunkId?: string;
+  chunkIndex?: number;
+  page?: number;
+  score?: number;
+  text?: string;
+  snippet?: string;
+};
+
+export type RagChatPayload = {
+  answer: string;
+  conversationId?: string;
+  model?: string;
+  confidence?: number;
+  latencyMs?: number;
+  sources: RagSource[];
+  resultsCount: number;
+  scopedTo?: string[];
+  metadata?: { searchTime?: string; generationTime?: string; totalTime?: string };
+};
+
+export type HistoryMessage = { role: "user" | "assistant"; content: string };
+
+/** Documentos indexados (GET /documents), com id e nome real. */
+export async function fetchDocumentList(): Promise<Array<{ id?: string; name?: string }>> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/documents`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) return [];
+    const raw = (await response.json()) as unknown;
+    const list = Array.isArray(raw)
+      ? raw
+      : ((raw as { documents?: unknown[]; data?: unknown[] })?.documents ??
+        (raw as { data?: unknown[] })?.data ??
+        []);
+    return (list as Array<Record<string, unknown>>).map((item) => {
+      const name = item?.title ?? item?.filename ?? item?.name;
+      return {
+        id: typeof item?.id === "string" ? item.id : undefined,
+        name: typeof name === "string" ? fixMojibake(name) : undefined,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+/** Nomes reais dos documentos indexados, por id. */
+export async function fetchDocumentNames(): Promise<Map<string, string>> {
+  const names = new Map<string, string>();
+  for (const doc of await fetchDocumentList()) {
+    if (doc.id && doc.name) names.set(doc.id, doc.name);
+  }
+  return names;
+}
+
+export function normalizeSources(
+  rawSources: RagSource[],
+  names: Map<string, string>,
+): RagSource[] {
+  return rawSources.map((s) => {
+    const name =
+      s.documentName ?? s.title ?? s.filename ?? (s.documentId ? names.get(s.documentId) : undefined);
+    return {
+      documentId: s.documentId,
+      filename: s.filename ? fixMojibake(s.filename) : undefined,
+      documentName: name ? fixMojibake(name) : undefined,
+      chunkId: s.chunkId,
+      chunkIndex: s.chunkIndex,
+      page: s.page,
+      score: s.score,
+      snippet: s.snippet ?? s.text,
+    };
+  });
+}
+
+/** POST /search — recuperação vetorial crua. */
+export async function searchChunks(query: string, limit: number): Promise<RagSource[]> {
+  const response = await fetch(`${API_BASE_URL}/search`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ query, limit }),
+  });
+  const text = await response.text();
+  if (!response.ok) throw new Error(`RAG /search [${response.status}]: ${text.slice(0, 300)}`);
+  let parsed: { results?: RagSource[] } | RagSource[];
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error("Resposta inválida da API RAG.");
+  }
+  return Array.isArray(parsed) ? parsed : (parsed?.results ?? []);
+}
+
+/** POST /chat — recuperação + geração do backend, sobre toda a base. */
+export async function backendChat(input: {
+  question: string;
+  conversationId?: string;
+  history: HistoryMessage[];
+}): Promise<
+  Partial<RagChatPayload> & { response?: string; citations?: RagSource[] }
+> {
+  const body: Record<string, unknown> = { question: input.question };
+  if (input.conversationId) body.conversationId = input.conversationId;
+  if (input.history.length) body.history = input.history;
+
+  const response = await fetch(`${API_BASE_URL}/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  });
+  const text = await response.text();
+  if (!response.ok) throw new Error(`RAG /chat [${response.status}]: ${text.slice(0, 300)}`);
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error("Resposta inválida da API RAG.");
+  }
+}
+
+/**
+ * Geração restrita ao contexto informado (documento citado pelo usuário).
+ * Usada apenas quando há escopo detectado; caso contrário o /chat responde.
+ */
+export async function answerFromChunks(input: {
+  question: string;
+  chunks: RagSource[];
+  scopeNames: string[];
+  history: HistoryMessage[];
+}): Promise<{ answer: string; model?: string } | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+  const model = process.env.GEMINI_MODEL ?? AI_DEFAULT_MODEL;
+
+  const context = input.chunks
+    .map((c, i) => {
+      const name = c.documentName ?? c.filename ?? "Documento indexado";
+      const page = c.page != null ? ` (p. ${c.page})` : "";
+      return `[${i + 1}] ${name}${page}\n${(c.snippet ?? c.text ?? "").slice(0, 2500)}`;
+    })
+    .join("\n\n");
+
+  const scopeInstruction = `Restrição de escopo documental (prioridade máxima):
+- O usuário citou explicitamente: ${input.scopeNames.join(", ")}.
+- Responda EXCLUSIVAMENTE com base nos trechos fornecidos abaixo, que pertencem a esse(s) documento(s).
+- Nunca utilize artigos, dispositivos ou numerações de outros documentos.
+- Se existirem artigos com o mesmo número em outros documentos, ignore-os.
+- Se os trechos fornecidos não contiverem a informação, diga explicitamente que o documento citado não traz essa informação nos trechos recuperados, sem substituir por outro documento.
+- Ao citar, indique sempre o nome do documento de origem.
+
+Trechos recuperados:
+${context}`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: {
+          role: "system",
+          parts: [{ text: `${AI_SYSTEM_PROMPT}\n\n${scopeInstruction}` }],
+        },
+        contents: [
+          ...input.history.slice(-6).map((m) => ({
+            role: m.role === "assistant" ? "model" : "user",
+            parts: [{ text: m.content }],
+          })),
+          { role: "user", parts: [{ text: input.question }] },
+        ],
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    console.error(`[QAP IA] Gemini escopo falhou [${response.status}]`);
+    return null;
+  }
+
+  const json = (await response.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+  const answer =
+    json?.candidates?.[0]?.content?.parts
+      ?.map((p) => p.text ?? "")
+      .join("")
+      .trim() ?? "";
+  return answer ? { answer, model } : null;
+}
+
+/** Número mínimo de trechos do documento citado para responder só com ele. */
+const MIN_SCOPED_CHUNKS = 2;
+
+/**
+ * Orquestra a consulta RAG com escopo documental.
+ *
+ * 1. Detecta documentos citados na pergunta.
+ * 2. Havendo citação (e sem pedido de comparação), recupera via /search e
+ *    mantém apenas os chunks daquele documento; se houver o mínimo, gera a
+ *    resposta restrita a eles.
+ * 3. Sem citação, com pedido de comparação, ou sem chunks suficientes,
+ *    segue o fluxo original do /chat — sinalizando quando a resposta usa
+ *    outros documentos além do citado.
+ */
+export async function runScopedRagChat(input: {
+  question: string;
+  conversationId?: string;
+  history: HistoryMessage[];
+}): Promise<RagChatPayload> {
+  const documents = await fetchDocumentList();
+  const scope: DetectedScope = detectDocumentScope(input.question, documents);
+  const scopeNames = scope.documents
+    .map((d) => d.name)
+    .filter((n): n is string => Boolean(n));
+
+  if (scope.keys.length && !scope.comparison) {
+    try {
+      const raw = await searchChunks(input.question, 24);
+      const names = await fetchDocumentNames();
+      const normalized = normalizeSources(raw, names);
+      const scoped = normalized.filter((c) => chunkInScope(c, scope));
+
+      if (scoped.length >= MIN_SCOPED_CHUNKS) {
+        const generated = await answerFromChunks({
+          question: input.question,
+          chunks: scoped.slice(0, 12),
+          scopeNames: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+          history: input.history,
+        });
+        if (generated) {
+          return {
+            answer: generated.answer,
+            model: generated.model,
+            sources: scoped.slice(0, 12),
+            resultsCount: scoped.length,
+            scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+          };
+        }
+      }
+    } catch (error) {
+      console.error("[QAP IA] Recuperação com escopo falhou, usando /chat:", error);
+    }
+  }
+
+  // Fluxo original do backend.
+  const parsed = await backendChat(input);
+  const rawSources = parsed.sources ?? parsed.citations ?? [];
+  const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
+    ? await fetchDocumentNames()
+    : new Map<string, string>();
+  const sources = normalizeSources(rawSources, names);
+
+  let answer = parsed.answer ?? parsed.response ?? "";
+  if (scope.keys.length && !scope.comparison) {
+    const outside = sources.filter((s) => !chunkInScope(s, scope));
+    const requested = scopeNames.length
+      ? scopeNames.join(", ")
+      : scope.keys.map((k) => k.toUpperCase()).join(", ");
+    if (sources.length && outside.length) {
+      answer = `⚠️ Atenção: não foram encontrados trechos suficientes de ${requested}. A resposta abaixo utiliza também outros documentos — confira o documento de origem em cada citação.\n\n${answer}`;
+    }
+  }
+
+  return {
+    answer,
+    conversationId: parsed.conversationId,
+    model: parsed.model,
+    confidence: parsed.confidence,
+    latencyMs: parsed.latencyMs,
+    resultsCount: rawSources.length,
+    sources,
+    scopedTo: scopeNames.length ? scopeNames : undefined,
+    metadata: parsed.metadata
+      ? {
+          searchTime: parsed.metadata.searchTime,
+          generationTime: parsed.metadata.generationTime,
+          totalTime: parsed.metadata.totalTime,
+        }
+      : undefined,
+  };
+}
+
+/** Busca semântica com priorização do documento citado na consulta. */
+export async function runScopedRagSearch(input: {
+  query: string;
+  limit?: number;
+}): Promise<RagSource[]> {
+  const results = await searchChunks(input.query, input.limit ?? 10);
+  const needsNames = results.some((r) => !r.filename && !r.documentName && !r.title);
+  const names = needsNames ? await fetchDocumentNames() : new Map<string, string>();
+  const normalized = normalizeSources(results, names);
+
+  const documents = await fetchDocumentList();
+  const scope = detectDocumentScope(input.query, documents);
+  if (!scope.keys.length || scope.comparison) return normalized;
+
+  const inScope = normalized.filter((r) => chunkInScope(r, scope));
+  // Documento citado primeiro; os demais permanecem como complemento.
+  return inScope.length
+    ? [...inScope, ...normalized.filter((r) => !chunkInScope(r, scope))]
+    : normalized;
+}
