@@ -4,6 +4,7 @@ import { AI_DEFAULT_MODEL, AI_SYSTEM_PROMPT } from "@/lib/ai-config";
 import {
   chunkInScope,
   detectDocumentScope,
+  formatDocumentKey,
   type DetectedScope,
 } from "@/lib/rag-scope";
 
@@ -104,8 +105,13 @@ export async function searchChunks(
   const body: Record<string, unknown> = { query, limit };
   if (documentIds.length) {
     body.documentId = documentIds[0];
+    body.document_id = documentIds[0];
     body.documentIds = documentIds;
-    body.filter = { documentId: documentIds.length === 1 ? documentIds[0] : documentIds };
+    body.document_ids = documentIds;
+    body.filter = {
+      documentId: documentIds.length === 1 ? documentIds[0] : documentIds,
+      document_id: documentIds.length === 1 ? documentIds[0] : documentIds,
+    };
   }
   const response = await fetch(`${API_BASE_URL}/search`, {
     method: "POST",
@@ -226,12 +232,11 @@ const MIN_SCOPED_CHUNKS = 2;
  * Orquestra a consulta RAG com escopo documental.
  *
  * 1. Detecta documentos citados na pergunta.
- * 2. Havendo citação (e sem pedido de comparação), recupera via /search e
+ * 2. Havendo citação, recupera via /search e
  *    mantém apenas os chunks daquele documento; se houver o mínimo, gera a
  *    resposta restrita a eles.
- * 3. Sem citação, com pedido de comparação, ou sem chunks suficientes,
- *    segue o fluxo original do /chat — sinalizando quando a resposta usa
- *    outros documentos além do citado.
+ * 3. Sem citação, segue o fluxo original do /chat. Com citação sem contexto
+ *    suficiente, falha de forma fechada e nunca consulta outro documento.
  */
 export async function runScopedRagChat(input: {
   question: string;
@@ -244,14 +249,23 @@ export async function runScopedRagChat(input: {
     .map((d) => d.name)
     .filter((n): n is string => Boolean(n));
 
-  const requested = scopeNames.length
-    ? scopeNames.join(", ")
-    : scope.keys.map((k) => k.toUpperCase()).join(", ");
+  const requested = scope.keys.map(formatDocumentKey).join(", ");
 
-  if (scope.keys.length && !scope.comparison) {
+  if (scope.keys.length) {
     const scopeIds = scope.documents
       .map((d) => d.id)
       .filter((id): id is string => Boolean(id));
+
+    // Documento citado, mas não resolvido no catálogo: não execute uma busca
+    // global, pois ela poderia trazer conteúdo de outro documento.
+    if (!scopeIds.length) {
+      return {
+        answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
+        sources: [],
+        resultsCount: 0,
+        scopedTo: scope.keys.map(formatDocumentKey),
+      };
+    }
 
     // Busca vetorial restrita ao documento citado — sem fallback para outros.
     const raw = await searchChunks(input.question, 30, scopeIds);
@@ -260,17 +274,17 @@ export async function runScopedRagChat(input: {
 
     if (scoped.length < MIN_SCOPED_CHUNKS) {
       return {
-        answer: `Não há contexto suficiente indexado de ${requested} para responder a essa pergunta.\n\nO documento citado não retornou trechos relevantes na busca vetorial, e outros documentos não serão utilizados como substituto. Verifique se ${requested} está corretamente indexado (reindexação pode ser necessária) ou reformule a pergunta com os termos usados no próprio documento.`,
+        answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
         sources: scoped,
         resultsCount: scoped.length,
-        scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+        scopedTo: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
       };
     }
 
     const generated = await answerFromChunks({
       question: input.question,
       chunks: scoped.slice(0, 12),
-      scopeNames: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+      scopeNames: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
       history: input.history,
     });
 
@@ -285,11 +299,11 @@ export async function runScopedRagChat(input: {
       model: generated.model,
       sources: scoped.slice(0, 12),
       resultsCount: scoped.length,
-      scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+      scopedTo: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
     };
   }
 
-  // Sem documento citado (ou pedido de comparação): fluxo original do backend.
+  // Somente sem documento citado: fluxo original do backend sobre toda a base.
   const parsed = await backendChat(input);
   const rawSources = parsed.sources ?? parsed.citations ?? [];
   const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
@@ -326,7 +340,11 @@ export async function runScopedRagSearch(input: {
   const documents = await fetchDocumentList();
   const scope = detectDocumentScope(input.query, documents);
   const scopeIds = scope.documents.map((d) => d.id).filter((id): id is string => Boolean(id));
-  const scoped = scope.keys.length && !scope.comparison;
+  const scoped = scope.keys.length > 0;
+
+  // Falha fechada: uma referência explícita não resolvida jamais vira busca
+  // global. Isso evita recuperar um artigo homônimo de outro documento.
+  if (scoped && !scopeIds.length) return [];
 
   const results = await searchChunks(
     input.query,
