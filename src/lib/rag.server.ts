@@ -300,12 +300,33 @@ export async function runScopedRagChat(input: {
 
     // Documento citado, mas não resolvido no catálogo: não execute uma busca
     // global, pois ela poderia trazer conteúdo de outro documento.
+    // Em vez de retornar erro local, faz fallback para o backendChat.
     if (!scopeIds.length) {
+      const parsed = await backendChat(input);
+      const rawSources = parsed.sources ?? parsed.citations ?? [];
+      const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
+        ? await fetchDocumentNames()
+        : new Map<string, string>();
+      const sources = normalizeSources(rawSources, names);
+
+      const answer = parsed.answer ?? parsed.response ?? "";
+
       return {
-        answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
-        sources: [],
-        resultsCount: 0,
+        answer,
+        conversationId: parsed.conversationId,
+        model: parsed.model,
+        confidence: parsed.confidence,
+        latencyMs: parsed.latencyMs,
+        resultsCount: rawSources.length,
+        sources,
         scopedTo: scope.keys.map(formatDocumentKey),
+        metadata: parsed.metadata
+          ? {
+              searchTime: parsed.metadata.searchTime,
+              generationTime: parsed.metadata.generationTime,
+              totalTime: parsed.metadata.totalTime,
+            }
+          : undefined,
       };
     }
 
@@ -326,11 +347,31 @@ export async function runScopedRagChat(input: {
     });
 
     if (scoped.length < MIN_SCOPED_CHUNKS) {
+      const parsed = await backendChat(input);
+      const rawSources = parsed.sources ?? parsed.citations ?? [];
+      const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
+        ? await fetchDocumentNames()
+        : new Map<string, string>();
+      const sources = normalizeSources(rawSources, names);
+
+      const answer = parsed.answer ?? parsed.response ?? "";
+
       return {
-        answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
-        sources: scoped,
-        resultsCount: scoped.length,
+        answer,
+        conversationId: parsed.conversationId,
+        model: parsed.model,
+        confidence: parsed.confidence,
+        latencyMs: parsed.latencyMs,
+        resultsCount: rawSources.length,
+        sources,
         scopedTo: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
+        metadata: parsed.metadata
+          ? {
+              searchTime: parsed.metadata.searchTime,
+              generationTime: parsed.metadata.generationTime,
+              totalTime: parsed.metadata.totalTime,
+            }
+          : undefined,
       };
     }
 
