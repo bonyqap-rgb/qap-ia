@@ -88,12 +88,29 @@ export function normalizeSources(
   });
 }
 
-/** POST /search — recuperação vetorial crua. */
-export async function searchChunks(query: string, limit: number): Promise<RagSource[]> {
+/**
+ * POST /search — recuperação vetorial crua.
+ *
+ * Quando há documento citado, os ids vão no corpo (documentId/documentIds/
+ * filter) para que o backend possa restringir a busca vetorial na origem.
+ * Campos extras são ignorados por backends que ainda não os suportam, e o
+ * escopo continua garantido pela filtragem aplicada aqui.
+ */
+export async function searchChunks(
+  query: string,
+  limit: number,
+  documentIds: string[] = [],
+): Promise<RagSource[]> {
+  const body: Record<string, unknown> = { query, limit };
+  if (documentIds.length) {
+    body.documentId = documentIds[0];
+    body.documentIds = documentIds;
+    body.filter = { documentId: documentIds.length === 1 ? documentIds[0] : documentIds };
+  }
   const response = await fetch(`${API_BASE_URL}/search`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ query, limit }),
+    body: JSON.stringify(body),
   });
   const text = await response.text();
   if (!response.ok) throw new Error(`RAG /search [${response.status}]: ${text.slice(0, 300)}`);
@@ -227,36 +244,52 @@ export async function runScopedRagChat(input: {
     .map((d) => d.name)
     .filter((n): n is string => Boolean(n));
 
-  if (scope.keys.length && !scope.comparison) {
-    try {
-      const raw = await searchChunks(input.question, 24);
-      const names = await fetchDocumentNames();
-      const normalized = normalizeSources(raw, names);
-      const scoped = normalized.filter((c) => chunkInScope(c, scope));
+  const requested = scopeNames.length
+    ? scopeNames.join(", ")
+    : scope.keys.map((k) => k.toUpperCase()).join(", ");
 
-      if (scoped.length >= MIN_SCOPED_CHUNKS) {
-        const generated = await answerFromChunks({
-          question: input.question,
-          chunks: scoped.slice(0, 12),
-          scopeNames: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
-          history: input.history,
-        });
-        if (generated) {
-          return {
-            answer: generated.answer,
-            model: generated.model,
-            sources: scoped.slice(0, 12),
-            resultsCount: scoped.length,
-            scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
-          };
-        }
-      }
-    } catch (error) {
-      console.error("[QAP IA] Recuperação com escopo falhou, usando /chat:", error);
+  if (scope.keys.length && !scope.comparison) {
+    const scopeIds = scope.documents
+      .map((d) => d.id)
+      .filter((id): id is string => Boolean(id));
+
+    // Busca vetorial restrita ao documento citado — sem fallback para outros.
+    const raw = await searchChunks(input.question, 30, scopeIds);
+    const names = await fetchDocumentNames();
+    const scoped = normalizeSources(raw, names).filter((c) => chunkInScope(c, scope));
+
+    if (scoped.length < MIN_SCOPED_CHUNKS) {
+      return {
+        answer: `Não há contexto suficiente indexado de ${requested} para responder a essa pergunta.\n\nO documento citado não retornou trechos relevantes na busca vetorial, e outros documentos não serão utilizados como substituto. Verifique se ${requested} está corretamente indexado (reindexação pode ser necessária) ou reformule a pergunta com os termos usados no próprio documento.`,
+        sources: scoped,
+        resultsCount: scoped.length,
+        scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+      };
     }
+
+    const generated = await answerFromChunks({
+      question: input.question,
+      chunks: scoped.slice(0, 12),
+      scopeNames: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+      history: input.history,
+    });
+
+    if (!generated) {
+      throw new Error(
+        `Não foi possível gerar a resposta restrita a ${requested}. Verifique a configuração do modelo de IA.`,
+      );
+    }
+
+    return {
+      answer: generated.answer,
+      model: generated.model,
+      sources: scoped.slice(0, 12),
+      resultsCount: scoped.length,
+      scopedTo: scopeNames.length ? scopeNames : scope.keys.map((k) => k.toUpperCase()),
+    };
   }
 
-  // Fluxo original do backend.
+  // Sem documento citado (ou pedido de comparação): fluxo original do backend.
   const parsed = await backendChat(input);
   const rawSources = parsed.sources ?? parsed.citations ?? [];
   const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
@@ -264,16 +297,7 @@ export async function runScopedRagChat(input: {
     : new Map<string, string>();
   const sources = normalizeSources(rawSources, names);
 
-  let answer = parsed.answer ?? parsed.response ?? "";
-  if (scope.keys.length && !scope.comparison) {
-    const outside = sources.filter((s) => !chunkInScope(s, scope));
-    const requested = scopeNames.length
-      ? scopeNames.join(", ")
-      : scope.keys.map((k) => k.toUpperCase()).join(", ");
-    if (sources.length && outside.length) {
-      answer = `⚠️ Atenção: não foram encontrados trechos suficientes de ${requested}. A resposta abaixo utiliza também outros documentos — confira o documento de origem em cada citação.\n\n${answer}`;
-    }
-  }
+  const answer = parsed.answer ?? parsed.response ?? "";
 
   return {
     answer,
@@ -294,23 +318,27 @@ export async function runScopedRagChat(input: {
   };
 }
 
-/** Busca semântica com priorização do documento citado na consulta. */
+/** Busca semântica restrita ao documento citado na consulta, quando houver. */
 export async function runScopedRagSearch(input: {
   query: string;
   limit?: number;
 }): Promise<RagSource[]> {
-  const results = await searchChunks(input.query, input.limit ?? 10);
+  const documents = await fetchDocumentList();
+  const scope = detectDocumentScope(input.query, documents);
+  const scopeIds = scope.documents.map((d) => d.id).filter((id): id is string => Boolean(id));
+  const scoped = scope.keys.length && !scope.comparison;
+
+  const results = await searchChunks(
+    input.query,
+    scoped ? Math.max(input.limit ?? 10, 30) : (input.limit ?? 10),
+    scoped ? scopeIds : [],
+  );
   const needsNames = results.some((r) => !r.filename && !r.documentName && !r.title);
   const names = needsNames ? await fetchDocumentNames() : new Map<string, string>();
   const normalized = normalizeSources(results, names);
 
-  const documents = await fetchDocumentList();
-  const scope = detectDocumentScope(input.query, documents);
-  if (!scope.keys.length || scope.comparison) return normalized;
+  if (!scoped) return normalized;
 
-  const inScope = normalized.filter((r) => chunkInScope(r, scope));
-  // Documento citado primeiro; os demais permanecem como complemento.
-  return inScope.length
-    ? [...inScope, ...normalized.filter((r) => !chunkInScope(r, scope))]
-    : normalized;
+  // Somente trechos do documento citado — nunca complementa com outros.
+  return normalized.filter((r) => chunkInScope(r, scope)).slice(0, input.limit ?? 10);
 }
