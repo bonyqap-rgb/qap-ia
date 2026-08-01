@@ -247,6 +247,7 @@ function ChatPage() {
           ]);
         } catch (apiError) {
           // Fallback: serviço de IA direto, quando a API RAG não está acessível.
+          // Nesse caminho NÃO há contexto documental — a resposta é sinalizada.
           if (!(apiError instanceof ApiError) || !apiError.isNetwork) throw apiError;
           const { reply } = await sendChatMessage({ data: { message: trimmed } });
           setMessages((prev) => [
@@ -254,12 +255,13 @@ function ChatPage() {
             {
               id,
               role: "assistant",
-              content: reply,
+              content: `⚠️ Base documental inacessível — resposta gerada sem contexto dos documentos indexados.\n\n${reply}`,
               createdAt: Date.now(),
               latencyMs: Math.round(performance.now() - startedAt),
             },
           ]);
         }
+
 
       } catch (error) {
         setMessages((prev) => [
