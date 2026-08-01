@@ -389,6 +389,17 @@ export async function runScopedRagChat(input: {
     const names = await fetchDocumentNames();
     const scoped = normalizeSources(raw, names).filter((c) => chunkInScope(c, scope));
 
+    console.info("[QAP IA][scoped] recuperação", {
+      question: input.question,
+      requested,
+      scopeIds,
+      scopeNames,
+      rawChunks: raw.length,
+      scopedChunks: scoped.length,
+      scopedContextChars: scoped.reduce((sum, c) => sum + (c.snippet?.length ?? 0), 0),
+      topScores: scoped.slice(0, 5).map((c) => c.score),
+    });
+
     if (scoped.length < MIN_SCOPED_CHUNKS) {
       return {
         answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
@@ -398,6 +409,7 @@ export async function runScopedRagChat(input: {
       };
     }
 
+    // Sem catch genérico: erros reais do provedor sobem com stack e detalhe.
     const generated = await answerFromChunks({
       question: input.question,
       chunks: scoped.slice(0, 12),
@@ -405,11 +417,6 @@ export async function runScopedRagChat(input: {
       history: input.history,
     });
 
-    if (!generated) {
-      throw new Error(
-        `Não foi possível gerar a resposta restrita a ${requested}. Verifique a configuração do modelo de IA.`,
-      );
-    }
 
     return {
       answer: generated.answer,
