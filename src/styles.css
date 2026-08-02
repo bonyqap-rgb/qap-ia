@@ -448,3 +448,103 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============ Fundação do Design System — estados padrão ============ */
+
+/* Superfície de estado (vazio / erro / carregamento) */
+@utility state-surface {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 12) calc(var(--spacing) * 6);
+  text-align: center;
+  border: 1px dashed color-mix(in oklab, var(--color-border) 90%, transparent);
+  border-radius: var(--radius-2xl);
+  background-color: color-mix(in oklab, var(--color-muted) 45%, transparent);
+}
+
+@utility state-error {
+  border-style: solid;
+  border-color: color-mix(in oklab, var(--color-destructive) 40%, transparent);
+  background-color: color-mix(in oklab, var(--color-destructive) 8%, transparent);
+  color: var(--color-destructive);
+}
+
+/* Skeleton oficial de carregamento */
+@utility skeleton-block {
+  border-radius: var(--radius-md);
+  background-color: color-mix(in oklab, var(--color-muted) 90%, transparent);
+  animation: qap-pulse var(--duration-ambient, 640ms) ease-in-out infinite alternate;
+}
+
+@keyframes qap-pulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Chips e badges institucionais */
+@utility chip-base {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--color-border) 85%, transparent);
+  background-color: color-mix(in oklab, var(--color-muted) 60%, transparent);
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-muted-foreground);
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+@utility chip-accent {
+  border-color: color-mix(in oklab, var(--color-azure) 30%, transparent);
+  background-color: color-mix(in oklab, var(--color-azure) 12%, transparent);
+  color: var(--color-azure-dark);
+}
+
+/* Linhas de tabela e listas institucionais */
+@utility table-row-base {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+  &:hover {
+    background-color: color-mix(in oklab, var(--color-muted) 55%, transparent);
+  }
+}
+
+@utility list-row-base {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  border-radius: var(--radius-lg);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+  &:hover {
+    background-color: color-mix(in oklab, var(--color-muted) 60%, transparent);
+  }
+}
+
+/* Contêiner de conteúdo padrão (respiro generoso, estilo HIG) */
+@utility container-content {
+  width: 100%;
+  max-width: var(--spacing-content);
+  margin-inline: auto;
+  padding-inline: calc(var(--spacing) * 4);
+  @media (width >= 40rem) {
+    padding-inline: calc(var(--spacing) * 6);
+  }
+}
+
+@utility section-spacing {
+  padding-block: calc(var(--spacing) * 14);
+  @media (width >= 40rem) {
+    padding-block: var(--spacing-section);
+  }
+}
