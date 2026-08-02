@@ -44,9 +44,51 @@
   --color-steel-light: var(--steel-light);
   --color-steel-dark: var(--steel-dark);
 
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* Escala tipográfica oficial (Apple HIG-like) */
+  --text-caption2: 0.6875rem;
+  --text-caption2--line-height: 1rem;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.1rem;
+  --text-footnote: 0.8125rem;
+  --text-footnote--line-height: 1.2rem;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.55rem;
+  --text-callout: 1rem;
+  --text-callout--line-height: 1.6rem;
+  --text-headline: 1.125rem;
+  --text-headline--line-height: 1.6rem;
+  --text-title3: 1.375rem;
+  --text-title3--line-height: 1.75rem;
+  --text-title2: 1.75rem;
+  --text-title2--line-height: 2.1rem;
+  --text-title1: 2.25rem;
+  --text-title1--line-height: 2.5rem;
+  --text-display: 3rem;
+  --text-display--line-height: 3.15rem;
+
+  /* Espaçamento — grade base de 4px */
+  --spacing: 0.25rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-section: 5rem;
+  --spacing-content: 72rem;
+
+  /* Duração e easing das transições */
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
   --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
+
 
 :root {
   --radius: 0.875rem;
@@ -81,7 +123,23 @@
   --border: oklch(0.9 0.008 250);
   --input: oklch(0.9 0.008 250);
   --ring: oklch(0.6 0.18 254);
+
+  /* Estados semânticos */
+  --success: oklch(0.6 0.13 155);
+  --success-foreground: oklch(0.99 0.004 250);
+  --warning: oklch(0.75 0.14 78);
+  --warning-foreground: oklch(0.24 0.04 258);
+  --info: oklch(0.6 0.18 254);
+  --info-foreground: oklch(0.99 0.004 250);
+
+  /* Durações de transição */
+  --duration-instant: 80ms;
+  --duration-fast: 140ms;
+  --duration-base: 220ms;
+  --duration-slow: 360ms;
+  --duration-ambient: 640ms;
 }
+
 
 .dark {
   --navy: oklch(0.52 0.09 256);
@@ -113,7 +171,15 @@
   --border: oklch(0.3 0.02 258);
   --input: oklch(0.3 0.02 258);
   --ring: oklch(0.68 0.16 252);
+
+  --success: oklch(0.7 0.13 155);
+  --success-foreground: oklch(0.16 0.03 258);
+  --warning: oklch(0.8 0.13 78);
+  --warning-foreground: oklch(0.18 0.03 258);
+  --info: oklch(0.68 0.16 252);
+  --info-foreground: oklch(0.16 0.03 258);
 }
+
 
 @layer base {
   * {
@@ -380,5 +446,105 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============ Fundação do Design System — estados padrão ============ */
+
+/* Superfície de estado (vazio / erro / carregamento) */
+@utility state-surface {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 12) calc(var(--spacing) * 6);
+  text-align: center;
+  border: 1px dashed color-mix(in oklab, var(--color-border) 90%, transparent);
+  border-radius: var(--radius-2xl);
+  background-color: color-mix(in oklab, var(--color-muted) 45%, transparent);
+}
+
+@utility state-error {
+  border-style: solid;
+  border-color: color-mix(in oklab, var(--color-destructive) 40%, transparent);
+  background-color: color-mix(in oklab, var(--color-destructive) 8%, transparent);
+  color: var(--color-destructive);
+}
+
+/* Skeleton oficial de carregamento */
+@utility skeleton-block {
+  border-radius: var(--radius-md);
+  background-color: color-mix(in oklab, var(--color-muted) 90%, transparent);
+  animation: qap-pulse var(--duration-ambient, 640ms) ease-in-out infinite alternate;
+}
+
+@keyframes qap-pulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Chips e badges institucionais */
+@utility chip-base {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--color-border) 85%, transparent);
+  background-color: color-mix(in oklab, var(--color-muted) 60%, transparent);
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-muted-foreground);
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+@utility chip-accent {
+  border-color: color-mix(in oklab, var(--color-azure) 30%, transparent);
+  background-color: color-mix(in oklab, var(--color-azure) 12%, transparent);
+  color: var(--color-azure-dark);
+}
+
+/* Linhas de tabela e listas institucionais */
+@utility table-row-base {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+  &:hover {
+    background-color: color-mix(in oklab, var(--color-muted) 55%, transparent);
+  }
+}
+
+@utility list-row-base {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  border-radius: var(--radius-lg);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+  &:hover {
+    background-color: color-mix(in oklab, var(--color-muted) 60%, transparent);
+  }
+}
+
+/* Contêiner de conteúdo padrão (respiro generoso, estilo HIG) */
+@utility container-content {
+  width: 100%;
+  max-width: var(--spacing-content);
+  margin-inline: auto;
+  padding-inline: calc(var(--spacing) * 4);
+  @media (width >= 40rem) {
+    padding-inline: calc(var(--spacing) * 6);
+  }
+}
+
+@utility section-spacing {
+  padding-block: calc(var(--spacing) * 14);
+  @media (width >= 40rem) {
+    padding-block: var(--spacing-section);
   }
 }
