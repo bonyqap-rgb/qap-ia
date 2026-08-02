@@ -285,6 +285,7 @@ export async function runScopedRagChat(input: {
   conversationId?: string;
   history: HistoryMessage[];
 }): Promise<RagChatPayload> {
+  console.log("[RAG] entrando em runScopedRagChat");
   const documents = await fetchDocumentList();
   const scope: DetectedScope = detectDocumentScope(input.question, documents);
   const scopeNames = scope.documents
@@ -294,18 +295,41 @@ export async function runScopedRagChat(input: {
   const requested = scope.keys.map(formatDocumentKey).join(", ");
 
   if (scope.keys.length) {
+    console.log("[RAG] escopo detectado");
     const scopeIds = scope.documents
       .map((d) => d.id)
       .filter((id): id is string => Boolean(id));
 
     // Documento citado, mas não resolvido no catálogo: não execute uma busca
     // global, pois ela poderia trazer conteúdo de outro documento.
+    // Em vez de retornar erro local, faz fallback para o backendChat.
     if (!scopeIds.length) {
+      console.log("[RAG] chamando backendChat");
+      const parsed = await backendChat(input);
+      const rawSources = parsed.sources ?? parsed.citations ?? [];
+      const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
+        ? await fetchDocumentNames()
+        : new Map<string, string>();
+      const sources = normalizeSources(rawSources, names);
+
+      const answer = parsed.answer ?? parsed.response ?? "";
+
       return {
-        answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
-        sources: [],
-        resultsCount: 0,
+        answer,
+        conversationId: parsed.conversationId,
+        model: parsed.model,
+        confidence: parsed.confidence,
+        latencyMs: parsed.latencyMs,
+        resultsCount: rawSources.length,
+        sources,
         scopedTo: scope.keys.map(formatDocumentKey),
+        metadata: parsed.metadata
+          ? {
+              searchTime: parsed.metadata.searchTime,
+              generationTime: parsed.metadata.generationTime,
+              totalTime: parsed.metadata.totalTime,
+            }
+          : undefined,
       };
     }
 
@@ -313,6 +337,8 @@ export async function runScopedRagChat(input: {
     const raw = await searchChunks(input.question, 30, scopeIds);
     const names = await fetchDocumentNames();
     const scoped = normalizeSources(raw, names).filter((c) => chunkInScope(c, scope));
+
+    console.log("[RAG] chunks encontrados: " + scoped.length);
 
     console.info("[QAP IA][scoped] recuperação", {
       question: input.question,
@@ -326,15 +352,37 @@ export async function runScopedRagChat(input: {
     });
 
     if (scoped.length < MIN_SCOPED_CHUNKS) {
+      console.log("[RAG] chamando backendChat");
+      const parsed = await backendChat(input);
+      const rawSources = parsed.sources ?? parsed.citations ?? [];
+      const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
+        ? await fetchDocumentNames()
+        : new Map<string, string>();
+      const sources = normalizeSources(rawSources, names);
+
+      const answer = parsed.answer ?? parsed.response ?? "";
+
       return {
-        answer: `Não foram encontrados trechos suficientes do documento ${requested} para responder com segurança.`,
-        sources: scoped,
-        resultsCount: scoped.length,
+        answer,
+        conversationId: parsed.conversationId,
+        model: parsed.model,
+        confidence: parsed.confidence,
+        latencyMs: parsed.latencyMs,
+        resultsCount: rawSources.length,
+        sources,
         scopedTo: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
+        metadata: parsed.metadata
+          ? {
+              searchTime: parsed.metadata.searchTime,
+              generationTime: parsed.metadata.generationTime,
+              totalTime: parsed.metadata.totalTime,
+            }
+          : undefined,
       };
     }
 
     // Sem catch genérico: erros reais do provedor sobem com stack e detalhe.
+    console.log("[RAG] chamando answerFromChunks");
     const generated = await answerFromChunks({
       question: input.question,
       chunks: scoped.slice(0, 12),
@@ -353,6 +401,7 @@ export async function runScopedRagChat(input: {
   }
 
   // Somente sem documento citado: fluxo original do backend sobre toda a base.
+  console.log("[RAG] chamando backendChat");
   const parsed = await backendChat(input);
   const rawSources = parsed.sources ?? parsed.citations ?? [];
   const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
