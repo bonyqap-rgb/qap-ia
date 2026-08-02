@@ -123,7 +123,23 @@
   --border: oklch(0.9 0.008 250);
   --input: oklch(0.9 0.008 250);
   --ring: oklch(0.6 0.18 254);
+
+  /* Estados semânticos */
+  --success: oklch(0.6 0.13 155);
+  --success-foreground: oklch(0.99 0.004 250);
+  --warning: oklch(0.75 0.14 78);
+  --warning-foreground: oklch(0.24 0.04 258);
+  --info: oklch(0.6 0.18 254);
+  --info-foreground: oklch(0.99 0.004 250);
+
+  /* Durações de transição */
+  --duration-instant: 80ms;
+  --duration-fast: 140ms;
+  --duration-base: 220ms;
+  --duration-slow: 360ms;
+  --duration-ambient: 640ms;
 }
+
 
 .dark {
   --navy: oklch(0.52 0.09 256);
