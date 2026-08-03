@@ -90,7 +90,7 @@ export function StatusPill({
 }) {
   const style = statusStyles[status ?? "unknown"];
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card px-3.5 py-3">
+    <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card px-3.5 py-3 transition-all duration-200 hover:border-border/100 hover:bg-muted/20 hover:shadow-subtle">
       <span className="relative flex h-2.5 w-2.5 shrink-0" aria-hidden>
         {status === "online" && (
           <span
