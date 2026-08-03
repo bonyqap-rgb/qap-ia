@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/qap-ia-logo.png.asset.json";
+import logoAsset from "@/assets/qap-ia-mark.png.asset.json";
 import { cn } from "@/lib/utils";
 
 type BrandLogoProps = {
@@ -7,7 +7,7 @@ type BrandLogoProps = {
   size?: number;
 };
 
-/** Emblema oficial do QAP IA. */
+/** Emblema oficial do QAP IA (recorte do escudo da logomarca). */
 export function BrandLogo({ className, size = 36 }: BrandLogoProps) {
   return (
     <span
@@ -22,7 +22,7 @@ export function BrandLogo({ className, size = 36 }: BrandLogoProps) {
         alt="QAP IA"
         width={size}
         height={size}
-        className="h-full w-full scale-[1.7] object-cover object-[50%_16%]"
+        className="h-full w-full scale-[1.45] object-cover object-[50%_30%]"
         loading="eager"
         decoding="async"
       />
@@ -47,5 +47,27 @@ export function BrandWordmark({
         </span>
       </span>
     </span>
+  );
+}
+
+/** Logomarca completa (emblema + assinatura) — usada em heros e telas de marca. */
+export function BrandLockup({
+  className,
+  size = 96,
+}: {
+  className?: string;
+  size?: number;
+}) {
+  return (
+    <img
+      src={logoAsset.url}
+      alt="QAP IA — Inteligência que apoia quem protege"
+      width={size}
+      height={size}
+      className={cn("select-none object-contain", className)}
+      style={{ width: size, height: size }}
+      loading="eager"
+      decoding="async"
+    />
   );
 }
