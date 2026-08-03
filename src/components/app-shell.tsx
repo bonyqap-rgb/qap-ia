@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Moon, Sun, ChevronRight } from "lucide-react";
+import { Moon, Sun, ChevronRight, Bell } from "lucide-react";
+
+import { SearchField } from "@/components/ds/search-field";
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
