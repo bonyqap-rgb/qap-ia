@@ -69,7 +69,16 @@ export function Markdown({ content, className }: { content: string; className?: 
               <table>{children}</table>
             </div>
           ),
-          code({ inline, className, children, ...props }: any) {
+          code({
+            inline,
+            className,
+            children,
+            ...props
+          }: {
+            inline?: boolean;
+            className?: string;
+            children?: React.ReactNode;
+          }) {
             const value = String(children).replace(/\n$/, "");
             if (inline) {
               return (

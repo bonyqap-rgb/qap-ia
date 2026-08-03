@@ -66,7 +66,9 @@ export function inspectLlmProviders(): LlmDiagnostics {
     {
       provider: "lovable",
       available: Boolean(lovableKey),
-      note: lovableKey ? `LOVABLE_API_KEY presente; modelo ${LOVABLE_DEFAULT_MODEL}` : "LOVABLE_API_KEY ausente",
+      note: lovableKey
+        ? `LOVABLE_API_KEY presente; modelo ${LOVABLE_DEFAULT_MODEL}`
+        : "LOVABLE_API_KEY ausente",
     },
   ];
 
@@ -247,9 +249,17 @@ export async function generateWithSelectedProvider(input: {
   let finishReason: string | undefined;
   if (selected.provider === "gemini") {
     const candidate = (
-      json as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> }; finishReason?: string }> }
+      json as {
+        candidates?: Array<{
+          content?: { parts?: Array<{ text?: string }> };
+          finishReason?: string;
+        }>;
+      }
     ).candidates?.[0];
-    answer = (candidate?.content?.parts ?? []).map((p) => p.text ?? "").join("").trim();
+    answer = (candidate?.content?.parts ?? [])
+      .map((p) => p.text ?? "")
+      .join("")
+      .trim();
     finishReason = candidate?.finishReason;
   } else {
     const choice = (
@@ -279,7 +289,9 @@ export async function generateWithSelectedProvider(input: {
       status: response.status,
       rawBody,
       finishReason,
-      usage: (json as { usage?: unknown; usageMetadata?: unknown }).usage ?? (json as { usageMetadata?: unknown }).usageMetadata,
+      usage:
+        (json as { usage?: unknown; usageMetadata?: unknown }).usage ??
+        (json as { usageMetadata?: unknown }).usageMetadata,
       durationMs,
       requestUrl,
       payloadBytes: serialized.length,

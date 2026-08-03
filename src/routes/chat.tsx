@@ -22,7 +22,6 @@ import {
   ThumbsDown,
   CornerDownLeft,
   AlertTriangle,
-
 } from "lucide-react";
 import { sendChatMessage } from "@/lib/ai-service.functions";
 import { AnswerMeta, CitationList } from "@/components/chat/answer-meta";
@@ -37,12 +36,7 @@ import { DataGap } from "@/components/common/page-primitives";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -80,8 +74,6 @@ type Message = {
   usedDocuments?: Array<{ id?: string; name: string }>;
   error?: boolean;
 };
-
-
 
 const suggestions = [
   {
@@ -149,7 +141,6 @@ const AssistantBubble = memo(function AssistantBubble({
     </>
   );
 });
-
 
 function ThinkingBubble() {
   return (
@@ -261,8 +252,6 @@ function ChatPage() {
             },
           ]);
         }
-
-
       } catch (error) {
         setMessages((prev) => [
           ...prev,
@@ -277,7 +266,6 @@ function ChatPage() {
             createdAt: Date.now(),
           },
         ]);
-
       } finally {
         setIsLoading(false);
         textareaRef.current?.focus();
@@ -421,12 +409,7 @@ function ChatPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 md:px-8">
-            <div
-              className={cn(
-                "mx-auto w-full max-w-3xl",
-                isEmpty && "flex h-full items-center",
-              )}
-            >
+            <div className={cn("mx-auto w-full max-w-3xl", isEmpty && "flex h-full items-center")}>
               {isEmpty ? (
                 <div className="flex w-full flex-col items-center justify-center py-4 animate-rise">
                   <BrandLogo size={56} className="mb-4 rounded-2xl shadow-azure" />
@@ -438,8 +421,8 @@ function ChatPage() {
                     Como posso ajudá-lo hoje?
                   </h1>
                   <p className="mt-2 max-w-md text-center text-[13px] leading-relaxed text-muted-foreground">
-                    Pesquisa jurídica e administrativa com base na legislação vigente,
-                    sempre com a norma correspondente citada.
+                    Pesquisa jurídica e administrativa com base na legislação vigente, sempre com a
+                    norma correspondente citada.
                   </p>
 
                   <div className="mt-7 grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2">
@@ -605,7 +588,6 @@ function ChatPage() {
                           </div>
                         </div>
                       </article>
-
                     );
                   })}
 
@@ -701,8 +683,8 @@ function ChatPage() {
               </div>
 
               <p className="mt-2.5 text-center text-[11px] leading-relaxed text-muted-foreground">
-                As respostas possuem caráter informativo e devem ser conferidas na
-                legislação oficial.
+                As respostas possuem caráter informativo e devem ser conferidas na legislação
+                oficial.
               </p>
             </div>
           </div>
@@ -749,7 +731,6 @@ function ChatPage() {
             </div>
           </aside>
         )}
-
       </div>
     </TooltipProvider>
   );

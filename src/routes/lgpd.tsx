@@ -61,9 +61,7 @@ function LgpdPage() {
             <div key={p.title} className="surface-panel p-4">
               <p.icon className="h-5 w-5 text-azure" />
               <h2 className="mt-2.5 text-sm font-semibold text-foreground">{p.title}</h2>
-              <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                {p.text}
-              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{p.text}</p>
             </div>
           ))}
         </div>
@@ -93,9 +91,9 @@ function LgpdPage() {
 
         <LegalSection title="Como exercer">
           <p>
-            Envie a solicitação para privacidade@qapia.com.br informando o nome
-            completo, o e-mail cadastrado e o direito que deseja exercer.
-            Responderemos dentro do prazo legal aplicável.
+            Envie a solicitação para privacidade@qapia.com.br informando o nome completo, o e-mail
+            cadastrado e o direito que deseja exercer. Responderemos dentro do prazo legal
+            aplicável.
           </p>
         </LegalSection>
 

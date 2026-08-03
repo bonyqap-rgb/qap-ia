@@ -108,7 +108,10 @@ function SignupPage() {
 
         <div className="flex items-start gap-2">
           <Checkbox id="terms" required className="mt-0.5" />
-          <Label htmlFor="terms" className="text-sm font-normal leading-relaxed text-muted-foreground">
+          <Label
+            htmlFor="terms"
+            className="text-sm font-normal leading-relaxed text-muted-foreground"
+          >
             Li e aceito os{" "}
             <Link to="/terms" className="font-medium text-azure hover:underline">
               Termos de Uso

@@ -26,16 +26,7 @@ import { Button } from "@/components/ui/button";
 import { BrandLockup } from "@/components/brand-logo";
 import { ApiErrorNotice } from "@/components/common/page-primitives";
 import { StatusPill } from "@/components/common/stat-card";
-import {
-  Badge,
-  Card,
-  Container,
-  EmptyState,
-  ListRow,
-  Panel,
-  Section,
-  Stat,
-} from "@/components/ds";
+import { Badge, Card, Container, EmptyState, ListRow, Panel, Section, Stat } from "@/components/ds";
 import { LegalItem, type LegalReference } from "@/components/ds/legal-item";
 import { cn } from "@/lib/utils";
 import { useDocumentStatistics } from "@/hooks/use-documents";
@@ -130,13 +121,16 @@ function DashboardPage() {
                 Inteligência que apoia quem protege.
               </h1>
               <p className="mt-1.5 max-w-xl text-footnote text-muted-foreground">
-                Pesquisa jurídica e administrativa com fundamentação normativa rastreável,
-                pensada para a rotina operacional da tropa.
+                Pesquisa jurídica e administrativa com fundamentação normativa rastreável, pensada
+                para a rotina operacional da tropa.
               </p>
             </div>
           </div>
           <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
-            <Button asChild className="gap-2 transition-transform duration-200 hover:-translate-y-0.5">
+            <Button
+              asChild
+              className="gap-2 transition-transform duration-200 hover:-translate-y-0.5"
+            >
               <Link to="/chat">
                 <MessageSquarePlus className="size-4" />
                 Nova Consulta

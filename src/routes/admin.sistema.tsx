@@ -67,7 +67,11 @@ function AdminSistema() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <AdminCard title="Health checks" description="Serviços monitorados" contentClassName="space-y-3">
+        <AdminCard
+          title="Health checks"
+          description="Serviços monitorados"
+          contentClassName="space-y-3"
+        >
           {[
             { key: "api", label: "Backend (API)" },
             { key: "database", label: "Banco de dados" },

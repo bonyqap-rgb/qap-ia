@@ -39,9 +39,7 @@ export function StatCard({
           {loading ? (
             <Skeleton className="mt-1.5 h-6 w-20" />
           ) : hasValue ? (
-            <p className="font-display text-2xl font-bold leading-tight text-foreground">
-              {value}
-            </p>
+            <p className="font-display text-2xl font-bold leading-tight text-foreground">{value}</p>
           ) : (
             <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
               <PlugZap className="h-3.5 w-3.5" aria-hidden />
@@ -55,27 +53,25 @@ export function StatCard({
   );
 }
 
-const statusStyles: Record<
-  HealthStatus | "unknown",
-  { dot: string; label: string; text: string }
-> = {
-  online: {
-    dot: "bg-emerald-500",
-    label: "Operacional",
-    text: "text-emerald-600 dark:text-emerald-400",
-  },
-  degraded: {
-    dot: "bg-amber-500",
-    label: "Degradado",
-    text: "text-amber-600 dark:text-amber-400",
-  },
-  offline: { dot: "bg-red-500", label: "Indisponível", text: "text-red-600 dark:text-red-400" },
-  unknown: {
-    dot: "bg-muted-foreground/40",
-    label: "Sem leitura",
-    text: "text-muted-foreground",
-  },
-};
+const statusStyles: Record<HealthStatus | "unknown", { dot: string; label: string; text: string }> =
+  {
+    online: {
+      dot: "bg-emerald-500",
+      label: "Operacional",
+      text: "text-emerald-600 dark:text-emerald-400",
+    },
+    degraded: {
+      dot: "bg-amber-500",
+      label: "Degradado",
+      text: "text-amber-600 dark:text-amber-400",
+    },
+    offline: { dot: "bg-red-500", label: "Indisponível", text: "text-red-600 dark:text-red-400" },
+    unknown: {
+      dot: "bg-muted-foreground/40",
+      label: "Sem leitura",
+      text: "text-muted-foreground",
+    },
+  };
 
 /**
  * Indicador de saúde de um serviço. Sem resposta da API o estado é

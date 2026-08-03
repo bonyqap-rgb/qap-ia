@@ -1,12 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  Check,
-  ChevronDown,
-  PlayCircle,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, Check, ChevronDown, PlayCircle, ShieldCheck, Sparkles } from "lucide-react";
 
 import { MarketingLayout } from "@/components/marketing/site-chrome";
 import { BrandLogo } from "@/components/brand-logo";
@@ -116,7 +109,10 @@ function Hero() {
       />
       <div className="relative mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-          <BrandLogo size={72} className="mb-6 rounded-2xl shadow-azure animate-in fade-in zoom-in-95 duration-500" />
+          <BrandLogo
+            size={72}
+            className="mb-6 rounded-2xl shadow-azure animate-in fade-in zoom-in-95 duration-500"
+          />
           <Badge
             variant="outline"
             className="mb-4 gap-1.5 border-azure/30 bg-azure/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-azure-dark"
@@ -125,13 +121,12 @@ function Hero() {
             Inteligência que apoia quem protege
           </Badge>
           <h1 className="text-balance font-display text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
-            Pesquisa jurídica e administrativa{" "}
-            <span className="text-azure">em segundos</span>, com base legal citada
+            Pesquisa jurídica e administrativa <span className="text-azure">em segundos</span>, com
+            base legal citada
           </h1>
           <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-            O QAP IA responde dúvidas de legislação e rotina administrativa com
-            objetividade, indica a norma correspondente e consulta a base de
-            documentos da sua unidade.
+            O QAP IA responde dúvidas de legislação e rotina administrativa com objetividade, indica
+            a norma correspondente e consulta a base de documentos da sua unidade.
           </p>
 
           <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
@@ -179,8 +174,7 @@ function Demo() {
             Veja como uma consulta acontece
           </h2>
           <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-            Resposta direta, base legal e convite para aprofundar — sem textos
-            longos e sem rodeios.
+            Resposta direta, base legal e convite para aprofundar — sem textos longos e sem rodeios.
           </p>
         </div>
 
@@ -197,10 +191,7 @@ function Demo() {
             {demoConversation.map((m, i) => (
               <div
                 key={i}
-                className={cn(
-                  "flex items-start gap-3",
-                  m.role === "user" && "flex-row-reverse",
-                )}
+                className={cn("flex items-start gap-3", m.role === "user" && "flex-row-reverse")}
               >
                 {m.role === "user" ? (
                   <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground ring-1 ring-border">
@@ -223,8 +214,7 @@ function Demo() {
             ))}
           </div>
           <div className="border-t border-border/60 bg-card/60 px-4 py-3 text-center text-[11px] text-muted-foreground">
-            As respostas possuem caráter informativo e devem ser conferidas na
-            legislação oficial.
+            As respostas possuem caráter informativo e devem ser conferidas na legislação oficial.
           </div>
         </div>
       </div>
@@ -288,9 +278,7 @@ function Benefits() {
               <div className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                 {b.metricLabel}
               </div>
-              <h3 className="mt-4 text-[15px] font-semibold text-foreground">
-                {b.title}
-              </h3>
+              <h3 className="mt-4 text-[15px] font-semibold text-foreground">{b.title}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
                 {b.description}
               </p>
@@ -334,18 +322,14 @@ function PlansPreview() {
                   {p.badge}
                 </Badge>
               )}
-              <h3 className="font-display text-base font-bold text-foreground">
-                {p.name}
-              </h3>
+              <h3 className="font-display text-base font-bold text-foreground">{p.name}</h3>
               <div className="mt-2 flex items-end gap-1">
                 <span className="font-display text-2xl font-bold tracking-tight text-foreground">
                   {p.price}
                 </span>
                 <span className="pb-1 text-xs text-muted-foreground">{p.period}</span>
               </div>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                {p.description}
-              </p>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{p.description}</p>
               <ul className="mt-4 flex-1 space-y-2">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-[13px] text-foreground">
@@ -439,8 +423,8 @@ function FinalCta() {
           Leve o QAP IA para o seu turno de serviço
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          Crie sua conta gratuita e faça a primeira consulta em menos de um
-          minuto. Sem cartão de crédito.
+          Crie sua conta gratuita e faça a primeira consulta em menos de um minuto. Sem cartão de
+          crédito.
         </p>
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
           <Button

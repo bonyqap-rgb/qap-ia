@@ -101,8 +101,8 @@ function PricingPage() {
             Comparativo de recursos
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Todos os planos incluem base legal citada nas respostas e aviso de
-            conferência na legislação oficial.
+            Todos os planos incluem base legal citada nas respostas e aviso de conferência na
+            legislação oficial.
           </p>
 
           <div className="mt-6 overflow-x-auto rounded-2xl border border-border/70 bg-card shadow-soft">
@@ -120,13 +120,14 @@ function PricingPage() {
               <TableBody>
                 {comparison.map((row) => (
                   <TableRow key={row.label}>
-                    <TableCell className="font-medium text-foreground">
-                      {row.label}
-                    </TableCell>
+                    <TableCell className="font-medium text-foreground">{row.label}</TableCell>
                     {row.values.map((v, i) => (
                       <TableCell key={i} className="text-center text-sm text-muted-foreground">
                         {v === "—" ? (
-                          <Minus className="mx-auto h-3.5 w-3.5 text-muted-foreground/60" aria-label="Não incluso" />
+                          <Minus
+                            className="mx-auto h-3.5 w-3.5 text-muted-foreground/60"
+                            aria-label="Não incluso"
+                          />
                         ) : v === "Sim" ? (
                           <Check className="mx-auto h-4 w-4 text-azure" aria-label="Incluso" />
                         ) : (

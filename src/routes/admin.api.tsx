@@ -31,9 +31,7 @@ function AdminApi() {
       icon={Plug}
       readOnly
     >
-      {health.isUnavailable && (
-        <ApiErrorNotice error={health.error} onRetry={health.refetch} />
-      )}
+      {health.isUnavailable && <ApiErrorNotice error={health.error} onRetry={health.refetch} />}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <AdminCard title="Conexão" description="Configuração efetiva do cliente HTTP">
@@ -43,7 +41,11 @@ function AdminApi() {
           <SettingRow label="Backoff" value={httpClientConfig.retryBackoff} />
         </AdminCard>
 
-        <AdminCard title="Disponibilidade" description="Leitura em tempo real de /health" contentClassName="space-y-3">
+        <AdminCard
+          title="Disponibilidade"
+          description="Leitura em tempo real de /health"
+          contentClassName="space-y-3"
+        >
           <StatusPill
             label="Status da API"
             status={health.data?.status}

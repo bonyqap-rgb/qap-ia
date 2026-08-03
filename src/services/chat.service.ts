@@ -67,7 +67,10 @@ function normalizeChat(raw: BackendChatResponse): ChatResponse {
   const citations = sources.map(toCitation);
   const usedDocuments = Array.from(
     new Map(
-      citations.map((c) => [c.documentId ?? c.documentName, { id: c.documentId, name: c.documentName }]),
+      citations.map((c) => [
+        c.documentId ?? c.documentName,
+        { id: c.documentId, name: c.documentName },
+      ]),
     ).values(),
   );
 

@@ -1,13 +1,7 @@
 import type { ComponentType, ReactNode } from "react";
 import { Lock } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -110,11 +104,11 @@ export function SettingRow({
         {loading ? (
           <Skeleton className="h-5 w-24" />
         ) : (
-          children ?? (
+          (children ?? (
             <span className="rounded-md bg-muted px-2 py-1 font-mono text-[12px] text-foreground">
               {value ?? "—"}
             </span>
-          )
+          ))
         )}
       </div>
     </div>

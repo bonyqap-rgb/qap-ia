@@ -5,11 +5,7 @@ import { toast } from "sonner";
 
 import { AuthLayout, authHead } from "@/components/auth/auth-layout";
 import { Button } from "@/components/ui/button";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 export const Route = createFileRoute("/verify-email")({
   head: () =>

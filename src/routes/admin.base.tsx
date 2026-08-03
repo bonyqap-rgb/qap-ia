@@ -37,7 +37,7 @@ export const Route = createFileRoute("/admin/base")({
 });
 
 const statusStyles: Partial<Record<DocumentStatus, string>> = {
-  "concluído":
+  concluído:
     "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
   erro: "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300",
 };
@@ -55,9 +55,7 @@ function AdminBase() {
       (documents.data ?? [])
         .filter((doc) => (status === "all" ? true : doc.status === status))
         .filter((doc) =>
-          query.trim()
-            ? (doc.name ?? "").toLowerCase().includes(query.trim().toLowerCase())
-            : true,
+          query.trim() ? (doc.name ?? "").toLowerCase().includes(query.trim().toLowerCase()) : true,
         ),
     [documents.data, query, status],
   );
@@ -76,7 +74,9 @@ function AdminBase() {
         </Button>
       }
     >
-      {documents.isUnavailable && <ApiErrorNotice error={documents.error} onRetry={documents.refetch} />}
+      {documents.isUnavailable && (
+        <ApiErrorNotice error={documents.error} onRetry={documents.refetch} />
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

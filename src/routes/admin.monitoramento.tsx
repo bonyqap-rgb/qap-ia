@@ -24,9 +24,7 @@ function AdminMonitoramento() {
       description="Indicadores agregados reportados pelo backend em tempo real."
       icon={Activity}
     >
-      {metrics.isUnavailable && (
-        <ApiErrorNotice error={metrics.error} onRetry={metrics.refetch} />
-      )}
+      {metrics.isUnavailable && <ApiErrorNotice error={metrics.error} onRetry={metrics.refetch} />}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

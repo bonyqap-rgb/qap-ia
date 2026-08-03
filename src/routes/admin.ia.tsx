@@ -18,7 +18,11 @@ function AdminIa() {
       readOnly
     >
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <AdminCard title="Modelo" description="Provedor e geração de respostas" contentClassName="pt-0">
+        <AdminCard
+          title="Modelo"
+          description="Provedor e geração de respostas"
+          contentClassName="pt-0"
+        >
           <SettingRow label="Provedor" value={AI_PROVIDER} />
           <SettingRow
             label="Modelo padrão"
@@ -46,10 +50,7 @@ function AdminIa() {
         </pre>
       </AdminCard>
 
-      <AdminCard
-        title="Safety settings"
-        description="Filtros de conteúdo aplicados pelo provedor"
-      >
+      <AdminCard title="Safety settings" description="Filtros de conteúdo aplicados pelo provedor">
         <DataGap
           compact
           title="Filtros de conteúdo"

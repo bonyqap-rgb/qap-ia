@@ -27,10 +27,30 @@ const users = [
 ];
 
 const auditLogs = [
-  { when: "há 3 min", user: "Ten. Souza", action: "Upload de documento", target: "Portaria 001-2025.docx" },
-  { when: "há 25 min", user: "Cel. Andrade", action: "Alterou permissão", target: "Cap. Lima → Editor" },
-  { when: "há 1 hora", user: "Maj. Ribeiro", action: "Reindexou documento", target: "Código Penal Militar.pdf" },
-  { when: "há 2 horas", user: "Sistema", action: "Rotina de embeddings", target: "812 chunks processados" },
+  {
+    when: "há 3 min",
+    user: "Ten. Souza",
+    action: "Upload de documento",
+    target: "Portaria 001-2025.docx",
+  },
+  {
+    when: "há 25 min",
+    user: "Cel. Andrade",
+    action: "Alterou permissão",
+    target: "Cap. Lima → Editor",
+  },
+  {
+    when: "há 1 hora",
+    user: "Maj. Ribeiro",
+    action: "Reindexou documento",
+    target: "Código Penal Militar.pdf",
+  },
+  {
+    when: "há 2 horas",
+    user: "Sistema",
+    action: "Rotina de embeddings",
+    target: "812 chunks processados",
+  },
   { when: "ontem", user: "Cap. Lima", action: "Removeu documento", target: "documento-teste.pdf" },
 ];
 

@@ -1,0 +1,55 @@
+/**
+ * Design Tokens — Typography
+ */
+export const typography = {
+  fontFamilies: {
+    display: '"Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif',
+    body: '"Inter", ui-sans-serif, system-ui, sans-serif',
+    mono: '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace',
+  },
+  fontWeights: {
+    regular: "400",
+    medium: "500",
+    semibold: "600",
+    bold: "700",
+  },
+  fontSizes: {
+    display: "3rem" /* 48px */,
+    headingXl: "2.25rem" /* 36px */,
+    headingL: "1.75rem" /* 28px */,
+    headingM: "1.375rem" /* 22px */,
+    headingS: "1.125rem" /* 18px */,
+    bodyLarge: "1rem" /* 16px */,
+    body: "0.9375rem" /* 15px */,
+    bodySmall: "0.8125rem" /* 13px */,
+    caption: "0.75rem" /* 12px */,
+    label: "0.6875rem" /* 11px */,
+    button: "0.75rem" /* 12px */,
+  },
+  lineHeights: {
+    display: "3.15rem",
+    headingXl: "2.5rem",
+    headingL: "2.1rem",
+    headingM: "1.75rem",
+    headingS: "1.6rem",
+    bodyLarge: "1.6rem",
+    body: "1.55rem",
+    bodySmall: "1.2rem",
+    caption: "1.1rem",
+    label: "1rem",
+    button: "1.1rem",
+  },
+  letterSpacings: {
+    display: "-0.02em",
+    headingXl: "-0.02em",
+    headingL: "-0.02em",
+    headingM: "-0.02em",
+    headingS: "-0.02em",
+    bodyLarge: "-0.005em",
+    body: "-0.005em",
+    bodySmall: "-0.005em",
+    caption: "-0.005em",
+    label: "0.08em",
+    button: "0.02em",
+  },
+} as const;

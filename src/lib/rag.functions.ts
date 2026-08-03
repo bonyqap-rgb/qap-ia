@@ -26,7 +26,7 @@ export const ragChat = createServerFn({ method: "POST" })
               (m?.role === "user" || m?.role === "assistant") &&
               typeof m?.content === "string" &&
               m.content.trim().length > 0 &&
-              !/^\s*[⚠️❌]/u.test(m.content),
+              !/^\s*(⚠️|❌)/u.test(m.content),
           )
           .slice(-8)
           .map((m) => ({ role: m.role as "user" | "assistant", content: String(m.content) }))

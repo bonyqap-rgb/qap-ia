@@ -1,10 +1,7 @@
 import { API_BASE_URL } from "@/services/api-client";
 import { fixMojibake } from "@/lib/text-encoding";
 import { AI_SYSTEM_PROMPT } from "@/lib/ai-config";
-import {
-  generateWithSelectedProvider,
-  inspectLlmProviders,
-} from "@/lib/llm-provider.server";
+import { generateWithSelectedProvider, inspectLlmProviders } from "@/lib/llm-provider.server";
 import {
   chunkInScope,
   detectDocumentScope,
@@ -73,13 +70,13 @@ export async function fetchDocumentNames(): Promise<Map<string, string>> {
   return names;
 }
 
-export function normalizeSources(
-  rawSources: RagSource[],
-  names: Map<string, string>,
-): RagSource[] {
+export function normalizeSources(rawSources: RagSource[], names: Map<string, string>): RagSource[] {
   return rawSources.map((s) => {
     const name =
-      s.documentName ?? s.title ?? s.filename ?? (s.documentId ? names.get(s.documentId) : undefined);
+      s.documentName ??
+      s.title ??
+      s.filename ??
+      (s.documentId ? names.get(s.documentId) : undefined);
     return {
       documentId: s.documentId,
       filename: s.filename ? fixMojibake(s.filename) : undefined,
@@ -138,9 +135,7 @@ export async function backendChat(input: {
   question: string;
   conversationId?: string;
   history: HistoryMessage[];
-}): Promise<
-  Partial<RagChatPayload> & { response?: string; citations?: RagSource[] }
-> {
+}): Promise<Partial<RagChatPayload> & { response?: string; citations?: RagSource[] }> {
   const body: Record<string, unknown> = { question: input.question };
   if (input.conversationId) body.conversationId = input.conversationId;
   if (input.history.length) body.history = input.history;
@@ -266,7 +261,6 @@ ${context}`;
   };
 }
 
-
 /** Número mínimo de trechos do documento citado para responder só com ele. */
 const MIN_SCOPED_CHUNKS = 2;
 
@@ -287,16 +281,12 @@ export async function runScopedRagChat(input: {
 }): Promise<RagChatPayload> {
   const documents = await fetchDocumentList();
   const scope: DetectedScope = detectDocumentScope(input.question, documents);
-  const scopeNames = scope.documents
-    .map((d) => d.name)
-    .filter((n): n is string => Boolean(n));
+  const scopeNames = scope.documents.map((d) => d.name).filter((n): n is string => Boolean(n));
 
   const requested = scope.keys.map(formatDocumentKey).join(", ");
 
   if (scope.keys.length) {
-    const scopeIds = scope.documents
-      .map((d) => d.id)
-      .filter((id): id is string => Boolean(id));
+    const scopeIds = scope.documents.map((d) => d.id).filter((id): id is string => Boolean(id));
 
     // Documento citado, mas não resolvido no catálogo: não execute uma busca
     // global, pois ela poderia trazer conteúdo de outro documento.
@@ -382,7 +372,6 @@ export async function runScopedRagChat(input: {
       scopeNames: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
       history: input.history,
     });
-
 
     return {
       answer: generated.answer,

@@ -27,10 +27,7 @@ export const Route = createFileRoute("/exports")({
 function ExportsPage() {
   return (
     <Container size="wide" className="py-6 sm:py-8">
-      <Section
-        title="Exportações"
-        description="Arquivos gerados a partir das suas consultas"
-      >
+      <Section title="Exportações" description="Arquivos gerados a partir das suas consultas">
         <Panel title="Arquivos exportados" description="Nenhuma exportação registrada">
           <EmptyState
             icon={Download}

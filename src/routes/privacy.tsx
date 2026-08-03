@@ -34,9 +34,8 @@ function PrivacyPage() {
       <LegalBody>
         <LegalSection title="1. Quem somos">
           <p>
-            O QAP IA é uma plataforma de apoio à pesquisa jurídica e
-            administrativa. Esta política explica quais dados tratamos, com qual
-            finalidade e quais são os seus direitos.
+            O QAP IA é uma plataforma de apoio à pesquisa jurídica e administrativa. Esta política
+            explica quais dados tratamos, com qual finalidade e quais são os seus direitos.
           </p>
         </LegalSection>
 
@@ -63,50 +62,44 @@ function PrivacyPage() {
 
         <LegalSection title="4. Compartilhamento">
           <p>
-            Não vendemos dados pessoais. Compartilhamos informações apenas com
-            provedores de infraestrutura e de modelos de inteligência artificial
-            estritamente necessários para operar o serviço, ou quando houver
-            obrigação legal.
+            Não vendemos dados pessoais. Compartilhamos informações apenas com provedores de
+            infraestrutura e de modelos de inteligência artificial estritamente necessários para
+            operar o serviço, ou quando houver obrigação legal.
           </p>
         </LegalSection>
 
         <LegalSection title="5. Isolamento por organização">
           <p>
-            Documentos enviados a uma base de conhecimento ficam restritos aos
-            usuários autorizados daquela conta e não são disponibilizados a
-            outras organizações.
+            Documentos enviados a uma base de conhecimento ficam restritos aos usuários autorizados
+            daquela conta e não são disponibilizados a outras organizações.
           </p>
         </LegalSection>
 
         <LegalSection title="6. Retenção e exclusão">
           <p>
-            Mantemos os dados enquanto a conta estiver ativa ou pelo prazo
-            necessário ao cumprimento de obrigações legais. A exclusão pode ser
-            solicitada pelos canais de contato.
+            Mantemos os dados enquanto a conta estiver ativa ou pelo prazo necessário ao cumprimento
+            de obrigações legais. A exclusão pode ser solicitada pelos canais de contato.
           </p>
         </LegalSection>
 
         <LegalSection title="7. Segurança">
           <p>
-            Adotamos controles de acesso, autenticação e registro de atividades.
-            Nenhum sistema é totalmente imune a incidentes; comunicaremos os
-            titulares e as autoridades quando exigido.
+            Adotamos controles de acesso, autenticação e registro de atividades. Nenhum sistema é
+            totalmente imune a incidentes; comunicaremos os titulares e as autoridades quando
+            exigido.
           </p>
         </LegalSection>
 
         <LegalSection title="8. Seus direitos">
           <p>
-            Você pode solicitar confirmação de tratamento, acesso, correção,
-            portabilidade, anonimização e exclusão dos seus dados. Consulte a
-            página de LGPD para detalhes sobre como exercer esses direitos.
+            Você pode solicitar confirmação de tratamento, acesso, correção, portabilidade,
+            anonimização e exclusão dos seus dados. Consulte a página de LGPD para detalhes sobre
+            como exercer esses direitos.
           </p>
         </LegalSection>
 
         <LegalSection title="9. Contato">
-          <p>
-            Dúvidas sobre esta política podem ser enviadas para
-            contato@qapia.com.br.
-          </p>
+          <p>Dúvidas sobre esta política podem ser enviadas para contato@qapia.com.br.</p>
         </LegalSection>
       </LegalBody>
     </MarketingLayout>

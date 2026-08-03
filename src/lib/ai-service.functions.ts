@@ -34,7 +34,9 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     });
 
     if (!providers.selected) {
-      return { reply: "⚠️ Nenhum provedor de IA configurado (defina GROQ_API_KEY ou GEMINI_API_KEY)." };
+      return {
+        reply: "⚠️ Nenhum provedor de IA configurado (defina GROQ_API_KEY ou GEMINI_API_KEY).",
+      };
     }
 
     const outcome = await generateWithSelectedProvider({
@@ -64,4 +66,3 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
     return { reply: outcome.result.answer };
   });
-

@@ -16,13 +16,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 
@@ -32,8 +26,7 @@ export const Route = createFileRoute("/profile")({
       { title: "Perfil do usuário — QAP IA" },
       {
         name: "description",
-        content:
-          "Dados do perfil, lotação, permissões e atividade recente no QAP IA.",
+        content: "Dados do perfil, lotação, permissões e atividade recente no QAP IA.",
       },
       { property: "og:title", content: "Perfil do usuário — QAP IA" },
       {
@@ -97,9 +90,7 @@ function ProfilePage() {
                   </h1>
                   <BadgeCheck className="h-4 w-4 shrink-0 text-azure-light" />
                 </div>
-                <p className="truncate text-xs font-medium text-steel-light/80">
-                  {identity.rank}
-                </p>
+                <p className="truncate text-xs font-medium text-steel-light/80">{identity.rank}</p>
                 <Badge
                   variant="outline"
                   className="mt-2 border-azure/40 bg-azure/15 text-[10px] font-semibold text-azure-light"
@@ -126,9 +117,7 @@ function ProfilePage() {
                 <s.icon className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <div className="font-display text-lg font-bold text-foreground">
-                  {s.value}
-                </div>
+                <div className="font-display text-lg font-bold text-foreground">{s.value}</div>
                 <div className="truncate text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   {s.label}
                 </div>
@@ -142,9 +131,7 @@ function ProfilePage() {
         <Card className="surface-panel">
           <CardHeader>
             <CardTitle className="text-base">Dados institucionais</CardTitle>
-            <CardDescription>
-              Informações de contato e lotação vinculadas à conta.
-            </CardDescription>
+            <CardDescription>Informações de contato e lotação vinculadas à conta.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {[
@@ -160,9 +147,7 @@ function ProfilePage() {
                   <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                     {row.label}
                   </div>
-                  <div className="truncate text-sm text-foreground">
-                    {row.value}
-                  </div>
+                  <div className="truncate text-sm text-foreground">{row.value}</div>
                 </div>
               </div>
             ))}
@@ -171,9 +156,7 @@ function ProfilePage() {
 
             <div>
               <div className="mb-1.5 flex items-center justify-between text-xs">
-                <span className="font-medium text-foreground">
-                  Consultas do mês
-                </span>
+                <span className="font-medium text-foreground">Consultas do mês</span>
                 <span className="text-muted-foreground">418 de 1.000</span>
               </div>
               <Progress value={41.8} className="h-2" />
@@ -188,9 +171,7 @@ function ProfilePage() {
                 <ShieldCheck className="h-4 w-4 text-azure" />
                 Permissões
               </CardTitle>
-              <CardDescription>
-                Acessos concedidos pelo administrador da unidade.
-              </CardDescription>
+              <CardDescription>Acessos concedidos pelo administrador da unidade.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               {permissions.map((p) => (
@@ -198,9 +179,7 @@ function ProfilePage() {
                   key={p.label}
                   className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2"
                 >
-                  <span className="truncate text-sm text-foreground">
-                    {p.label}
-                  </span>
+                  <span className="truncate text-sm text-foreground">{p.label}</span>
                   <Badge
                     variant="outline"
                     className={
@@ -245,12 +224,8 @@ function ProfilePage() {
                 <div key={a.title} className="flex items-start gap-3">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-azure" />
                   <div className="min-w-0">
-                    <div className="truncate text-sm text-foreground">
-                      {a.title}
-                    </div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {a.time}
-                    </div>
+                    <div className="truncate text-sm text-foreground">{a.title}</div>
+                    <div className="text-[11px] text-muted-foreground">{a.time}</div>
                   </div>
                 </div>
               ))}

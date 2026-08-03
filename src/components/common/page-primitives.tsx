@@ -57,9 +57,8 @@ export function ApiErrorNotice({
       <span className="min-w-0 flex-1">
         {isNetwork ? (
           <>
-            Não foi possível conectar à API em{" "}
-            <code className="font-mono">{API_BASE_URL}</code>. Nenhum dado é exibido enquanto a
-            conexão não for restabelecida.
+            Não foi possível conectar à API em <code className="font-mono">{API_BASE_URL}</code>.
+            Nenhum dado é exibido enquanto a conexão não for restabelecida.
           </>
         ) : (
           <>

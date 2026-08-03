@@ -142,10 +142,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 }
 
 export const api = {
-  get: <T>(path: string, options?: RequestOptions) => apiRequest<T>(path, { ...options, method: "GET" }),
+  get: <T>(path: string, options?: RequestOptions) =>
+    apiRequest<T>(path, { ...options, method: "GET" }),
   post: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     apiRequest<T>(path, { ...options, method: "POST", body }),
-  del: <T>(path: string, options?: RequestOptions) => apiRequest<T>(path, { ...options, method: "DELETE" }),
+  del: <T>(path: string, options?: RequestOptions) =>
+    apiRequest<T>(path, { ...options, method: "DELETE" }),
   upload: <T>(path: string, formData: FormData, options?: RequestOptions) =>
     apiRequest<T>(path, { ...options, method: "POST", formData }),
 };
