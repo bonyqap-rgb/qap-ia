@@ -24,6 +24,7 @@ import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -116,6 +117,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FavoritesRoute = FavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DocumentsRoute = DocumentsRouteImport.update({
   id: '/documents',
   path: '/documents',
@@ -204,6 +210,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/documents': typeof DocumentsRoute
+  '/favorites': typeof FavoritesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/documents': typeof DocumentsRoute
+  '/favorites': typeof FavoritesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
@@ -270,6 +278,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/documents': typeof DocumentsRoute
+  '/favorites': typeof FavoritesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/documents'
+    | '/favorites'
     | '/forgot-password'
     | '/help'
     | '/history'
@@ -337,6 +347,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/documents'
+    | '/favorites'
     | '/forgot-password'
     | '/help'
     | '/history'
@@ -370,6 +381,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/documents'
+    | '/favorites'
     | '/forgot-password'
     | '/help'
     | '/history'
@@ -404,6 +416,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   DocumentsRoute: typeof DocumentsRoute
+  FavoritesRoute: typeof FavoritesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
   HistoryRoute: typeof HistoryRoute
@@ -526,6 +539,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favorites': {
+      id: '/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/documents': {
@@ -678,6 +698,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   DocumentsRoute: DocumentsRoute,
+  FavoritesRoute: FavoritesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
   HistoryRoute: HistoryRoute,
