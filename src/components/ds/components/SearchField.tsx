@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export interface SearchFieldProps {
+export interface SearchFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   placeholder?: string;
   className?: string;
   shortcut?: string | null;
@@ -16,6 +16,7 @@ export function SearchField({
   shortcut = "⌘K",
   "aria-label": ariaLabel = "Pesquisa global",
   disabled,
+  ...props
 }: SearchFieldProps) {
   return (
     <div
@@ -35,6 +36,7 @@ export function SearchField({
         aria-label={ariaLabel}
         placeholder={placeholder}
         className="h-full w-full min-w-0 rounded-xl bg-transparent pl-9 pr-14 text-footnote text-foreground outline-none placeholder:text-muted-foreground"
+        {...props}
       />
       {shortcut && (
         <kbd className="pointer-events-none absolute right-2 hidden select-none rounded-md border border-border/70 bg-card px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground sm:block">
