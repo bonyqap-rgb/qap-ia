@@ -1,16 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  MessageSquarePlus,
-  BookOpen,
-  SlidersHorizontal,
-  HelpCircle,
   LayoutDashboard,
-  MessageSquare,
-  FileText,
+  MessageSquarePlus,
+  Scale,
   History,
+  Star,
+  Share2,
+  Download,
+  SlidersHorizontal,
   ShieldCheck,
-  UserRound,
   Brain,
   Layers,
   Server,
@@ -18,10 +17,12 @@ import {
   Activity,
   ScrollText,
   Lock,
-  ChevronRight,
   DatabaseBackup,
+  BookOpen,
+  ChevronRight,
+  HelpCircle,
+  Sparkle,
 } from "lucide-react";
-
 
 import {
   Sidebar,
@@ -41,25 +42,25 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BrandLogo } from "@/components/brand-logo";
 import { cn } from "@/lib/utils";
 
-
 type NavItem = { title: string; url: string; icon: typeof BookOpen; badge?: string };
 
-const platformItems: NavItem[] = [
+const primaryItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Chat", url: "/chat", icon: MessageSquare },
+  { title: "Nova Consulta", url: "/chat", icon: MessageSquarePlus },
+  { title: "Base Legal", url: "/knowledge", icon: Scale },
   { title: "Histórico", url: "/history", icon: History },
-  { title: "Base de Conhecimento", url: "/knowledge", icon: BookOpen },
-  { title: "Documentos", url: "/documents", icon: FileText },
 ];
 
-const accountItems: NavItem[] = [
-  { title: "Minha Conta", url: "/profile", icon: UserRound },
-  { title: "Preferências", url: "/settings", icon: SlidersHorizontal },
+const workspaceItems: NavItem[] = [
+  { title: "Favoritos", url: "/favorites", icon: Star },
+  { title: "Compartilhados", url: "/shared", icon: Share2 },
+  { title: "Exportações", url: "/exports", icon: Download },
+  { title: "Configurações", url: "/settings", icon: SlidersHorizontal },
 ];
 
 export const adminItems: NavItem[] = [
@@ -90,7 +91,6 @@ export function AppSidebar() {
       ? currentPath === path
       : currentPath === path || currentPath.startsWith(`${path}/`);
 
-
   const renderItems = (items: NavItem[], nested?: boolean) => (
     <SidebarMenu>
       {items.map((item) => {
@@ -102,34 +102,30 @@ export function AppSidebar() {
               isActive={active}
               tooltip={item.title}
               className={cn(
-                "relative rounded-lg transition-colors",
+                "relative rounded-xl transition-[background-color,color,transform] duration-200 ease-[var(--ease-standard)]",
                 nested && !collapsed && "h-8",
-                active &&
-                  "nav-active before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-r-full before:bg-azure",
+                active
+                  ? "bg-azure/10 font-semibold text-azure-dark before:absolute before:left-0 before:top-1/2 before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-r-full before:bg-azure dark:text-azure-light"
+                  : "hover:bg-muted/70",
               )}
             >
               <Link to={item.url} className="flex items-center gap-2.5">
                 <item.icon
                   className={cn(
-                    "shrink-0",
-                    nested ? "h-3.5 w-3.5" : "h-4 w-4",
+                    "shrink-0 transition-colors",
+                    nested ? "size-3.5" : "size-4",
                     active ? "text-azure" : "text-muted-foreground",
                   )}
                 />
                 {!collapsed && (
                   <>
-                    <span
-                      className={cn(
-                        "flex-1 truncate",
-                        nested ? "text-[12.5px]" : "text-[13px]",
-                      )}
-                    >
+                    <span className={cn("flex-1 truncate", nested ? "text-[12.5px]" : "text-footnote")}>
                       {item.title}
                     </span>
                     {item.badge && (
                       <Badge
                         variant="outline"
-                        className="h-5 border-azure/40 bg-azure/10 px-1.5 text-[10px] font-semibold text-azure-dark"
+                        className="h-5 border-azure/30 bg-azure/10 px-1.5 text-[10px] font-semibold text-azure-dark dark:text-azure-light"
                       >
                         {item.badge}
                       </Badge>
@@ -146,74 +142,55 @@ export function AppSidebar() {
 
   const groupLabel = (label: string) =>
     !collapsed && (
-      <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
+      <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
         {label}
       </SidebarGroupLabel>
     );
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/60">
-      <SidebarHeader className="border-b border-border/60 bg-gradient-navy">
-        <div className="flex items-center gap-2.5 px-1 py-1.5">
-          <BrandLogo size={36} className="shadow-azure" />
+      <SidebarHeader className="border-b border-border/50">
+        <Link
+          to="/dashboard"
+          className="flex items-center gap-2.5 rounded-xl px-1 py-1.5 outline-none transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <BrandLogo size={34} />
           {!collapsed && (
-            <div className="flex min-w-0 flex-col leading-tight">
-              <span className="truncate font-display text-sm font-bold tracking-tight text-primary-foreground">
-                QAP <span className="text-azure-light">IA</span>
+            <span className="flex min-w-0 flex-col leading-tight">
+              <span className="truncate font-display text-sm font-bold tracking-tight text-foreground">
+                QAP <span className="text-azure">IA</span>
               </span>
-              <span className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-steel-light/70">
-                Inteligência que protege
+              <span className="truncate text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                Inteligência jurídica
               </span>
-            </div>
+            </span>
           )}
-        </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent className="gap-1">
         <SidebarGroup>
-          <SidebarGroupContent>
-            <div className="px-2 pt-2">
-              <Button
-                asChild
-                className="w-full justify-start gap-2 bg-gradient-azure text-primary-foreground shadow-azure transition-all hover:brightness-110"
-                size={collapsed ? "icon" : "default"}
-              >
-                <Link to="/chat">
-                  <MessageSquarePlus className="h-4 w-4 shrink-0" />
-                  {!collapsed && <span>Nova conversa</span>}
-                </Link>
-              </Button>
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
           {groupLabel("Plataforma")}
-          <SidebarGroupContent>{renderItems(platformItems)}</SidebarGroupContent>
+          <SidebarGroupContent>{renderItems(primaryItems)}</SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          {groupLabel("Conta")}
-          <SidebarGroupContent>{renderItems(accountItems)}</SidebarGroupContent>
+          {groupLabel("Workspace")}
+          <SidebarGroupContent>{renderItems(workspaceItems)}</SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
           {groupLabel("Administração")}
           <SidebarGroupContent className="space-y-1">
             {renderItems([
-              {
-                title: "Visão geral",
-                url: "/admin",
-                icon: ShieldCheck,
-                badge: "Admin",
-              },
+              { title: "Visão geral", url: "/admin", icon: ShieldCheck, badge: "Admin" },
             ])}
             {!collapsed && (
               <Collapsible open={adminOpen} onOpenChange={setAdminOpen}>
-                <CollapsibleTrigger className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/80 transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <CollapsibleTrigger className="flex w-full items-center gap-1.5 rounded-xl px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/80 transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <ChevronRight
                     className={cn(
-                      "h-3 w-3 shrink-0 transition-transform duration-200",
+                      "size-3 shrink-0 transition-transform duration-200",
                       adminOpen && "rotate-90",
                     )}
                     aria-hidden
@@ -234,30 +211,50 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            {renderItems([{ title: "Ajuda", url: "/help", icon: HelpCircle }])}
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-border/60">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/help")} tooltip="Ajuda">
-              <Link to="/help" className="flex items-center gap-2">
-                <HelpCircle className="h-4 w-4 shrink-0" />
-                {!collapsed && <span>Ajuda</span>}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarFooter className="gap-2 border-t border-border/50">
         {!collapsed && (
-          <div className="px-2 pb-2 pt-1 text-[10px] font-medium text-muted-foreground">
+          <div className="rounded-xl border border-border/60 bg-muted/40 px-3 py-2.5">
             <div className="flex items-center gap-1.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <Sparkle className="size-3.5 text-azure" aria-hidden />
+              <span className="text-caption font-semibold text-foreground">
+                Plano Profissional
               </span>
-              Sistema operacional · v0.9.0
             </div>
+            <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
+              Consultas ilimitadas · Base legal completa
+            </p>
           </div>
         )}
+        <Link
+          to="/profile"
+          className={cn(
+            "flex items-center gap-2.5 rounded-xl px-1.5 py-1.5 outline-none transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring",
+            collapsed && "justify-center px-0",
+          )}
+        >
+          <Avatar className="size-8 border border-border/70">
+            <AvatarFallback className="bg-navy text-[11px] font-semibold text-primary-foreground">
+              PM
+            </AvatarFallback>
+          </Avatar>
+          {!collapsed && (
+            <span className="flex min-w-0 flex-col leading-tight">
+              <span className="truncate text-footnote font-medium text-foreground">
+                Agente QAP IA
+              </span>
+              <span className="truncate text-[10px] text-muted-foreground">
+                Minha conta
+              </span>
+            </span>
+          )}
+        </Link>
       </SidebarFooter>
     </Sidebar>
   );
