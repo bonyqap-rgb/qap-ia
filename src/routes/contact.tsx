@@ -131,8 +131,8 @@ function ContactPage() {
             {sending ? "Enviando..." : "Enviar mensagem"}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Ao enviar, você concorda com o tratamento dos dados conforme a nossa
-            Política de Privacidade.
+            Ao enviar, você concorda com o tratamento dos dados conforme a nossa Política de
+            Privacidade.
           </p>
         </form>
 
@@ -164,8 +164,8 @@ function ContactPage() {
               Contratação corporativa
             </h2>
             <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-              Para batalhões e órgãos com governança própria, montamos uma
-              proposta com ambiente dedicado, SSO e gerente de conta.
+              Para batalhões e órgãos com governança própria, montamos uma proposta com ambiente
+              dedicado, SSO e gerente de conta.
             </p>
           </div>
         </aside>

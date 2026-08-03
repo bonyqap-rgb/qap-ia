@@ -6,13 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,8 +29,7 @@ export const Route = createFileRoute("/help")({
       { title: "Central de Ajuda — QAP IA" },
       {
         name: "description",
-        content:
-          "Guias rápidos, tutoriais e perguntas frequentes sobre o uso do QAP IA.",
+        content: "Guias rápidos, tutoriais e perguntas frequentes sobre o uso do QAP IA.",
       },
       { property: "og:title", content: "Central de Ajuda — QAP IA" },
       {
@@ -132,16 +125,11 @@ function HelpPage() {
   const [query, setQuery] = useState("");
   const term = query.trim().toLowerCase();
   const filteredFaqs = term
-    ? faqs.filter(
-        (f) =>
-          f.q.toLowerCase().includes(term) || f.a.toLowerCase().includes(term),
-      )
+    ? faqs.filter((f) => f.q.toLowerCase().includes(term) || f.a.toLowerCase().includes(term))
     : faqs;
   const filteredGuides = term
     ? guides.filter(
-        (g) =>
-          g.title.toLowerCase().includes(term) ||
-          g.desc.toLowerCase().includes(term),
+        (g) => g.title.toLowerCase().includes(term) || g.desc.toLowerCase().includes(term),
       )
     : guides;
 
@@ -195,9 +183,7 @@ function HelpPage() {
                         {g.tag}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                      {g.desc}
-                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{g.desc}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -210,9 +196,7 @@ function HelpPage() {
         <Card className="surface-panel">
           <CardHeader>
             <CardTitle className="text-base">Perguntas frequentes</CardTitle>
-            <CardDescription>
-              {filteredFaqs.length} resultado(s) disponível(is).
-            </CardDescription>
+            <CardDescription>{filteredFaqs.length} resultado(s) disponível(is).</CardDescription>
           </CardHeader>
           <CardContent>
             {filteredFaqs.length === 0 ? (
@@ -223,9 +207,7 @@ function HelpPage() {
               <Accordion type="single" collapsible>
                 {filteredFaqs.map((f, i) => (
                   <AccordionItem key={f.q} value={`item-${i}`}>
-                    <AccordionTrigger className="text-left text-sm">
-                      {f.q}
-                    </AccordionTrigger>
+                    <AccordionTrigger className="text-left text-sm">{f.q}</AccordionTrigger>
                     <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
                       {f.a}
                     </AccordionContent>
@@ -244,12 +226,8 @@ function HelpPage() {
                   <c.icon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold text-foreground">
-                    {c.title}
-                  </div>
-                  <div className="truncate text-xs text-muted-foreground">
-                    {c.desc}
-                  </div>
+                  <div className="truncate text-sm font-semibold text-foreground">{c.title}</div>
+                  <div className="truncate text-xs text-muted-foreground">{c.desc}</div>
                 </div>
                 <Button asChild variant="ghost" size="sm" className="shrink-0 gap-1">
                   <Link to={c.to}>

@@ -84,9 +84,7 @@ function ResetPasswordPage() {
               />
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">
-            Segurança: {labels[score]}
-          </p>
+          <p className="text-xs text-muted-foreground">Segurança: {labels[score]}</p>
         </div>
 
         <div className="space-y-1.5">
@@ -101,9 +99,7 @@ function ResetPasswordPage() {
             placeholder="••••••••"
             aria-invalid={mismatch}
           />
-          {mismatch && (
-            <p className="text-xs text-destructive">As senhas não coincidem.</p>
-          )}
+          {mismatch && <p className="text-xs text-destructive">As senhas não coincidem.</p>}
         </div>
 
         <Button

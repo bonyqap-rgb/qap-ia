@@ -17,18 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ApiErrorNotice,
-  EmptyState,
-  PageHeader,
-} from "@/components/common/page-primitives";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ApiErrorNotice, EmptyState, PageHeader } from "@/components/common/page-primitives";
 import { StatCard } from "@/components/common/stat-card";
 import { useDocuments, useDocumentStatistics } from "@/hooks/use-documents";
 import { ApiError } from "@/services/api-client";
@@ -42,14 +32,12 @@ export const Route = createFileRoute("/knowledge")({
       { title: "Base de Conhecimento — QAP IA" },
       {
         name: "description",
-        content:
-          "Busca semântica nos documentos jurídicos e administrativos indexados no QAP IA.",
+        content: "Busca semântica nos documentos jurídicos e administrativos indexados no QAP IA.",
       },
       { property: "og:title", content: "Base de Conhecimento — QAP IA" },
       {
         property: "og:description",
-        content:
-          "Busca semântica nos documentos jurídicos indexados na base do QAP IA.",
+        content: "Busca semântica nos documentos jurídicos indexados na base do QAP IA.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -161,8 +149,8 @@ function KnowledgePage() {
         <CardHeader>
           <CardTitle className="text-base">Busca semântica</CardTitle>
           <CardDescription>
-            A consulta é vetorizada e comparada com os trechos da base — não é apenas
-            busca por palavra-chave.
+            A consulta é vetorizada e comparada com os trechos da base — não é apenas busca por
+            palavra-chave.
           </CardDescription>
         </CardHeader>
         <CardContent>

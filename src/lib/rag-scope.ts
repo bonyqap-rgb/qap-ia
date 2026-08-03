@@ -84,10 +84,7 @@ export type DetectedScope = {
  * Cruza as chaves citadas na pergunta com os documentos indexados.
  * Retorna escopo vazio quando nada foi citado — o fluxo normal segue intacto.
  */
-export function detectDocumentScope(
-  question: unknown,
-  documents: ScopeDocument[],
-): DetectedScope {
+export function detectDocumentScope(question: unknown, documents: ScopeDocument[]): DetectedScope {
   const keys = questionKeys(question);
   const comparison = isComparisonQuestion(question);
   if (!keys.length) return { documents: [], keys, comparison };

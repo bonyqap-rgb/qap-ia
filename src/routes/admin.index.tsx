@@ -33,7 +33,9 @@ function AdminOverview() {
       title="Visão geral"
       description="Estado consolidado da plataforma e atalhos para as áreas técnicas."
     >
-      {(metrics.isUnavailable || health.isUnavailable) && <ApiErrorNotice error={health.error} onRetry={health.refetch} />}
+      {(metrics.isUnavailable || health.isUnavailable) && (
+        <ApiErrorNotice error={health.error} onRetry={health.refetch} />
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

@@ -171,8 +171,8 @@ export function SiteFooter() {
               </span>
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Inteligência que apoia quem protege. Pesquisa jurídica e administrativa
-              com base legal citada em toda resposta.
+              Inteligência que apoia quem protege. Pesquisa jurídica e administrativa com base legal
+              citada em toda resposta.
             </p>
           </div>
 
@@ -200,8 +200,7 @@ export function SiteFooter() {
         <div className="mt-10 flex flex-col gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} QAP IA. Todos os direitos reservados.</p>
           <p className="max-w-md sm:text-right">
-            As respostas possuem caráter informativo e devem ser conferidas na
-            legislação oficial.
+            As respostas possuem caráter informativo e devem ser conferidas na legislação oficial.
           </p>
         </div>
       </div>

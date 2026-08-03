@@ -37,11 +37,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BrandLogo } from "@/components/brand-logo";
@@ -119,7 +115,9 @@ export function AppSidebar() {
                 />
                 {!collapsed && (
                   <>
-                    <span className={cn("flex-1 truncate", nested ? "text-[12.5px]" : "text-footnote")}>
+                    <span
+                      className={cn("flex-1 truncate", nested ? "text-[12.5px]" : "text-footnote")}
+                    >
                       {item.title}
                     </span>
                     {item.badge && (
@@ -223,9 +221,7 @@ export function AppSidebar() {
           <div className="rounded-xl border border-border/60 bg-muted/40 px-3 py-2.5">
             <div className="flex items-center gap-1.5">
               <Sparkle className="size-3.5 text-azure" aria-hidden />
-              <span className="text-caption font-semibold text-foreground">
-                Plano Profissional
-              </span>
+              <span className="text-caption font-semibold text-foreground">Plano Profissional</span>
             </div>
             <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
               Consultas ilimitadas · Base legal completa
@@ -249,9 +245,7 @@ export function AppSidebar() {
               <span className="truncate text-footnote font-medium text-foreground">
                 Agente QAP IA
               </span>
-              <span className="truncate text-[10px] text-muted-foreground">
-                Minha conta
-              </span>
+              <span className="truncate text-[10px] text-muted-foreground">Minha conta</span>
             </span>
           )}
         </Link>

@@ -11,7 +11,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = (typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY)) as Theme | null;
+    const stored = (typeof window !== "undefined" &&
+      localStorage.getItem(STORAGE_KEY)) as Theme | null;
     const initial: Theme = stored ?? "light";
     setThemeState(initial);
     setHydrated(true);

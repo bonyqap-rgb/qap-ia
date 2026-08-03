@@ -10,8 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/login")({
-  head: () =>
-    authHead("Entrar — QAP IA", "Acesse a plataforma QAP IA.", "/login"),
+  head: () => authHead("Entrar — QAP IA", "Acesse a plataforma QAP IA.", "/login"),
   component: LoginPage,
 });
 
@@ -58,10 +57,7 @@ function LoginPage() {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Senha</Label>
-            <Link
-              to="/forgot-password"
-              className="text-xs font-medium text-azure hover:underline"
-            >
+            <Link to="/forgot-password" className="text-xs font-medium text-azure hover:underline">
               Esqueci minha senha
             </Link>
           </div>

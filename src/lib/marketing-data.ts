@@ -45,14 +45,12 @@ export const features: Feature[] = [
   {
     icon: LineChart,
     title: "Indicadores de uso",
-    description:
-      "Painel com consultas realizadas, documentos processados e saúde dos serviços.",
+    description: "Painel com consultas realizadas, documentos processados e saúde dos serviços.",
   },
   {
     icon: Lock,
     title: "Controle e privacidade",
-    description:
-      "Perfis, permissões e registros de auditoria pensados para instituições públicas.",
+    description: "Perfis, permissões e registros de auditoria pensados para instituições públicas.",
   },
 ];
 
@@ -76,8 +74,7 @@ export const benefits = [
   {
     icon: Users,
     title: "Padrão para toda a equipe",
-    description:
-      "Mesma fonte de conhecimento para o efetivo inteiro, com histórico auditável.",
+    description: "Mesma fonte de conhecimento para o efetivo inteiro, com histórico auditável.",
     metric: "1 base",
     metricLabel: "compartilhada pela unidade",
   },
@@ -212,8 +209,7 @@ export const demoConversation = [
   },
   {
     role: "assistant" as const,
-    text:
-      "O PAD militar observa prazos definidos no regulamento disciplinar da respectiva corporação, com fase de instrução, defesa e decisão. A contagem começa da ciência formal do acusado.\n\nBase legal: regulamento disciplinar estadual aplicável e Lei nº 9.784/1999 (aplicação subsidiária).\n\nDeseja que eu detalhe esse assunto ou apresente o texto legal correspondente?",
+    text: "O PAD militar observa prazos definidos no regulamento disciplinar da respectiva corporação, com fase de instrução, defesa e decisão. A contagem começa da ciência formal do acusado.\n\nBase legal: regulamento disciplinar estadual aplicável e Lei nº 9.784/1999 (aplicação subsidiária).\n\nDeseja que eu detalhe esse assunto ou apresente o texto legal correspondente?",
   },
 ];
 
@@ -268,8 +264,7 @@ export const differentials = [
   },
   {
     title: "Base documental da unidade",
-    description:
-      "Portarias, diretrizes e manuais internos indexados e isolados por organização.",
+    description: "Portarias, diretrizes e manuais internos indexados e isolados por organização.",
   },
 ];
 

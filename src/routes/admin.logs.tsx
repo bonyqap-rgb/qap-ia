@@ -53,7 +53,9 @@ function AdminLogs() {
       .filter((log) => (level === "all" ? true : log.level === level))
       .filter((log) =>
         query.trim()
-          ? `${log.message ?? ""} ${log.scope ?? ""}`.toLowerCase().includes(query.trim().toLowerCase())
+          ? `${log.message ?? ""} ${log.scope ?? ""}`
+              .toLowerCase()
+              .includes(query.trim().toLowerCase())
           : true,
       )
       .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
@@ -65,9 +67,7 @@ function AdminLogs() {
       description="Erros recentes reportados pelo endpoint de métricas do backend."
       icon={ScrollText}
     >
-      {metrics.isUnavailable && (
-        <ApiErrorNotice error={metrics.error} onRetry={metrics.refetch} />
-      )}
+      {metrics.isUnavailable && <ApiErrorNotice error={metrics.error} onRetry={metrics.refetch} />}
 
       <AdminCard title="Eventos" description={`${rows.length} registros`}>
         <div className="mb-4 flex flex-col gap-2 sm:flex-row">

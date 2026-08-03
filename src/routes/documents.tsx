@@ -18,14 +18,7 @@ import {
   X,
 } from "lucide-react";
 
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,11 +58,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -88,14 +77,12 @@ export const Route = createFileRoute("/documents")({
       { title: "Documentos — QAP IA" },
       {
         name: "description",
-        content:
-          "Gerencie todos os documentos jurídicos e administrativos indexados no QAP IA.",
+        content: "Gerencie todos os documentos jurídicos e administrativos indexados no QAP IA.",
       },
       { property: "og:title", content: "Documentos — QAP IA" },
       {
         property: "og:description",
-        content:
-          "Gerencie todos os documentos jurídicos e administrativos indexados no QAP IA.",
+        content: "Gerencie todos os documentos jurídicos e administrativos indexados no QAP IA.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -159,7 +146,6 @@ function safeStatus(value: unknown): DocumentStatus {
   }
   return "aguardando";
 }
-
 
 function StatusBadge({ status }: { status: DocumentStatus }) {
   const meta = statusMap[status] ?? statusMap.aguardando;
@@ -344,7 +330,6 @@ function DocumentsPage() {
     setSelected([]);
     setBulkDelete(false);
   };
-
 
   const handleFiles = async (files: File[]) => {
     if (!files.length) return;
@@ -683,7 +668,6 @@ function DocumentsPage() {
             </>
           )}
         </CardContent>
-
       </Card>
 
       <Dialog open={!!view} onOpenChange={(open) => !open && setView(null)}>
@@ -764,8 +748,8 @@ function DocumentsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir {selected.length} documento(s)?</AlertDialogTitle>
             <AlertDialogDescription>
-              Todos os chunks vetorizados dos documentos selecionados serão removidos da base.
-              Esta ação não pode ser desfeita.
+              Todos os chunks vetorizados dos documentos selecionados serão removidos da base. Esta
+              ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -775,6 +759,5 @@ function DocumentsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-
   );
 }

@@ -2,11 +2,7 @@
 // Os campos opcionais existem porque o backend pode evoluir o payload;
 // o frontend nunca quebra quando um campo não vem.
 
-export type DocumentStatus =
-  | "aguardando"
-  | "indexando"
-  | "concluído"
-  | "erro";
+export type DocumentStatus = "aguardando" | "indexando" | "concluído" | "erro";
 
 export type ApiDocument = {
   id: string;

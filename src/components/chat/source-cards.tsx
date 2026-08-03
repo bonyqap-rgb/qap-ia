@@ -9,7 +9,9 @@ export function extractSources(content: string): string[] {
   const sources: string[] = [];
 
   for (const line of lines) {
-    const match = line.match(/^\s*(?:\*\*)?(base legal|fonte|fundamento legal)(?:\*\*)?\s*:\s*(.+)$/i);
+    const match = line.match(
+      /^\s*(?:\*\*)?(base legal|fonte|fundamento legal)(?:\*\*)?\s*:\s*(.+)$/i,
+    );
     if (match) {
       match[2]
         .replace(/\*\*/g, "")

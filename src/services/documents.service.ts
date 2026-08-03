@@ -58,7 +58,9 @@ const STATUS_MAP: Record<string, DocumentStatus> = {
 };
 
 function toStatus(value: unknown): DocumentStatus {
-  const key = String(value ?? "").trim().toLowerCase();
+  const key = String(value ?? "")
+    .trim()
+    .toLowerCase();
   return STATUS_MAP[key] ?? (key === "" ? "aguardando" : (key as DocumentStatus));
 }
 
@@ -94,7 +96,9 @@ function normalizeDocument(raw: BackendDocument, index: number): ApiDocument {
   };
 }
 
-type BackendDocumentList = BackendDocument[] | { documents?: BackendDocument[]; data?: BackendDocument[] };
+type BackendDocumentList =
+  | BackendDocument[]
+  | { documents?: BackendDocument[]; data?: BackendDocument[] };
 
 function normalizeList(raw: BackendDocumentList): ApiDocument[] {
   const list = Array.isArray(raw) ? raw : (raw?.documents ?? raw?.data ?? []);

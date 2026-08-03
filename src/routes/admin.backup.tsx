@@ -10,8 +10,20 @@ export const Route = createFileRoute("/admin/backup")({
 });
 
 const snapshots = [
-  { id: "s1", label: "Backup automático", at: "30/07/2026 03:00", size: "412 MB", status: "concluído" },
-  { id: "s2", label: "Backup automático", at: "29/07/2026 03:00", size: "409 MB", status: "concluído" },
+  {
+    id: "s1",
+    label: "Backup automático",
+    at: "30/07/2026 03:00",
+    size: "412 MB",
+    status: "concluído",
+  },
+  {
+    id: "s2",
+    label: "Backup automático",
+    at: "29/07/2026 03:00",
+    size: "409 MB",
+    status: "concluído",
+  },
   { id: "s3", label: "Backup manual", at: "27/07/2026 18:22", size: "398 MB", status: "concluído" },
 ];
 

@@ -1,0 +1,43 @@
+/**
+ * Design Tokens — Colors (Paleta Oficial QAP IA)
+ */
+export const colors = {
+  light: {
+    primary: "oklch(0.5 0.17 258)",
+    primaryHover: "oklch(0.55 0.17 258)",
+    primaryActive: "oklch(0.45 0.17 258)",
+    primarySoft: "oklch(0.95 0.02 250)",
+    background: "oklch(0.985 0.004 250)",
+    backgroundSecondary: "oklch(0.965 0.008 250)",
+    surface: "oklch(1 0 0)",
+    surfaceElevated: "oklch(1 0 0)",
+    border: "oklch(0.9 0.008 250)",
+    borderSoft: "oklch(0.95 0.004 250)",
+    textPrimary: "oklch(0.21 0.03 258)",
+    textSecondary: "oklch(0.4 0.02 258)",
+    textMuted: "oklch(0.55 0.02 258)",
+    success: "oklch(0.6 0.13 155)",
+    warning: "oklch(0.75 0.14 78)",
+    error: "oklch(0.57 0.24 27)",
+    info: "oklch(0.6 0.18 254)",
+  },
+  dark: {
+    primary: "oklch(0.68 0.16 252)",
+    primaryHover: "oklch(0.72 0.16 252)",
+    primaryActive: "oklch(0.64 0.16 252)",
+    primarySoft: "oklch(0.2 0.04 252)",
+    background: "oklch(0.16 0.02 258)",
+    backgroundSecondary: "oklch(0.2 0.024 258)",
+    surface: "oklch(0.2 0.024 258)",
+    surfaceElevated: "oklch(0.24 0.026 258)",
+    border: "oklch(0.3 0.02 258)",
+    borderSoft: "oklch(0.24 0.015 258)",
+    textPrimary: "oklch(0.96 0.006 250)",
+    textSecondary: "oklch(0.72 0.016 252)",
+    textMuted: "oklch(0.6 0.012 250)",
+    success: "oklch(0.7 0.13 155)",
+    warning: "oklch(0.8 0.13 78)",
+    error: "oklch(0.62 0.21 27)",
+    info: "oklch(0.68 0.16 252)",
+  },
+} as const;

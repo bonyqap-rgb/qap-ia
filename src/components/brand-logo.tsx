@@ -51,13 +51,7 @@ export function BrandWordmark({
 }
 
 /** Logomarca completa (emblema + assinatura) — usada em heros e telas de marca. */
-export function BrandLockup({
-  className,
-  size = 96,
-}: {
-  className?: string;
-  size?: number;
-}) {
+export function BrandLockup({ className, size = 96 }: { className?: string; size?: number }) {
   return (
     <img
       src={logoAsset.url}

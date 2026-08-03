@@ -35,14 +35,13 @@ export function AuthLayout({
             Inteligência que apoia quem protege.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-steel-light/80">
-            Consultas jurídicas e administrativas objetivas, com base legal
-            citada e a base documental da sua unidade sempre à mão.
+            Consultas jurídicas e administrativas objetivas, com base legal citada e a base
+            documental da sua unidade sempre à mão.
           </p>
         </div>
 
         <p className="relative text-[11px] text-steel-light/60">
-          As respostas possuem caráter informativo e devem ser conferidas na
-          legislação oficial.
+          As respostas possuem caráter informativo e devem ser conferidas na legislação oficial.
         </p>
       </aside>
 
@@ -63,9 +62,7 @@ export function AuthLayout({
           <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
             {title}
           </h1>
-          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-            {description}
-          </p>
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
 
           <div className="mt-7">{children}</div>
 
