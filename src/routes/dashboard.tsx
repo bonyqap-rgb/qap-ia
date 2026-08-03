@@ -37,6 +37,7 @@ import {
   Stat,
 } from "@/components/ds";
 import { LegalItem, type LegalReference } from "@/components/ds/legal-item";
+import { cn } from "@/lib/utils";
 import { useDocumentStatistics } from "@/hooks/use-documents";
 import { useHealth } from "@/hooks/use-system";
 
@@ -111,13 +112,13 @@ function DashboardPage() {
               <Badge tone={online ? "success" : "warning"}>
                 <span className="relative flex size-1.5" aria-hidden>
                   <span
-                    className={cn2(
+                    className={cn(
                       "absolute inline-flex size-full animate-ping rounded-full opacity-60",
                       online ? "bg-emerald-500" : "bg-amber-500",
                     )}
                   />
                   <span
-                    className={cn2(
+                    className={cn(
                       "relative inline-flex size-1.5 rounded-full",
                       online ? "bg-emerald-500" : "bg-amber-500",
                     )}
@@ -367,9 +368,4 @@ function DashboardPage() {
       </p>
     </Container>
   );
-}
-
-/** Alias local para evitar import adicional no bloco do hero. */
-function cn2(...classes: Array<string | false | undefined>) {
-  return classes.filter(Boolean).join(" ");
 }
