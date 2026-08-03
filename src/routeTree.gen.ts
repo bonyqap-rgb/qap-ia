@@ -13,6 +13,7 @@ import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SharedRouteImport } from './routes/shared'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -24,6 +25,8 @@ import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as FavoritesRouteImport } from './routes/favorites'
+import { Route as ExportsRouteImport } from './routes/exports'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -59,6 +62,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SharedRoute = SharedRouteImport.update({
+  id: '/shared',
+  path: '/shared',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -114,6 +122,16 @@ const HelpRoute = HelpRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FavoritesRoute = FavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportsRoute = ExportsRouteImport.update({
+  id: '/exports',
+  path: '/exports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocumentsRoute = DocumentsRouteImport.update({
@@ -204,6 +222,8 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/documents': typeof DocumentsRoute
+  '/exports': typeof ExportsRoute
+  '/favorites': typeof FavoritesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
@@ -215,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/shared': typeof SharedRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -236,6 +257,8 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/documents': typeof DocumentsRoute
+  '/exports': typeof ExportsRoute
+  '/favorites': typeof FavoritesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
@@ -247,6 +270,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/shared': typeof SharedRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -270,6 +294,8 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/documents': typeof DocumentsRoute
+  '/exports': typeof ExportsRoute
+  '/favorites': typeof FavoritesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
@@ -281,6 +307,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/shared': typeof SharedRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -305,6 +332,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/documents'
+    | '/exports'
+    | '/favorites'
     | '/forgot-password'
     | '/help'
     | '/history'
@@ -316,6 +345,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reset-password'
     | '/settings'
+    | '/shared'
     | '/signup'
     | '/sitemap.xml'
     | '/terms'
@@ -337,6 +367,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/documents'
+    | '/exports'
+    | '/favorites'
     | '/forgot-password'
     | '/help'
     | '/history'
@@ -348,6 +380,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reset-password'
     | '/settings'
+    | '/shared'
     | '/signup'
     | '/sitemap.xml'
     | '/terms'
@@ -370,6 +403,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/documents'
+    | '/exports'
+    | '/favorites'
     | '/forgot-password'
     | '/help'
     | '/history'
@@ -381,6 +416,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reset-password'
     | '/settings'
+    | '/shared'
     | '/signup'
     | '/sitemap.xml'
     | '/terms'
@@ -404,6 +440,8 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   DocumentsRoute: typeof DocumentsRoute
+  ExportsRoute: typeof ExportsRoute
+  FavoritesRoute: typeof FavoritesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
   HistoryRoute: typeof HistoryRoute
@@ -415,6 +453,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
+  SharedRoute: typeof SharedRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
@@ -449,6 +488,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shared': {
+      id: '/shared'
+      path: '/shared'
+      fullPath: '/shared'
+      preLoaderRoute: typeof SharedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -526,6 +572,20 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favorites': {
+      id: '/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof FavoritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exports': {
+      id: '/exports'
+      path: '/exports'
+      fullPath: '/exports'
+      preLoaderRoute: typeof ExportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/documents': {
@@ -678,6 +738,8 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   DocumentsRoute: DocumentsRoute,
+  ExportsRoute: ExportsRoute,
+  FavoritesRoute: FavoritesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
   HistoryRoute: HistoryRoute,
@@ -689,6 +751,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
+  SharedRoute: SharedRoute,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,

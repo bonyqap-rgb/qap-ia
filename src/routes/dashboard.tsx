@@ -1,29 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  FileText,
-  Database,
-  Clock,
-  Activity,
+  ArrowUpRight,
+  CalendarDays,
   CheckCircle2,
-  Cpu,
-  UploadCloud,
+  Clock,
+  Database,
+  FileText,
+  MessageSquarePlus,
+  MessagesSquare,
+  RefreshCw,
+  Scale,
+  Sparkle,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -32,15 +20,26 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  BarChart,
-  Bar,
 } from "recharts";
+
+import { Button } from "@/components/ui/button";
+import { BrandLockup } from "@/components/brand-logo";
+import { ApiErrorNotice } from "@/components/common/page-primitives";
+import { StatusPill } from "@/components/common/stat-card";
+import {
+  Badge,
+  Card,
+  Container,
+  EmptyState,
+  ListRow,
+  Panel,
+  Section,
+  Stat,
+} from "@/components/ds";
+import { LegalItem, type LegalReference } from "@/components/ds/legal-item";
 import { cn } from "@/lib/utils";
-import { PageHeader, ApiErrorNotice } from "@/components/common/page-primitives";
-import { StatCard, StatusPill } from "@/components/common/stat-card";
 import { useDocumentStatistics } from "@/hooks/use-documents";
 import { useHealth } from "@/hooks/use-system";
-
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -49,13 +48,13 @@ export const Route = createFileRoute("/dashboard")({
       {
         name: "description",
         content:
-          "Painel institucional com métricas, integridade da plataforma e uso do QAP IA em tempo real.",
+          "Painel institucional do QAP IA com indicadores de consultas, base legal indexada e integridade da plataforma.",
       },
       { property: "og:title", content: "Dashboard — QAP IA" },
       {
         property: "og:description",
         content:
-          "Painel institucional com métricas, integridade da plataforma e uso do QAP IA em tempo real.",
+          "Painel institucional do QAP IA com indicadores de consultas, base legal indexada e integridade da plataforma.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -64,44 +63,29 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-const usageData = [
-  { day: "Seg", consultas: 320, indexacoes: 12 },
-  { day: "Ter", consultas: 410, indexacoes: 18 },
-  { day: "Qua", consultas: 380, indexacoes: 8 },
-  { day: "Qui", consultas: 520, indexacoes: 22 },
-  { day: "Sex", consultas: 610, indexacoes: 15 },
-  { day: "Sáb", consultas: 240, indexacoes: 4 },
-  { day: "Dom", consultas: 180, indexacoes: 2 },
+/** Série de atividade apresentada no gráfico (camada visual do painel). */
+const activityData = [
+  { day: "Seg", consultas: 320 },
+  { day: "Ter", consultas: 410 },
+  { day: "Qua", consultas: 380 },
+  { day: "Qui", consultas: 520 },
+  { day: "Sex", consultas: 610 },
+  { day: "Sáb", consultas: 240 },
+  { day: "Dom", consultas: 180 },
 ];
-
-const topics = [
-  { topic: "Disciplinar", total: 412 },
-  { topic: "Abordagem", total: 318 },
-  { topic: "Trânsito", total: 265 },
-  { topic: "Processo", total: 199 },
-  { topic: "Direitos", total: 142 },
-];
-
-const recentDocs = [
-  { name: "Regulamento Disciplinar PMESP.pdf", status: "concluído", chunks: 428, when: "há 2 dias" },
-  { name: "Código Penal Militar.pdf", status: "concluído", chunks: 812, when: "há 5 dias" },
-  { name: "Portaria 001-2025.docx", status: "indexando", chunks: 34, when: "agora" },
-  { name: "Manual de Abordagem.pdf", status: "aguardando", chunks: 0, when: "agora" },
-];
-
-const statusColor: Record<string, string> = {
-  concluído:
-    "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800",
-  indexando: "bg-azure/10 text-azure-dark border-azure/30",
-  aguardando: "bg-muted text-muted-foreground border-border",
-  erro: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900",
-};
 
 const serviceLabels: Array<{ key: string; label: string }> = [
   { key: "api", label: "Backend (API)" },
   { key: "database", label: "Banco de dados" },
   { key: "ai", label: "Modelo de IA" },
   { key: "vector", label: "Índice vetorial" },
+];
+
+const legalHighlights: LegalReference[] = [
+  { id: "rdpm", title: "Regulamento Disciplinar da PMESP", source: "RDPM", badge: "Disciplinar" },
+  { id: "cpm", title: "Código Penal Militar", source: "Decreto-Lei 1.001/69", badge: "Penal" },
+  { id: "i2pm", title: "Instrução I-2-PM", source: "I-2-PM", badge: "Operacional" },
+  { id: "ctb", title: "Código de Trânsito Brasileiro", source: "Lei 9.503/97", badge: "Trânsito" },
 ];
 
 function formatDate(value?: string | null) {
@@ -114,248 +98,174 @@ function formatDate(value?: string | null) {
 function DashboardPage() {
   const statistics = useDocumentStatistics();
   const health = useHealth();
-  const isDemo = statistics.isUnavailable || health.isUnavailable;
-
-  const liveStats = [
-    {
-      label: "Total de documentos",
-      value: statistics.data?.totalDocuments.toLocaleString("pt-BR"),
-      hint: "Base documental completa",
-      icon: FileText,
-    },
-    {
-      label: "Documentos indexados",
-      value: statistics.data?.indexedDocuments.toLocaleString("pt-BR"),
-      hint: "Prontos para busca semântica",
-      icon: CheckCircle2,
-    },
-    {
-      label: "Documentos pendentes",
-      value: statistics.data?.pendingDocuments.toLocaleString("pt-BR"),
-      hint: "Aguardando ou em indexação",
-      icon: Clock,
-    },
-    {
-      label: "Chunks vetorizados",
-      value: statistics.data?.totalChunks.toLocaleString("pt-BR"),
-      hint: `${(statistics.data?.totalPages ?? 0).toLocaleString("pt-BR")} páginas processadas`,
-      icon: Database,
-    },
-    {
-      label: "Última indexação",
-      value: formatDate(statistics.data?.lastIndexedAt),
-      hint:
-        statistics.data?.averageIndexingSeconds
-          ? `Média de ${statistics.data?.averageIndexingSeconds}s por documento`
-          : undefined,
-      icon: UploadCloud,
-    },
-    {
-      label: "Versão do backend",
-      value: health.data?.version ?? "—",
-      hint: health.data?.uptimeSeconds
-        ? `Uptime ${(health.data?.uptimeSeconds / 3600).toFixed(1)}h`
-        : "Sem dados de uptime",
-      icon: Cpu,
-    },
-  ];
+  const loading = statistics.isLoading || health.isLoading;
+  const online = health.data?.status === "online";
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 md:px-8">
-      <PageHeader
-        title="Dashboard"
-        description="Visão institucional de uso, integridade e produtividade da plataforma."
-        actions={
-          <Badge
-            variant="outline"
-            className={cn(
-              "w-fit gap-1.5",
-              health.data?.status === "online"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
-                : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
-            )}
-          >
-            <span className="relative flex h-2 w-2" aria-hidden>
-              <span
-                className={cn(
-                  "absolute inline-flex h-full w-full animate-ping rounded-full opacity-60",
-                  health.data?.status === "online" ? "bg-emerald-500" : "bg-amber-500",
-                )}
-              />
-              <span
-                className={cn(
-                  "relative inline-flex h-2 w-2 rounded-full",
-                  health.data?.status === "online" ? "bg-emerald-500" : "bg-amber-500",
-                )}
-              />
-            </span>
-            {health.data?.status === "online"
-              ? "Todos os serviços operacionais"
-              : "Integridade parcial"}
-          </Badge>
-        }
-      />
+    <Container size="wide" className="py-6 sm:py-8">
+      {/* -------------------------------------------------------------- hero */}
+      <Card padding="lg" className="relative overflow-hidden bg-glow-azure">
+        <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-5">
+            <BrandLockup size={84} className="hidden shrink-0 sm:block" />
+            <div className="min-w-0">
+              <Badge tone={online ? "success" : "warning"}>
+                <span className="relative flex size-1.5" aria-hidden>
+                  <span
+                    className={cn(
+                      "absolute inline-flex size-full animate-ping rounded-full opacity-60",
+                      online ? "bg-emerald-500" : "bg-amber-500",
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "relative inline-flex size-1.5 rounded-full",
+                      online ? "bg-emerald-500" : "bg-amber-500",
+                    )}
+                  />
+                </span>
+                {online ? "Plataforma operacional" : "Integridade parcial"}
+              </Badge>
+              <h1 className="mt-3 font-display text-title2 font-semibold tracking-tight text-foreground sm:text-title1">
+                Inteligência que apoia quem protege.
+              </h1>
+              <p className="mt-1.5 max-w-xl text-footnote text-muted-foreground">
+                Pesquisa jurídica e administrativa com fundamentação normativa rastreável,
+                pensada para a rotina operacional da tropa.
+              </p>
+            </div>
+          </div>
+          <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+            <Button asChild className="gap-2 transition-transform duration-200 hover:-translate-y-0.5">
+              <Link to="/chat">
+                <MessageSquarePlus className="size-4" />
+                Nova Consulta
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="gap-2 transition-transform duration-200 hover:-translate-y-0.5"
+            >
+              <Link to="/knowledge">
+                <Scale className="size-4" />
+                Explorar Base Legal
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       {(statistics.isUnavailable || health.isUnavailable) && (
-        <ApiErrorNotice
-          error={statistics.error ?? health.error}
-          onRetry={() => {
-            statistics.refetch();
-            health.refetch();
-          }}
-        />
+        <div className="mt-6">
+          <ApiErrorNotice
+            error={statistics.error ?? health.error}
+            onRetry={() => {
+              statistics.refetch();
+              health.refetch();
+            }}
+          />
+        </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {liveStats.map((s) => (
-          <StatCard
-            key={s.label}
-            label={s.label}
-            value={s.value}
-            hint={s.hint}
-            icon={s.icon}
-            loading={statistics.isLoading || health.isLoading}
+      {/* ------------------------------------------------------- visão geral */}
+      <Section title="Visão geral" description="Indicadores consolidados da plataforma">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Stat
+            label="Consultas hoje"
+            value="—"
+            hint="Métrica não exposta pela API"
+            icon={MessagesSquare}
+            loading={loading}
           />
-        ))}
-      </div>
+          <Stat
+            label="Consultas no mês"
+            value="—"
+            hint="Métrica não exposta pela API"
+            icon={CalendarDays}
+            loading={loading}
+          />
+          <Stat
+            label="Documentos indexados"
+            value={statistics.data?.indexedDocuments.toLocaleString("pt-BR") ?? "—"}
+            hint={`${statistics.data?.totalChunks.toLocaleString("pt-BR") ?? "0"} chunks vetorizados`}
+            icon={CheckCircle2}
+            tone="success"
+            loading={loading}
+          />
+          <Stat
+            label="Última atualização"
+            value={formatDate(statistics.data?.lastIndexedAt)}
+            hint={health.data?.version ? `Backend ${health.data.version}` : "Versão indisponível"}
+            icon={RefreshCw}
+            loading={loading}
+          />
+        </div>
+      </Section>
 
-
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">Consultas e indexações</CardTitle>
-            <CardDescription>Últimos 7 dias</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[280px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={usageData}>
-                <defs>
-                  <linearGradient id="c1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-navy)" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="var(--color-navy)" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="c2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-azure)" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="var(--color-azure)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="day" fontSize={12} stroke="var(--color-muted-foreground)" />
-                <YAxis fontSize={12} stroke="var(--color-muted-foreground)" />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: "1px solid var(--color-border)",
-                    background: "var(--color-card)",
-                    color: "var(--color-foreground)",
-                    fontSize: 12,
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="consultas"
-                  stroke="var(--color-navy)"
-                  strokeWidth={2}
-                  fill="url(#c1)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="indexacoes"
-                  stroke="var(--color-azure)"
-                  strokeWidth={2}
-                  fill="url(#c2)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Tópicos mais consultados</CardTitle>
-            <CardDescription>Últimos 30 dias</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[280px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topics} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis type="number" fontSize={12} stroke="var(--color-muted-foreground)" />
-                <YAxis
-                  dataKey="topic"
-                  type="category"
-                  fontSize={12}
-                  width={80}
-                  stroke="var(--color-muted-foreground)"
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: "1px solid var(--color-border)",
-                    background: "var(--color-card)",
-                    color: "var(--color-foreground)",
-                    fontSize: 12,
-                  }}
-                />
-                <Bar dataKey="total" fill="var(--color-azure)" radius={[0, 6, 6, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle className="text-base">Documentos recentes</CardTitle>
-              <CardDescription>Últimas indexações na base</CardDescription>
+      {/* ------------------------------------------------------- atividade */}
+      <Section>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <Panel
+            title="Atividade"
+            description="Consultas nos últimos 7 dias"
+            className="lg:col-span-2"
+            bodyClassName="px-4 py-5 sm:px-5"
+          >
+            <div className="h-[260px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={activityData}>
+                  <defs>
+                    <linearGradient id="qapActivity" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--color-azure)" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="var(--color-azure)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    vertical={false}
+                    strokeDasharray="3 3"
+                    stroke="var(--color-border)"
+                  />
+                  <XAxis
+                    dataKey="day"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    stroke="var(--color-muted-foreground)"
+                  />
+                  <YAxis
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    width={32}
+                    stroke="var(--color-muted-foreground)"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-card)",
+                      color: "var(--color-foreground)",
+                      fontSize: 12,
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="consultas"
+                    stroke="var(--color-azure)"
+                    strokeWidth={2}
+                    fill="url(#qapActivity)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Documento</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Chunks</TableHead>
-                  <TableHead className="text-right">Atualizado</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentDocs.map((d) => (
-                  <TableRow key={d.name}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        {d.name}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={cn("gap-1", statusColor[d.status])}>
-                        {d.status === "concluído" && <CheckCircle2 className="h-3 w-3" />}
-                        {d.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {d.chunks.toLocaleString("pt-BR")}
-                    </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {d.when}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+          </Panel>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Status dos serviços</CardTitle>
-            <CardDescription>Integridade da infraestrutura em tempo real</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2.5">
+          <Panel
+            title="Integridade dos serviços"
+            description="Leitura em tempo real"
+            bodyClassName="space-y-2 px-4 py-4"
+          >
             {serviceLabels.map((svc) => {
               const service = health.data?.services?.[svc.key];
               return (
@@ -364,17 +274,98 @@ function DashboardPage() {
                   label={svc.label}
                   status={service?.status ?? health.data?.status}
                   detail={
-                    service?.detail ??
-                    (service?.latencyMs ? `${service.latencyMs} ms` : undefined)
+                    service?.detail ?? (service?.latencyMs ? `${service.latencyMs} ms` : undefined)
                   }
                   loading={health.isLoading}
                 />
               );
             })}
-          </CardContent>
-        </Card>
+          </Panel>
+        </div>
+      </Section>
 
-      </div>
-    </div>
+      {/* ------------------------------------- consultas recentes + base legal */}
+      <Section>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Panel
+            title="Consultas recentes"
+            description="Suas últimas pesquisas"
+            actions={
+              <Button asChild variant="ghost" size="sm" className="gap-1 text-caption">
+                <Link to="/history">
+                  Histórico
+                  <ArrowUpRight className="size-3.5" />
+                </Link>
+              </Button>
+            }
+            bodyClassName="px-3 py-3"
+          >
+            <EmptyState
+              icon={MessagesSquare}
+              title="Nenhuma consulta registrada"
+              description="Suas consultas aparecerão aqui assim que você iniciar uma nova pesquisa."
+              action={
+                <Button asChild size="sm" className="gap-2">
+                  <Link to="/chat">
+                    <MessageSquarePlus className="size-4" />
+                    Nova Consulta
+                  </Link>
+                </Button>
+              }
+              className="border-0 bg-transparent py-8"
+            />
+          </Panel>
+
+          <Panel
+            title="Base legal"
+            description="Normas de referência da plataforma"
+            actions={
+              <Button asChild variant="ghost" size="sm" className="gap-1 text-caption">
+                <Link to="/knowledge">
+                  Ver tudo
+                  <ArrowUpRight className="size-3.5" />
+                </Link>
+              </Button>
+            }
+          >
+            {legalHighlights.map((ref) => (
+              <LegalItem key={ref.id} reference={ref} />
+            ))}
+          </Panel>
+        </div>
+      </Section>
+
+      {/* ------------------------------------------------------ cards inferiores */}
+      <Section>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Card interactive padding="sm">
+            <ListRow
+              icon={FileText}
+              title="Documentos na base"
+              description={`${statistics.data?.totalDocuments?.toLocaleString("pt-BR") ?? "—"} arquivos`}
+            />
+          </Card>
+          <Card interactive padding="sm">
+            <ListRow
+              icon={Database}
+              title="Páginas processadas"
+              description={`${statistics.data?.totalPages?.toLocaleString("pt-BR") ?? "—"} páginas`}
+            />
+          </Card>
+          <Card interactive padding="sm">
+            <ListRow
+              icon={Clock}
+              title="Pendentes de indexação"
+              description={`${statistics.data?.pendingDocuments?.toLocaleString("pt-BR") ?? "—"} documentos`}
+            />
+          </Card>
+        </div>
+      </Section>
+
+      <p className="mt-8 flex items-center gap-1.5 text-caption text-muted-foreground">
+        <Sparkle className="size-3.5 text-azure" aria-hidden />
+        As respostas possuem caráter informativo e devem ser conferidas na legislação oficial.
+      </p>
+    </Container>
   );
 }
