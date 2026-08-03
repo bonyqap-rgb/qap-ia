@@ -141,13 +141,33 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex min-h-dvh w-full bg-background">
           <AppSidebar />
           <div className="flex min-w-0 flex-1 flex-col">
-            <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border/60 bg-card/70 px-3 backdrop-blur-md">
-              <SidebarTrigger className="h-8 w-8" />
-              <div className="h-4 w-px bg-border" aria-hidden />
+            <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border/50 bg-background/80 px-3 backdrop-blur-xl sm:px-4">
+              <SidebarTrigger className="size-8" />
+              <div className="hidden h-4 w-px bg-border sm:block" aria-hidden />
               <Breadcrumbs pathname={pathname} />
-              <div className="ml-auto flex items-center gap-1.5">
+
+              <SearchField className="ml-auto w-full max-w-xs sm:max-w-sm" />
+
+              <div className="flex items-center gap-1">
                 <ThemeToggle />
-                <div className="mx-1 h-4 w-px bg-border" aria-hidden />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Notificações"
+                      className="relative size-8"
+                    >
+                      <Bell className="size-4" />
+                      <span
+                        className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-azure"
+                        aria-hidden
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Notificações</TooltipContent>
+                </Tooltip>
+                <div className="mx-1 hidden h-4 w-px bg-border sm:block" aria-hidden />
                 <Link
                   to="/profile"
                   aria-label="Abrir minha conta"
@@ -156,7 +176,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     pathname === "/profile" && "ring-2 ring-azure",
                   )}
                 >
-                  <Avatar className="h-8 w-8 border border-border transition hover:border-azure">
+                  <Avatar className="size-8 border border-border/70 transition-colors hover:border-azure">
                     <AvatarFallback className="bg-navy text-[11px] font-semibold text-primary-foreground">
                       PM
                     </AvatarFallback>
