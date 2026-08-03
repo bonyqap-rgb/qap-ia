@@ -32,7 +32,8 @@ import { Markdown } from "@/components/chat/markdown";
 import { SourceCards, extractSources } from "@/components/chat/source-cards";
 import { useTypewriter } from "@/components/chat/use-typewriter";
 import { BrandLogo } from "@/components/brand-logo";
-import { DataGap } from "@/components/common/page-primitives";
+import { Card } from "@/components/ds/components/Card";
+import { EmptyState } from "@/components/ds/components/EmptyState";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -144,21 +145,20 @@ const AssistantBubble = memo(function AssistantBubble({
 
 function ThinkingBubble() {
   return (
-    <div className="flex items-start gap-3 sm:gap-4 animate-in fade-in duration-200">
-      <BrandLogo size={36} className="rounded-full" />
-      <div className="w-full max-w-md rounded-2xl border border-border/70 bg-card px-4 py-3.5 shadow-soft">
+    <div className="flex items-start gap-3 sm:gap-5 animate-in fade-in duration-300">
+      <BrandLogo size={32} className="rounded-xl shrink-0" />
+      <div className="w-full max-w-md rounded-2xl border border-border/40 bg-card px-5 py-4 shadow-soft">
         <div className="flex items-center gap-2.5">
-          <span className="text-[13px] font-medium text-muted-foreground">
-            Analisando a legislação
+          {/* Indicador discreto giratório */}
+          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-azure/20 border-t-azure" />
+          <span className="text-[12px] font-semibold text-text-secondary uppercase tracking-wider">
+            Consultando base legal...
           </span>
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-azure [animation-delay:-0.3s]" />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-azure [animation-delay:-0.15s]" />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-azure" />
         </div>
-        <div className="mt-3 space-y-2">
-          <div className="shimmer-line h-2.5 w-full rounded-full" />
-          <div className="shimmer-line h-2.5 w-[86%] rounded-full" />
-          <div className="shimmer-line h-2.5 w-[62%] rounded-full" />
+        <div className="mt-4 space-y-2.5">
+          <div className="h-2 w-full rounded-full bg-muted/60 animate-pulse [animation-duration:1.8s]" />
+          <div className="h-2 w-[85%] rounded-full bg-muted/60 animate-pulse [animation-duration:1.8s] [animation-delay:0.2s]" />
+          <div className="h-2 w-[60%] rounded-full bg-muted/60 animate-pulse [animation-duration:1.8s] [animation-delay:0.4s]" />
         </div>
       </div>
     </div>
@@ -411,47 +411,54 @@ function ChatPage() {
           <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 md:px-8">
             <div className={cn("mx-auto w-full max-w-3xl", isEmpty && "flex h-full items-center")}>
               {isEmpty ? (
-                <div className="flex w-full flex-col items-center justify-center py-4 animate-rise">
-                  <BrandLogo size={56} className="mb-4 rounded-2xl shadow-azure" />
-                  <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-azure/25 bg-azure/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-azure-dark">
-                    <ShieldCheck className="h-3 w-3" />
-                    Assistente jurídico
-                  </span>
-                  <h1 className="text-balance text-center font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                    Como posso ajudá-lo hoje?
+                <div className="flex w-full flex-col items-center justify-center py-8 sm:py-12 animate-rise max-w-2xl mx-auto">
+                  {/* Identificador de marca discreto e sofisticado */}
+                  <div className="mb-6 flex items-center gap-2 rounded-full border border-border/60 bg-muted/30 px-3 py-1 text-xs text-muted-foreground shadow-soft">
+                    <BrandLogo size={20} className="rounded-md" />
+                    <span className="font-semibold tracking-wide uppercase text-[10px] text-text-secondary">
+                      QAP IA • Assistente Corporativo
+                    </span>
+                  </div>
+
+                  <h1 className="text-balance text-center font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl leading-tight">
+                    Como posso ajudar em sua{" "}
+                    <span className="text-gradient-azure">pesquisa hoje?</span>
                   </h1>
-                  <p className="mt-2 max-w-md text-center text-[13px] leading-relaxed text-muted-foreground">
-                    Pesquisa jurídica e administrativa com base na legislação vigente, sempre com a
-                    norma correspondente citada.
+                  <p className="mt-3 text-center text-[14px] leading-relaxed text-muted-foreground max-w-lg">
+                    Realize consultas com base em legislação militar e bases jurídicas vigentes,
+                    obtendo respostas estruturadas e devidamente fundamentadas.
                   </p>
 
-                  <div className="mt-7 grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  {/* Sugestões em formato de Cards Premium */}
+                  <div className="mt-10 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
                     {suggestions.map((s, i) => (
-                      <button
+                      <Card
                         key={s.title}
+                        interactive
                         onClick={() => send(s.prompt)}
                         style={{ animationDelay: `${i * 60}ms` }}
-                        className="interactive-card group flex animate-rise items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-3 text-left shadow-soft focus-visible:border-azure"
+                        padding="sm"
+                        className="group flex animate-rise items-start gap-4 border-border/40 hover:border-azure/30 transition-all duration-200"
                       >
-                        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-azure/10 text-azure transition-colors group-hover:bg-gradient-azure group-hover:text-primary-foreground">
-                          <s.icon className="h-4 w-4" />
+                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-azure/8 text-azure transition-all duration-200 group-hover:bg-gradient-azure group-hover:text-primary-foreground">
+                          <s.icon className="h-4.5 w-4.5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-[13px] font-semibold text-foreground">
+                          <div className="truncate text-[14px] font-semibold text-foreground tracking-tight group-hover:text-azure transition-colors">
                             {s.title}
                           </div>
-                          <div className="mt-0.5 line-clamp-1 text-[11px] leading-relaxed text-muted-foreground">
+                          <div className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
                             {s.prompt}
                           </div>
                         </div>
-                        <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                      </button>
+                        <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-muted-foreground/65 opacity-0 group-hover:opacity-100 transition-all duration-200 mt-1" />
+                      </Card>
                     ))}
                   </div>
                 </div>
               ) : (
                 <div
-                  className="space-y-7 pb-4"
+                  className="space-y-10 pb-8"
                   role="log"
                   aria-live="polite"
                   aria-relevant="additions text"
@@ -465,31 +472,28 @@ function ChatPage() {
                         key={message.id}
                         aria-label={isUser ? "Sua consulta" : "Resposta do QAP IA"}
                         className={cn(
-                          "flex items-start gap-3 animate-rise sm:gap-4",
+                          "flex items-start gap-3 sm:gap-5 animate-rise",
                           isUser && "flex-row-reverse",
                         )}
                       >
                         {isUser ? (
-                          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground ring-1 ring-border">
+                          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-muted/60 text-muted-foreground ring-1 ring-border/50">
                             <User className="h-4 w-4" aria-hidden />
                           </div>
                         ) : (
-                          <BrandLogo size={36} className="rounded-full" />
+                          <BrandLogo size={32} className="rounded-xl shrink-0" />
                         )}
                         <div
                           className={cn(
-                            "group relative min-w-0 rounded-2xl px-4 py-3 transition-shadow",
+                            "group relative min-w-0 rounded-2xl transition-all duration-200",
                             isUser
-                              ? "max-w-[85%] bg-primary text-primary-foreground shadow-azure sm:max-w-[75%]"
-                              : "w-full max-w-full border bg-card text-foreground shadow-soft sm:px-5 sm:py-4",
-                            !isUser &&
-                              (message.error
-                                ? "border-destructive/40 bg-destructive/5"
-                                : "border-border/70"),
+                              ? "max-w-[85%] bg-muted/50 border border-border/40 text-foreground px-5 py-3.5 shadow-soft sm:max-w-[75%]"
+                              : "w-full max-w-full border border-border/40 bg-card text-foreground px-5 py-4.5 sm:px-6 sm:py-5.5 shadow-soft",
+                            !isUser && message.error && "border-destructive/30 bg-destructive/5",
                           )}
                         >
                           {isUser ? (
-                            <p className="whitespace-pre-wrap text-sm leading-relaxed sm:text-[15px]">
+                            <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground font-medium">
                               {message.content}
                             </p>
                           ) : message.error ? (
@@ -522,21 +526,21 @@ function ChatPage() {
 
                           <div
                             className={cn(
-                              "mt-2 flex items-center gap-2 text-[10px] font-medium",
+                              "mt-3 flex items-center gap-2 text-[10px] font-semibold tracking-wide uppercase",
                               isUser
-                                ? "justify-end text-primary-foreground/70"
-                                : "text-muted-foreground",
+                                ? "justify-end text-muted-foreground/80"
+                                : "text-muted-foreground/75 border-t border-border/30 pt-3.5",
                             )}
                           >
                             <time dateTime={new Date(message.createdAt).toISOString()}>
                               {formatTime(message.createdAt)}
                             </time>
                             {!isUser && !message.error && (
-                              <div className="ml-auto flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+                              <div className="ml-auto flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(message)}
-                                  className="inline-flex min-h-8 min-w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/80 transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                   aria-label="Copiar resposta"
                                 >
                                   {copiedId === message.id ? (
@@ -551,10 +555,10 @@ function ChatPage() {
                                   aria-label="Marcar resposta como útil"
                                   aria-pressed={rated[message.id] === "up"}
                                   className={cn(
-                                    "inline-flex min-h-8 min-w-8 items-center justify-center rounded-md transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                    "inline-flex h-7 w-7 items-center justify-center rounded-lg transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                                     rated[message.id] === "up"
-                                      ? "text-emerald-600"
-                                      : "text-muted-foreground",
+                                      ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10"
+                                      : "text-muted-foreground/80 hover:text-foreground",
                                   )}
                                 >
                                   <ThumbsUp className="h-3.5 w-3.5" />
@@ -565,10 +569,10 @@ function ChatPage() {
                                   aria-label="Marcar resposta como imprecisa"
                                   aria-pressed={rated[message.id] === "down"}
                                   className={cn(
-                                    "inline-flex min-h-8 min-w-8 items-center justify-center rounded-md transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                    "inline-flex h-7 w-7 items-center justify-center rounded-lg transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                                     rated[message.id] === "down"
-                                      ? "text-destructive"
-                                      : "text-muted-foreground",
+                                      ? "text-destructive bg-destructive/5"
+                                      : "text-muted-foreground/80 hover:text-foreground",
                                   )}
                                 >
                                   <ThumbsDown className="h-3.5 w-3.5" />
@@ -578,7 +582,7 @@ function ChatPage() {
                                     type="button"
                                     onClick={handleRegenerate}
                                     aria-label="Regenerar resposta"
-                                    className="inline-flex min-h-8 min-w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/80 transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                   >
                                     <RefreshCw className="h-3.5 w-3.5" />
                                   </button>
@@ -613,10 +617,10 @@ function ChatPage() {
             </div>
           </div>
 
-          <div className="shrink-0 border-t border-border/60 bg-card/70 px-4 py-4 backdrop-blur-md sm:px-6">
+          <div className="shrink-0 border-t border-border/50 bg-background/80 px-4 py-5 backdrop-blur-xl sm:px-6 md:py-6">
             <div className="mx-auto max-w-3xl">
-              <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-200 focus-within:border-azure/70 focus-within:shadow-azure">
-                <div className="p-2 sm:p-3">
+              <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft transition-all duration-300 hover:border-border focus-within:border-azure/60 focus-within:ring-4 focus-within:ring-azure/10 focus-within:shadow-azure">
+                <div className="p-3 sm:p-4">
                   <label htmlFor="question" className="sr-only">
                     Digite sua pergunta
                   </label>
@@ -626,13 +630,13 @@ function ChatPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Faça uma pergunta jurídica ou administrativa..."
+                    placeholder="Faça uma pergunta jurídica ou administrativa sobre legislação militar..."
                     disabled={isLoading}
                     rows={1}
-                    className="max-h-[240px] min-h-[44px] w-full resize-none overflow-y-auto bg-transparent px-2 py-2 text-[15px] leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
+                    className="max-h-[240px] min-h-[52px] w-full resize-none overflow-y-auto bg-transparent px-3 py-2 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/75 focus:outline-none focus:ring-0"
                   />
 
-                  <div className="mt-1 flex items-center justify-between gap-2 px-2">
+                  <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/40 pt-2.5 px-1">
                     <div className="flex items-center gap-2">
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -644,19 +648,19 @@ function ChatPage() {
                                   "Envie documentos pela Base de Conhecimento enquanto isso.",
                               })
                             }
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground transition-all duration-140 hover:bg-muted hover:text-foreground hover:scale-105"
                           >
-                            <Paperclip className="h-4 w-4" />
+                            <Paperclip className="h-4.5 w-4.5" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>Anexar documento (em breve)</TooltipContent>
                       </Tooltip>
-                      <div className="hidden text-[11px] text-muted-foreground sm:block">
-                        <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                      <div className="hidden text-[11px] text-muted-foreground/80 sm:block font-medium">
+                        <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] shadow-sm">
                           Enter
                         </kbd>{" "}
                         enviar ·{" "}
-                        <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                        <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] shadow-sm">
                           Shift + Enter
                         </kbd>{" "}
                         quebra de linha
@@ -666,14 +670,16 @@ function ChatPage() {
                       type="button"
                       onClick={handleSubmit}
                       disabled={!input.trim() || isLoading}
-                      size="sm"
-                      className="ml-auto gap-1.5 rounded-full bg-gradient-azure px-4 text-primary-foreground shadow-azure transition-all hover:brightness-110 disabled:opacity-50 disabled:shadow-none"
+                      size="default"
+                      className="ml-auto gap-2 rounded-xl bg-gradient-azure px-5 text-primary-foreground shadow-azure transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] disabled:opacity-40 disabled:scale-100 disabled:shadow-none"
                     >
                       {isLoading ? (
-                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        <RefreshCw className="h-4 w-4 animate-spin" />
                       ) : (
                         <>
-                          <span>Enviar</span>
+                          <span className="font-semibold text-xs tracking-wide uppercase">
+                            Consultar
+                          </span>
                           <Send className="h-3.5 w-3.5" />
                         </>
                       )}
@@ -682,7 +688,7 @@ function ChatPage() {
                 </div>
               </div>
 
-              <p className="mt-2.5 text-center text-[11px] leading-relaxed text-muted-foreground">
+              <p className="mt-3 text-center text-[11px] leading-relaxed text-muted-foreground/85">
                 As respostas possuem caráter informativo e devem ser conferidas na legislação
                 oficial.
               </p>
@@ -698,14 +704,13 @@ function ChatPage() {
                 Consultas desta sessão
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-2">
+            <div className="flex-1 overflow-y-auto p-3">
               {messages.filter((m) => m.role === "user").length === 0 ? (
-                <DataGap
-                  compact
-                  title="Sem histórico persistente"
-                  endpoint="GET /conversations"
-                  description="As perguntas desta sessão aparecem aqui."
-                  className="m-1"
+                <EmptyState
+                  icon={MessageSquare}
+                  title="Sem consultas"
+                  description="As perguntas feitas nesta sessão aparecerão listadas aqui."
+                  className="m-1 border-dashed p-4"
                 />
               ) : (
                 messages

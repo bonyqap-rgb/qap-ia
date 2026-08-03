@@ -36,11 +36,31 @@ function CodeBlock({ children, className }: { children: string; className?: stri
 }
 
 /**
+ * Remove placeholders de "não especificado" do conteúdo retornado pela IA.
+ */
+export function sanitizeText(content: string): string {
+  if (!content) return "";
+  let cleaned = content
+    .replace(/\[\s*doc\s*:\s*n[ãa]o\s+especificado\s*\]/gi, "")
+    .replace(/\[\s*p[áa]g\s*:\s*n[ãa]o\s+especificado\s*\]/gi, "")
+    .replace(/\[\s*documento\s*:\s*n[ãa]o\s+especificado\s*\]/gi, "")
+    .replace(/\[\s*p[áa]gina\s*:\s*n[ãa]o\s+especificado\s*\]/gi, "")
+    .replace(/\[\s*fonte\s*:\s*n[ãa]o\s+especificado\s*\]/gi, "")
+    .replace(/\bdoc:\s*n[ãa]o\s+especificado\b/gi, "")
+    .replace(/\bp[áa]g:\s*n[ãa]o\s+especificado\b/gi, "");
+
+  // Remove espaços extras e pontuações remanescentes desnecessárias
+  cleaned = cleaned.replace(/\s+/g, " ").trim();
+  return cleaned;
+}
+
+/**
  * Renderização Markdown otimizada para leitura jurídica:
  * medidas de linha confortáveis, listas legíveis, tabelas com rolagem
  * horizontal e citações destacadas.
  */
 export function Markdown({ content, className }: { content: string; className?: string }) {
+  const sanitizedContent = sanitizeText(content);
   return (
     <div
       className={cn(
@@ -94,7 +114,7 @@ export function Markdown({ content, className }: { content: string; className?: 
           },
         }}
       >
-        {content}
+        {sanitizedContent}
       </ReactMarkdown>
     </div>
   );
