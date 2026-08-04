@@ -45,17 +45,23 @@ import { cn } from "@/lib/utils";
 
 type NavItem = { title: string; url: string; icon: typeof BookOpen; badge?: string };
 
-const primaryItems: NavItem[] = [
+const workItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Nova Consulta", url: "/chat", icon: MessageSquarePlus },
-  { title: "Base Legal", url: "/knowledge", icon: Scale },
   { title: "Histórico", url: "/history", icon: History },
 ];
 
-const workspaceItems: NavItem[] = [
+const knowledgeItems: NavItem[] = [
+  { title: "Base Legal", url: "/knowledge", icon: Scale },
   { title: "Favoritos", url: "/favorites", icon: Star },
+];
+
+const sharingItems: NavItem[] = [
   { title: "Compartilhados", url: "/shared", icon: Share2 },
   { title: "Exportações", url: "/exports", icon: Download },
+];
+
+const systemItems: NavItem[] = [
   { title: "Configurações", url: "/settings", icon: SlidersHorizontal },
 ];
 
@@ -168,13 +174,23 @@ export function AppSidebar() {
 
       <SidebarContent className="gap-1">
         <SidebarGroup>
-          {groupLabel("Plataforma")}
-          <SidebarGroupContent>{renderItems(primaryItems)}</SidebarGroupContent>
+          {groupLabel("Trabalho")}
+          <SidebarGroupContent>{renderItems(workItems)}</SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          {groupLabel("Workspace")}
-          <SidebarGroupContent>{renderItems(workspaceItems)}</SidebarGroupContent>
+          {groupLabel("Conhecimento")}
+          <SidebarGroupContent>{renderItems(knowledgeItems)}</SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          {groupLabel("Compartilhamento")}
+          <SidebarGroupContent>{renderItems(sharingItems)}</SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          {groupLabel("Sistema")}
+          <SidebarGroupContent>{renderItems(systemItems)}</SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
