@@ -1,10 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Check, ChevronDown, PlayCircle, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ChevronDown,
+  PlayCircle,
+  ShieldCheck,
+  Sparkles,
+  Search,
+  BookOpen,
+  History,
+  Scale,
+  MessagesSquare,
+  FileText,
+  Lock,
+} from "lucide-react";
 
 import { MarketingLayout } from "@/components/marketing/site-chrome";
 import { BrandLogo } from "@/components/brand-logo";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ds";
+import { Badge } from "@/components/ds";
 import {
   Accordion,
   AccordionContent,
@@ -25,10 +39,9 @@ import {
 } from "@/lib/marketing-data";
 import { cn } from "@/lib/utils";
 
-const TITLE = "QAP IA — Pesquisa jurídica e administrativa para quem protege";
+const TITLE = "QAP IA — Inteligência que apoia quem protege";
 const DESCRIPTION =
-  "Assistente inteligente de pesquisa jurídica e administrativa para policiais militares: respostas objetivas, base legal citada e sua própria base de documentos.";
-
+  "Plataforma avançada de pesquisa jurídica e administrativa para policiais militares. Respostas fundamentadas, base legal citada e gestão documental corporativa.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -99,67 +112,78 @@ function LandingPage() {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-border/60">
+    <section className="relative overflow-hidden border-b border-border/40 bg-background pt-16 sm:pt-24 lg:pt-32">
+      {/* Background visual effects */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-linear-to-b from-azure/12 via-transparent to-transparent"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,var(--color-azure-light),transparent_60%)] opacity-[0.15]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[42rem] -translate-x-1/2 rounded-full bg-azure/20 blur-3xl"
+        className="bg-grid-subtle pointer-events-none absolute inset-0 opacity-[0.03]"
       />
-      <div className="relative mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-          <BrandLogo
-            size={72}
-            className="mb-6 rounded-2xl shadow-azure animate-in fade-in zoom-in-95 duration-500"
-          />
+
+      <div className="relative mx-auto w-full max-w-6xl px-6 pb-20">
+        <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
+          <div className="mb-8 animate-in fade-in zoom-in-95 duration-700">
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-full bg-azure/20 blur-2xl animate-pulse" />
+              <BrandLogo size={84} className="relative rounded-2xl shadow-elevated" />
+            </div>
+          </div>
+
           <Badge
             variant="outline"
-            className="mb-4 gap-1.5 border-azure/30 bg-azure/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-azure-dark"
+            className="mb-6 gap-2 border-azure/30 bg-azure/8 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-azure-dark dark:text-azure-light shadow-sm"
           >
-            <ShieldCheck className="h-3 w-3" />
+            <ShieldCheck className="h-3.5 w-3.5" />
             Inteligência que apoia quem protege
           </Badge>
-          <h1 className="text-balance font-display text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
-            Pesquisa jurídica e administrativa <span className="text-azure">em segundos</span>, com
-            base legal citada
+
+          <h1 className="text-balance font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+            Pesquisa jurídica <span className="text-gradient-azure">em segundos</span>, com base legal
           </h1>
-          <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+
+          <p className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-xl lg:text-lg">
             O QAP IA responde dúvidas de legislação e rotina administrativa com objetividade, indica
-            a norma correspondente e consulta a base de documentos da sua unidade.
+            a norma correspondente e consulta a base de documentos corporativos.
           </p>
 
-          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
             <Button
               asChild
               size="lg"
-              className="gap-2 bg-gradient-azure text-primary-foreground shadow-azure transition-all hover:brightness-110"
+              className="w-full gap-2 text-[15px] font-semibold tracking-tight shadow-azure transition-all hover:scale-[1.02] active:scale-[0.98] sm:w-auto"
             >
               <Link to="/chat">
-                Fazer uma consulta agora
-                <ArrowRight className="h-4 w-4" />
+                Acessar Plataforma
+                <ArrowRight className="h-4.5 w-4.5" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="gap-2">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="w-full gap-2 text-[15px] font-medium border-border/80 hover:bg-muted/50 sm:w-auto"
+            >
               <a href="#demo">
-                <PlayCircle className="h-4 w-4" />
-                Ver demonstração
+                <PlayCircle className="h-4.5 w-4.5" />
+                Ver Demonstração
               </a>
             </Button>
           </div>
 
-          <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
             {trustSignals.map((t) => (
-              <li
+              <div
                 key={t.label}
-                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground"
+                className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60"
               >
-                <t.icon className="h-3.5 w-3.5 text-azure" />
+                <t.icon className="h-4 w-4 text-azure/70" />
                 {t.label}
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
     </section>
