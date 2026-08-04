@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useCallback, memo } from "react";
 import {
   Send,
@@ -173,6 +173,7 @@ function ThinkingBubble() {
 }
 
 function ChatPage() {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -328,6 +329,7 @@ function ChatPage() {
   };
 
   const handleNewChat = () => {
+    navigate({ to: "/chat", search: {}, replace: true });
     setMessages([]);
     setInput("");
     setRated({});
