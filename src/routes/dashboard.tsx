@@ -461,11 +461,3 @@ function DashboardPage() {
     </Container>
   );
 }
-
-      <p className="mt-8 flex items-center gap-1.5 text-caption text-muted-foreground">
-        <Sparkle className="size-3.5 text-azure" aria-hidden />
-        As respostas possuem caráter informativo e devem ser conferidas na legislação oficial.
-      </p>
-    </Container>
-  );
-}
