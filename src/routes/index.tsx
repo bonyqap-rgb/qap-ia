@@ -29,6 +29,7 @@ const TITLE = "QAP IA — Pesquisa jurídica e administrativa para quem protege"
 const DESCRIPTION =
   "Assistente inteligente de pesquisa jurídica e administrativa para policiais militares: respostas objetivas, base legal citada e sua própria base de documentos.";
 
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
