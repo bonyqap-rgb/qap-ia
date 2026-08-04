@@ -91,6 +91,13 @@ const legalHighlights: LegalReference[] = [
   { id: "ctb", title: "Código de Trânsito Brasileiro", source: "Lei 9.503/97", badge: "Trânsito" },
 ];
 
+function formatDate(value?: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
 function DashboardPage() {
   const statistics = useDocumentStatistics();
   const health = useHealth();
