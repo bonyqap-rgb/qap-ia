@@ -500,14 +500,14 @@ function FinalCta() {
 
 function Metrics() {
   return (
-    <section className="border-b border-border/60 bg-muted/30">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-4 px-4 py-10 sm:px-6 lg:grid-cols-4">
+    <section className="border-b border-border/40 bg-muted/20 py-12">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-8 px-6 lg:grid-cols-4">
         {metrics.map((m) => (
           <div key={m.label} className="text-center">
-            <div className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <div className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               {m.value}
             </div>
-            <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+            <div className="mt-1 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
               {m.label}
             </div>
           </div>
@@ -519,29 +519,30 @@ function Metrics() {
 
 function HowItWorks() {
   return (
-    <section id="como-funciona" className="scroll-mt-20 border-b border-border/60">
-      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
-            Como funciona
-          </span>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Da dúvida à base legal em quatro passos
+    <section id="como-funciona" className="scroll-mt-20 border-b border-border/40 py-24">
+      <div className="mx-auto w-full max-w-6xl px-6">
+        <div className="mx-auto max-w-2xl text-center mb-16">
+          <Badge tone="accent" className="mb-4">Fluxo Inteligente</Badge>
+          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            Da dúvida à fundamentação legal em segundos
           </h2>
+          <p className="mt-4 text-muted-foreground">
+            O QAP IA processa sua linguagem natural e cruza com a base normativa corporativa.
+          </p>
         </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {howItWorks.map((s) => (
             <div
               key={s.step}
-              className="hover-lift relative rounded-2xl border border-border/70 bg-card p-5 shadow-soft"
+              className="group relative rounded-2xl border border-border/60 bg-card p-7 shadow-subtle transition-all duration-300 hover:-translate-y-1 hover:border-azure/40"
             >
-              <span className="font-display text-3xl font-bold tracking-tight text-azure/25">
+              <div className="absolute -top-3 -right-3 grid size-8 place-items-center rounded-lg bg-azure text-[12px] font-bold text-primary-foreground shadow-azure">
                 {s.step}
-              </span>
-              <h3 className="mt-2 font-display text-[15px] font-semibold text-foreground">
+              </div>
+              <h3 className="font-display text-[16px] font-bold tracking-tight text-foreground">
                 {s.title}
               </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 {s.description}
               </p>
             </div>
@@ -600,33 +601,51 @@ function Screenshots() {
 
 function Differentials() {
   return (
-    <section className="border-b border-border/60">
-      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="max-w-2xl">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
-            Diferenciais
-          </span>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Por que o QAP IA e não um chatbot genérico
-          </h2>
-        </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2">
-          {differentials.map((d) => (
-            <div
-              key={d.title}
-              className="flex items-start gap-3 rounded-2xl border border-border/70 bg-card p-5 shadow-soft transition-colors hover:border-azure/40"
-            >
-              <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-azure/10 text-azure">
-                <Check className="h-4 w-4" />
-              </span>
-              <div className="min-w-0">
-                <h3 className="text-[15px] font-semibold text-foreground">{d.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {d.description}
-                </p>
+    <section className="border-b border-border/40 py-24">
+      <div className="mx-auto w-full max-w-6xl px-6">
+        <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div>
+            <Badge tone="success" className="mb-4">Superioridade Técnica</Badge>
+            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Por que o QAP IA e não um assistente genérico?
+            </h2>
+            <p className="mt-6 text-[16px] leading-relaxed text-muted-foreground">
+              Nossa arquitetura foi desenhada especificamente para a segurança pública e rotina militar, 
+              garantindo precisão onde modelos comuns falham.
+            </p>
+            <div className="mt-10 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="grid size-10 place-items-center rounded-xl bg-azure/10 text-azure shadow-sm">
+                  <ShieldCheck className="size-5" />
+                </div>
+                <span className="text-[15px] font-semibold">Certificação de Base Legal PMESP</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="grid size-10 place-items-center rounded-xl bg-azure/10 text-azure shadow-sm">
+                  <Lock className="size-5" />
+                </div>
+                <span className="text-[15px] font-semibold">Privacidade de Dados Corporativos Stricto Sensu</span>
               </div>
             </div>
-          ))}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-1">
+            {differentials.map((d) => (
+              <div
+                key={d.title}
+                className="flex items-start gap-5 rounded-2xl border border-border/60 bg-card/40 p-6 shadow-subtle transition-all duration-300 hover:border-azure/30 hover:bg-card"
+              >
+                <div className="mt-1 grid size-8 shrink-0 place-items-center rounded-lg bg-azure text-primary-foreground shadow-azure">
+                  <Check className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-display text-[16px] font-bold text-foreground">{d.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    {d.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
