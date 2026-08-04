@@ -21,3 +21,6 @@ export { Tooltip } from "./components/Tooltip";
 export { Avatar } from "./components/Avatar";
 export { IconContainer } from "./components/IconContainer";
 export { Kpi } from "./components/Kpi";
+export { Switch } from "./components/Switch";
+export * from "./components/Select";
+
