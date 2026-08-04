@@ -343,7 +343,7 @@ function PlansPreview() {
               )}
             >
               {p.badge && (
-                <Badge className="absolute -top-2.5 left-5 bg-gradient-azure text-[10px] font-semibold text-primary-foreground">
+                <Badge tone="accent" className="absolute -top-2.5 left-5 bg-gradient-azure text-[10px] font-semibold text-primary-foreground">
                   {p.badge}
                 </Badge>
               )}
@@ -371,7 +371,7 @@ function PlansPreview() {
                     ? "bg-gradient-azure text-primary-foreground shadow-azure hover:brightness-110"
                     : "",
                 )}
-                variant={p.highlight ? "default" : "outline"}
+                variant={p.highlight ? "primary" : "outline"}
               >
                 <Link to="/pricing">{p.cta}</Link>
               </Button>
