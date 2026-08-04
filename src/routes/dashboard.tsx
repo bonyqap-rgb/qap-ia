@@ -166,68 +166,53 @@ function DashboardPage() {
       </Card>
 
       {/* -------------------------------------------------- campo de consulta */}
-      <div className="mx-auto w-full max-w-4xl space-y-6 text-center animate-rise [animation-delay:100ms]">
-        <div className="space-y-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-azure-dark dark:text-azure-light">
-            CONSULTA INTELIGENTE E UNIFICADA
-          </span>
-          <h2 className="font-display text-title2 font-bold tracking-tight text-foreground leading-tight sm:text-title1">
-            Qual a sua dúvida jurídica ou administrativa hoje?
+      <div className="relative mx-auto w-full max-w-4xl space-y-8 text-center animate-rise [animation-delay:100ms]">
+        <div className="space-y-3">
+          <Badge tone="accent" className="px-3 py-1">Central de Pesquisa</Badge>
+          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground leading-tight sm:text-4xl">
+            O que você deseja <span className="text-gradient-azure">consultar?</span>
           </h2>
-          <p className="mx-auto max-w-xl text-footnote text-muted-foreground">
-            Acesse instantaneamente a base legal indexada e obtenha respostas fundamentadas com
-            referências exatas da legislação militar.
+          <p className="mx-auto max-w-xl text-muted-foreground">
+            Acesse instantaneamente a base legal indexada e obtenha respostas fundamentadas com referências exatas da legislação militar.
           </p>
         </div>
 
-        <div className="relative mx-auto max-w-3xl">
-          <div className="group relative flex h-14 items-center rounded-2xl border border-border/80 bg-card px-4.5 shadow-medium transition-all duration-200 ease-[var(--ease-standard)] focus-within:border-azure/70 focus-within:ring-azure/20 focus-within:ring-4 focus-within:shadow-elevated hover:border-border/100">
+        <div className="relative mx-auto max-w-3xl px-6">
+          <div className="group relative flex h-16 items-center rounded-2xl border border-border/80 bg-card px-5 shadow-medium transition-all duration-300 ease-[var(--ease-standard)] focus-within:border-azure/70 focus-within:ring-azure/20 focus-within:ring-4 focus-within:shadow-elevated hover:border-border/100">
             <Search
-              className="pointer-events-none absolute left-4.5 size-5.5 text-muted-foreground transition-colors duration-200 group-focus-within:text-azure"
+              className="pointer-events-none absolute left-5 size-6 text-muted-foreground transition-colors duration-200 group-focus-within:text-azure"
               aria-hidden
             />
             <input
               type="search"
               placeholder="Pesquise por uso da força, regulamento disciplinar, estatuto, decretos..."
-              className="h-full w-full min-w-0 bg-transparent pl-10 pr-16 text-body text-foreground outline-none placeholder:text-muted-foreground/60 transition-all duration-200"
+              className="h-full w-full min-w-0 bg-transparent pl-12 pr-16 text-[16px] text-foreground outline-none placeholder:text-muted-foreground/60 transition-all duration-200"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && e.currentTarget.value.trim()) {
                   window.location.href = `/chat?q=${encodeURIComponent(e.currentTarget.value.trim())}`;
                 }
               }}
             />
-            <kbd className="pointer-events-none absolute right-4 hidden select-none rounded-lg border border-border/80 bg-muted/40 px-2 py-1 font-mono text-[10px] font-semibold text-muted-foreground/80 sm:block shadow-sm">
-              ⌘K
+            <kbd className="pointer-events-none absolute right-5 hidden select-none rounded-lg border border-border/80 bg-muted/40 px-2.5 py-1 font-mono text-[11px] font-bold text-muted-foreground/80 sm:block shadow-sm">
+              ENTER
             </kbd>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-[11px] text-muted-foreground">
-          <span className="font-bold text-muted-foreground/60 uppercase tracking-wider text-[9px] mr-1">
-            Consultas Sugeridas:
+        <div className="flex flex-wrap items-center justify-center gap-2.5 px-6 text-[12px] text-muted-foreground">
+          <span className="font-bold text-muted-foreground/40 uppercase tracking-[0.15em] text-[10px] mr-2">
+            Sugestões:
           </span>
           {[
-            {
-              label: "Uso da Força",
-              q: "Explique os níveis do uso progressivo da força pela polícia militar.",
-            },
-            {
-              label: "Regulamento Disciplinar",
-              q: "Quais os prazos e fases do processo administrativo disciplinar militar?",
-            },
-            {
-              label: "Abordagem Policial",
-              q: "Qual o procedimento correto para abordagem de veículo suspeito?",
-            },
-            {
-              label: "Código Penal Militar",
-              q: "Quais as principais excludentes de ilicitude aplicáveis no Código Penal Militar?",
-            },
+            { label: "Uso da Força", q: "Explique os níveis do uso progressivo da força pela polícia militar." },
+            { label: "Regulamento Disciplinar", q: "Quais os prazos e fases do processo administrativo disciplinar militar?" },
+            { label: "Abordagem Policial", q: "Qual o procedimento correto para abordagem de veículo suspeito?" },
+            { label: "Código Penal Militar", q: "Quais as principais excludentes de ilicitude aplicáveis no CPM?" },
           ].map((chip) => (
             <Link
               key={chip.label}
               to={`/chat?q=${encodeURIComponent(chip.q)}`}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card px-3.5 py-1.5 font-medium text-muted-foreground/80 transition-all duration-200 hover:-translate-y-0.5 hover:border-azure/40 hover:bg-azure/5 hover:text-foreground hover:shadow-subtle"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-4 py-2 font-medium transition-all duration-200 hover:-translate-y-0.5 hover:border-azure/40 hover:bg-azure/5 hover:text-foreground hover:shadow-subtle"
             >
               <Sparkle className="size-3 text-azure animate-pulse" />
               {chip.label}
@@ -235,6 +220,7 @@ function DashboardPage() {
           ))}
         </div>
       </div>
+
 
       {(statistics.isUnavailable || health.isUnavailable) && (
         <div className="mt-6">
