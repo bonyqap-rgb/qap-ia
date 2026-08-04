@@ -377,14 +377,14 @@ function Benefits() {
               className="rounded-2xl border border-border/70 bg-card p-6 shadow-soft"
             >
               <b.icon className="h-5 w-5 text-azure" />
-              <div className="mt-4 font-display text-3xl font-bold tracking-tight text-foreground">
+              <div className="mt-4 font-display text-4xl font-bold tracking-tight text-foreground">
                 {b.metric}
               </div>
-              <div className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+              <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-azure/70">
                 {b.metricLabel}
               </div>
-              <h3 className="mt-4 text-[15px] font-semibold text-foreground">{b.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+              <h3 className="mt-6 text-[17px] font-bold text-foreground">{b.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {b.description}
               </p>
             </div>
@@ -394,6 +394,9 @@ function Benefits() {
     </section>
   );
 }
+
+// Benefits section was moved below. This is now a placeholder for removal or clean up if needed.
+
 
 function PlansPreview() {
   return (
@@ -617,43 +620,78 @@ function HowItWorks() {
 
 function Screenshots() {
   return (
-    <section className="border-b border-border/60 bg-muted/30">
-      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
-            A plataforma
-          </span>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Um ambiente completo para a unidade
+    <section className="border-b border-border/40 bg-muted/20 py-24">
+      <div className="mx-auto w-full max-w-6xl px-6">
+        <div className="mx-auto max-w-2xl text-center mb-16">
+          <Badge tone="info" className="mb-4">Experiência Premium</Badge>
+          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            Um ecossistema completo para a unidade
           </h2>
+          <p className="mt-4 text-muted-foreground">
+            Interface minimalista focada na produtividade e precisão técnica.
+          </p>
         </div>
-        <div className="mt-10 grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3">
           {screenshots.map((s) => (
             <article
               key={s.title}
-              className="hover-lift overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft"
+              className="interactive-card overflow-hidden rounded-2xl border border-border/60 bg-card shadow-subtle"
             >
               <div
                 className={cn(
-                  "relative h-40 bg-grid-subtle",
+                  "relative h-48 bg-grid-subtle",
                   s.tone === "azure" && "bg-azure/8",
                   s.tone === "navy" && "bg-navy/8",
                   s.tone === "steel" && "bg-muted",
                 )}
               >
                 <div className="absolute inset-0 grid place-items-center">
-                  <BrandLogo size={44} className="rounded-xl shadow-azure" />
+                  <div className="relative">
+                    <div className="absolute -inset-4 rounded-full bg-azure/20 blur-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <BrandLogo size={48} className="relative rounded-xl shadow-azure" />
+                  </div>
                 </div>
               </div>
-              <div className="p-5">
-                <h3 className="font-display text-[15px] font-semibold text-foreground">
+              <div className="p-7">
+                <h3 className="font-display text-[17px] font-bold text-foreground">
                   {s.title}
                 </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {s.description}
                 </p>
               </div>
             </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Benefits() {
+  return (
+    <section className="border-b border-border/40 py-24">
+      <div className="mx-auto w-full max-w-6xl px-6">
+        <div className="grid gap-6 md:grid-cols-3">
+          {benefits.map((b) => (
+            <div
+              key={b.title}
+              className="rounded-2xl border border-border/60 bg-card/40 p-8 shadow-subtle transition-all duration-300 hover:border-azure/30 hover:bg-card"
+            >
+              <div className="grid size-10 place-items-center rounded-lg bg-azure/10 text-azure shadow-sm mb-6">
+                <b.icon className="h-5 w-5" />
+              </div>
+              <div className="font-display text-4xl font-bold tracking-tight text-foreground">
+                {b.metric}
+              </div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-azure/70 mt-1">
+                {b.metricLabel}
+              </div>
+              <h3 className="mt-6 text-[17px] font-bold text-foreground">{b.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {b.description}
+              </p>
+            </div>
           ))}
         </div>
       </div>
