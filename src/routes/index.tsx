@@ -366,36 +366,7 @@ function Features() {
   );
 }
 
-function Benefits() {
-  return (
-    <section className="border-b border-border/60 bg-muted/30">
-      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="grid gap-4 md:grid-cols-3">
-          {benefits.map((b) => (
-            <div
-              key={b.title}
-              className="rounded-2xl border border-border/70 bg-card p-6 shadow-soft"
-            >
-              <b.icon className="h-5 w-5 text-azure" />
-              <div className="mt-4 font-display text-4xl font-bold tracking-tight text-foreground">
-                {b.metric}
-              </div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-azure/70">
-                {b.metricLabel}
-              </div>
-              <h3 className="mt-6 text-[17px] font-bold text-foreground">{b.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {b.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Benefits section was moved below. This is now a placeholder for removal or clean up if needed.
+// Benefits moved below, cleanup.
 
 
 function PlansPreview() {
