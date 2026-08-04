@@ -117,7 +117,7 @@ function SettingsPage() {
   };
 
   return (
-    <Container size="lg" className="py-8 md:py-12">
+    <Container className="py-8 md:py-12">
       <Section className="mb-8">
         <header className="flex flex-col gap-1">
           <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">
