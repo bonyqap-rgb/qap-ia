@@ -12,6 +12,16 @@ import {
   Scale,
   Sparkle,
   Search,
+  LayoutDashboard,
+  Star,
+  Share2,
+  Download,
+  Upload,
+  Zap,
+  ChevronRight,
+  History,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -80,90 +90,111 @@ const legalHighlights: LegalReference[] = [
   { id: "ctb", title: "Código de Trânsito Brasileiro", source: "Lei 9.503/97", badge: "Trânsito" },
 ];
 
-function formatDate(value?: string | null) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-}
-
 function DashboardPage() {
   const statistics = useDocumentStatistics();
   const health = useHealth();
   const loading = statistics.isLoading || health.isLoading;
   const online = health.data?.status === "online";
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = now.getHours();
+    if (hour < 12) return "Bom dia";
+    if (hour < 18) return "Boa tarde";
+    return "Boa noite";
+  };
 
   return (
-    <Container size="wide" className="py-8 sm:py-12 space-y-16">
-      {/* -------------------------------------------------------------- hero */}
-      <Card
-        padding="none"
-        className="relative overflow-hidden bg-glow-azure border border-border/40 px-6 py-10 sm:px-12 sm:py-14 animate-rise shadow-subtle"
-      >
-        <div className="relative flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-start sm:gap-6 min-w-0">
-            <BrandLogo size={48} className="shrink-0 rounded-xl shadow-sm border border-azure/20" />
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <Badge
-                  tone={online ? "success" : "warning"}
-                  className="px-2.5 py-0.5 text-[11px] font-semibold tracking-wide"
-                >
-                  <span className="relative flex size-1.5" aria-hidden>
-                    <span
-                      className={cn(
-                        "absolute inline-flex size-full animate-ping rounded-full opacity-60",
-                        online ? "bg-emerald-500" : "bg-amber-500",
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "relative inline-flex size-1.5 rounded-full",
-                        online ? "bg-emerald-500" : "bg-amber-500",
-                      )}
-                    />
-                  </span>
-                  {online ? "Plataforma operacional" : "Integridade parcial"}
-                </Badge>
-                <span className="text-[11px] font-medium text-muted-foreground/40 hidden sm:inline">
-                  ·
-                </span>
-                <span className="text-[11px] font-semibold tracking-wider text-azure-dark dark:text-azure-light uppercase hidden sm:inline">
-                  PRO EDITION
-                </span>
-              </div>
-              <h1 className="mt-4 font-display text-title2 font-bold tracking-tight text-foreground sm:text-title1 leading-tight">
-                Inteligência que apoia quem protege.
-              </h1>
-              <p className="mt-2.5 max-w-2xl text-footnote sm:text-body text-muted-foreground leading-relaxed font-normal">
-                Pesquisa jurídica e administrativa com fundamentação normativa rastreável, pensada
-                sob medida para a rotina operacional e a excelência estratégica da tropa.
-              </p>
+    <Container size="wide" className="py-8 sm:py-12 space-y-12">
+      {/* -------------------------------------------------------------- center command hero */}
+      <section className="animate-rise">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-azure">
+              <Zap className="h-3 w-3" />
+              Centro de Comando
+            </div>
+            <h1 className="font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+              {getGreeting()}, <span className="text-gradient-azure">Agente.</span>
+            </h1>
+            <p className="text-sm font-medium text-muted-foreground/80">
+              {now.toLocaleDateString("pt-BR", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
+              <span className="mx-2 text-muted-foreground/30">•</span>
+              {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Badge
+              tone={online ? "success" : "warning"}
+              className="px-3 py-1 text-[10px] font-bold tracking-wider uppercase border-none bg-muted/50"
+            >
+              <span className="relative mr-2 flex size-1.5">
+                <span
+                  className={cn(
+                    "absolute inline-flex size-full animate-ping rounded-full opacity-60",
+                    online ? "bg-emerald-500" : "bg-amber-500",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "relative inline-flex size-1.5 rounded-full",
+                    online ? "bg-emerald-500" : "bg-amber-500",
+                  )}
+                />
+              </span>
+              {online ? "Sistemas Online" : "Instabilidade Detectada"}
+            </Badge>
+            <div className="h-4 w-px bg-border/60" />
+            <div className="flex -space-x-2">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-7 w-7 rounded-full border-2 border-background bg-muted ring-1 ring-border/50"
+                />
+              ))}
             </div>
           </div>
-          <div className="flex w-full shrink-0 flex-col gap-2.5 sm:w-auto sm:flex-row items-stretch sm:items-center">
-            <Button
-              asChild
-              className="gap-2 shadow-azure bg-gradient-azure hover:brightness-110 active:scale-[0.98] transition-all duration-200"
-            >
-              <Link to="/chat">
-                <MessageSquarePlus className="size-4" />
-                Nova Consulta
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="gap-2 hover:bg-muted/60 hover:text-foreground active:scale-[0.98] transition-all duration-200"
-            >
-              <Link to="/knowledge">
-                <Scale className="size-4" />
-                Explorar Base Legal
-              </Link>
-            </Button>
-          </div>
         </div>
-      </Card>
+      </section>
+
+      {/* -------------------------------------------------- atalhos inteligentes */}
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7 animate-rise [animation-delay:100ms]">
+        {[
+          { label: "Nova Consulta", icon: MessageSquarePlus, url: "/chat", tone: "azure" },
+          { label: "Base Legal", icon: Scale, url: "/knowledge" },
+          { label: "Histórico", icon: History, url: "/history" },
+          { label: "Favoritos", icon: Star, url: "/favorites" },
+          { label: "Compartilhados", icon: Share2, url: "/shared" },
+          { label: "Exportações", icon: Download, url: "/exports" },
+          { label: "Upload", icon: Upload, url: "/admin/rag" },
+        ].map((item) => (
+          <Link
+            key={item.label}
+            to={item.url}
+            className="group flex flex-col items-center justify-center gap-3 rounded-2xl border border-border/50 bg-card/40 p-4 text-center transition-all duration-200 hover:-translate-y-1 hover:border-azure/30 hover:bg-azure/5 hover:shadow-subtle"
+          >
+            <div className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground transition-colors duration-200 group-hover:bg-azure/10 group-hover:text-azure",
+              item.tone === "azure" && "bg-azure/10 text-azure"
+            )}>
+              <item.icon className="h-5 w-5" />
+            </div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 group-hover:text-foreground">
+              {item.label}
+            </span>
+          </Link>
+        ))}
+      </section>
 
       {/* -------------------------------------------------- campo de consulta */}
       <div className="relative mx-auto w-full max-w-4xl space-y-8 text-center animate-rise [animation-delay:100ms]">
