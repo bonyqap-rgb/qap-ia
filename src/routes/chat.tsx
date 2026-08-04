@@ -22,6 +22,13 @@ import {
   ThumbsDown,
   CornerDownLeft,
   AlertTriangle,
+  Layout,
+  Info,
+  ExternalLink,
+  BookOpen,
+  Link as LinkIcon,
+  BarChart3,
+  Zap,
 } from "lucide-react";
 import { sendChatMessage } from "@/lib/ai-service.functions";
 import { AnswerMeta, CitationList } from "@/components/chat/answer-meta";
@@ -333,44 +340,46 @@ function ChatPage() {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="relative flex h-[calc(100dvh-3.5rem)] overflow-hidden">
+      <div className="relative flex h-[calc(100dvh-3.5rem)] overflow-hidden bg-background">
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-azure to-transparent" />
-
-          {/* Barra de ações da conversa */}
-          <div className="flex shrink-0 items-center gap-2 border-b border-border/60 bg-card/60 px-4 py-2 backdrop-blur-md sm:px-6">
-            <div className="flex min-w-0 items-center gap-2">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-azure/12 text-azure">
-                <MessageSquare className="h-3.5 w-3.5" />
-              </span>
-              <span className="truncate text-[13px] font-semibold text-foreground">
-                {isEmpty ? "Nova consulta" : messages[0].content.slice(0, 48)}
-              </span>
-              {!isEmpty && (
-                <Badge
-                  variant="outline"
-                  className="hidden shrink-0 border-border/70 text-[10px] font-medium text-muted-foreground sm:inline-flex"
-                >
-                  {messages.length} mensagens
-                </Badge>
-              )}
+          {/* Workspace Header - Productivity Bar */}
+          <div className="flex shrink-0 items-center gap-4 border-b border-border/60 bg-card/40 px-4 py-2.5 backdrop-blur-md sm:px-6">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-azure/10 text-azure shadow-sm">
+                <MessageSquare className="h-4 w-4" />
+              </div>
+              <div className="flex min-w-0 flex-col leading-tight">
+                <h2 className="truncate text-[14px] font-bold tracking-tight text-foreground">
+                  {isEmpty ? "Nova Consulta Jurídica" : messages[0].content.slice(0, 60)}
+                </h2>
+                {!isEmpty && (
+                  <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">
+                    <span>{messages.length} mensagens</span>
+                    <span className="text-muted-foreground/30">•</span>
+                    <span>Atualizado agora</span>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="ml-auto flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleNewChat}
-                    className="h-8 gap-1.5 px-2 text-muted-foreground hover:text-foreground"
+                    className="h-8 gap-1.5 px-2.5 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline text-[12px]">Nova</span>
+                    <span className="hidden sm:inline text-[11px] font-semibold uppercase tracking-wider">Novo</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Iniciar nova conversa</TooltipContent>
+                <TooltipContent>Iniciar novo workspace de consulta</TooltipContent>
               </Tooltip>
+              
+              <div className="h-4 w-px bg-border/60 mx-1" />
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -378,31 +387,28 @@ function ChatPage() {
                     size="sm"
                     onClick={handleExport}
                     disabled={isEmpty}
-                    className="h-8 gap-1.5 px-2 text-muted-foreground hover:text-foreground"
+                    className="h-8 gap-1.5 px-2.5 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   >
                     <Download className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline text-[12px]">Exportar</span>
+                    <span className="hidden sm:inline text-[11px] font-semibold uppercase tracking-wider">Exportar</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Exportar conversa (.md)</TooltipContent>
+                <TooltipContent>Exportar workspace atual</TooltipContent>
               </Tooltip>
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setRailOpen((v) => !v)}
-                    className="hidden h-8 w-8 text-muted-foreground hover:text-foreground lg:inline-flex"
+                    className="h-8 w-8 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   >
-                    {railOpen ? (
-                      <PanelRightClose className="h-4 w-4" />
-                    ) : (
-                      <PanelRightOpen className="h-4 w-4" />
-                    )}
+                    <Layout className={cn("h-4 w-4 transition-transform", railOpen && "text-azure")} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {railOpen ? "Ocultar histórico" : "Mostrar histórico"}
+                  {railOpen ? "Fechar painel contextual" : "Abrir painel contextual"}
                 </TooltipContent>
               </Tooltip>
             </div>
