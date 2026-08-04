@@ -92,11 +92,11 @@ function ExportsPage() {
   return (
     <Container size="wide" className="py-6 sm:py-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <Section 
-          title="Exportações" 
-          description="Arquivos gerados a partir das suas consultas"
-          className="p-0 border-0"
-        />
+        <div>
+          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">Exportações</h2>
+          <p className="mt-0.5 text-footnote text-muted-foreground">Arquivos gerados a partir das suas consultas</p>
+        </div>
+
         
         <div className="flex items-center gap-2">
           <SearchField 

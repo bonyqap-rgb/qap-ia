@@ -77,11 +77,11 @@ function SharedPage() {
   return (
     <Container size="wide" className="py-6 sm:py-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <Section
-          title="Compartilhados"
-          description="Consultas e pareceres compartilhados com a sua equipe"
-          className="p-0 border-0"
-        />
+        <div>
+          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">Compartilhados</h2>
+          <p className="mt-0.5 text-footnote text-muted-foreground">Consultas e pareceres compartilhados com a sua equipe</p>
+        </div>
+
         
         <div className="flex items-center gap-2">
           <SearchField 
