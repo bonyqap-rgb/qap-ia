@@ -311,200 +311,156 @@ function DashboardPage() {
         </div>
       </Section>
 
-      {/* ------------------------------------------------------- atividade */}
-      <Section>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Panel
-            title="Atividade"
-            description="Consultas nos últimos 7 dias"
-            className="lg:col-span-2"
-            bodyClassName="px-4 py-5 sm:px-5"
-          >
-            <div className="h-[260px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={activityData}>
-                  <defs>
-                    <linearGradient id="qapActivity" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--color-azure)" stopOpacity={0.28} />
-                      <stop offset="100%" stopColor="var(--color-azure)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    vertical={false}
-                    strokeDasharray="3 3"
-                    stroke="var(--color-border)"
-                  />
-                  <XAxis
-                    dataKey="day"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    stroke="var(--color-muted-foreground)"
-                  />
-                  <YAxis
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    width={32}
-                    stroke="var(--color-muted-foreground)"
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: 12,
-                      border: "1px solid var(--color-border)",
-                      background: "var(--color-card)",
-                      color: "var(--color-foreground)",
-                      fontSize: 12,
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="consultas"
-                    stroke="var(--color-azure)"
-                    strokeWidth={2}
-                    fill="url(#qapActivity)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Panel>
+      {/* ------------------------------------- atividade recente & continuar trabalhando */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Panel
+          title="Atividade Recente"
+          description="Timeline de ações do workspace"
+          className="lg:col-span-2"
+          bodyClassName="px-6 py-6"
+        >
+          <div className="space-y-6">
+            {[
+              { type: 'consulta', title: 'Consulta sobre RDPM', time: '10 min atrás', status: 'completo' },
+              { type: 'documento', title: 'Upload de I-2-PM', time: '2 horas atrás', status: 'indexado' },
+              { type: 'exportacao', title: 'Relatório de Sindicância', time: 'Ontem', status: 'pdf' },
+            ].map((item, i) => (
+              <div key={i} className="relative flex items-start gap-4 pb-6 last:pb-0">
+                {i !== 2 && <div className="absolute left-[15px] top-[30px] h-full w-px bg-border/60" />}
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted/50 ring-4 ring-background">
+                  {item.type === 'consulta' && <MessagesSquare className="h-3.5 w-3.5 text-azure" />}
+                  {item.type === 'documento' && <FileText className="h-3.5 w-3.5 text-amber-500" />}
+                  {item.type === 'exportacao' && <Download className="h-3.5 w-3.5 text-emerald-500" />}
+                </div>
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[13px] font-bold text-foreground">{item.title}</p>
+                    <span className="text-[10px] font-medium text-muted-foreground">{item.time}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge tone="accent" className="bg-muted/50 text-[9px] font-bold uppercase tracking-wider">{item.status}</Badge>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
 
-          <Panel
-            title="Integridade dos serviços"
-            description="Leitura em tempo real"
-            bodyClassName="space-y-2 px-4 py-4"
-          >
+        <Panel
+          title="Continuar Trabalhando"
+          description="Retomar tarefas recentes"
+          bodyClassName="p-3"
+        >
+          <div className="space-y-1">
+            {[
+              { label: 'Nova Sindicância 042/24', detail: '3 mensagens · Atualizado há 1h', icon: MessagesSquare },
+              { label: 'Estatuto dos Militares', detail: 'Documento favoritado', icon: Star },
+              { label: 'CPP Militar', detail: 'Base jurídica', icon: Scale },
+            ].map((item, i) => (
+              <button key={i} className="group flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-muted/60">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/40 text-muted-foreground group-hover:bg-azure/10 group-hover:text-azure">
+                  <item.icon className="h-4.5 w-4.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-bold text-foreground">{item.label}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">{item.detail}</p>
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/30 group-hover:text-muted-foreground" />
+              </button>
+            ))}
+          </div>
+        </Panel>
+      </div>
+
+      {/* ------------------------------------------------------- kpis modernos */}
+      <Section title="Métricas Workspace" description="Desempenho operacional da conta">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat label="Consultas Mês" value="1.240" hint="+12% em relação ao mês anterior" icon={MessagesSquare} tone="azure" />
+          <Stat label="Documentos Base" value={statistics.data?.indexedDocuments.toLocaleString("pt-BR") ?? "—"} hint="Total de arquivos indexados" icon={FileText} tone="warning" />
+          <Stat label="Favoritos" value="48" hint="Consultas salvas no workspace" icon={Star} tone="accent" />
+          <Stat label="Exportações" value="156" hint="Total de PDFs gerados" icon={Download} tone="success" />
+        </div>
+      </Section>
+
+      {/* ------------------------------------- base jurídica & destaques */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Panel
+          title="Base Jurídica"
+          description="Resumo da inteligência indexada"
+          actions={<Button variant="ghost" size="sm" className="text-xs">Ver Todas</Button>}
+        >
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-azure" />
+                <span className="text-[12px] font-medium text-foreground">Legislação PMESP</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="text-[12px] font-medium text-foreground">Código Penal Militar</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-amber-500" />
+                <span className="text-[12px] font-medium text-foreground">Portarias CG</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center justify-center rounded-2xl bg-muted/30 p-4 text-center">
+              <p className="text-3xl font-bold text-foreground">{statistics.data?.indexedDocuments ?? '—'}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Documentos Ativos</p>
+            </div>
+          </div>
+        </Panel>
+
+        <Panel
+          title="Destaques & Novidades"
+          description="Atualizações da plataforma"
+        >
+          <div className="space-y-4">
+            <div className="group relative flex items-start gap-3 rounded-xl border border-border/40 bg-card/40 p-3 transition-colors hover:border-azure/30">
+              <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-azure animate-pulse" />
+              <div>
+                <p className="text-[12px] font-bold text-foreground">Novo Módulo de Auditoria</p>
+                <p className="text-[11px] text-muted-foreground">Acompanhe o log de consultas em tempo real com maior precisão.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 rounded-xl border border-transparent p-3 grayscale opacity-60">
+              <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-muted" />
+              <div>
+                <p className="text-[12px] font-bold text-foreground">Integração Vade Mecum</p>
+                <p className="text-[11px] text-muted-foreground">Em breve: consulta direta a toda a base do Vade Mecum Militar.</p>
+              </div>
+            </div>
+          </div>
+        </Panel>
+      </div>
+
+      {/* ------------------------------------------------------- integridade sistema */}
+      <Section title="Integridade do Sistema" description="Status dos serviços em tempo real">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Panel bodyClassName="grid grid-cols-2 gap-4 p-5">
             {serviceLabels.map((svc) => {
               const service = health.data?.services?.[svc.key];
               return (
-                <StatusPill
-                  key={svc.key}
-                  label={svc.label}
-                  status={service?.status ?? health.data?.status}
-                  detail={
-                    service?.detail ?? (service?.latencyMs ? `${service.latencyMs} ms` : undefined)
-                  }
-                  loading={health.isLoading}
-                />
+                <div key={svc.key} className="flex items-center justify-between rounded-xl border border-border/40 bg-card/40 px-4 py-3">
+                  <span className="text-[11px] font-bold text-foreground">{svc.label}</span>
+                  <div className="flex items-center gap-2">
+                    <div className={cn("h-1.5 w-1.5 rounded-full", online ? "bg-emerald-500" : "bg-amber-500")} />
+                    <span className="text-[10px] font-medium text-muted-foreground">{service?.latencyMs ? `${service.latencyMs}ms` : 'Online'}</span>
+                  </div>
+                </div>
               );
             })}
           </Panel>
-        </div>
-      </Section>
-
-      {/* ------------------------------------- consultas recentes + base legal */}
-      <Section>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Panel
-            title="Consultas recentes"
-            description="Suas últimas pesquisas"
-            actions={
-              <Button asChild variant="ghost" size="sm" className="gap-1 text-caption">
-                <Link to="/history">
-                  Histórico
-                  <ArrowUpRight className="size-3.5" />
-                </Link>
-              </Button>
-            }
-            bodyClassName="px-3 py-3"
-          >
-            <EmptyState
-              icon={MessagesSquare}
-              title="Nenhuma consulta registrada"
-              description="Suas consultas aparecerão aqui assim que você iniciar uma nova pesquisa."
-              action={
-                <Button asChild size="sm" className="gap-2">
-                  <Link to="/chat">
-                    <MessageSquarePlus className="size-4" />
-                    Nova Consulta
-                  </Link>
-                </Button>
-              }
-              className="border-0 bg-transparent py-8"
-            />
-          </Panel>
-
-          <Panel
-            title="Base legal"
-            description="Normas de referência da plataforma"
-            actions={
-              <Button asChild variant="ghost" size="sm" className="gap-1 text-caption">
-                <Link to="/knowledge">
-                  Ver tudo
-                  <ArrowUpRight className="size-3.5" />
-                </Link>
-              </Button>
-            }
-          >
-            {legalHighlights.map((ref) => (
-              <LegalItem key={ref.id} reference={ref} />
-            ))}
-          </Panel>
-        </div>
-      </Section>
-
-      {/* ------------------------------------------------------ cards inferiores */}
-      <Section>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          <Card
-            interactive
-            padding="sm"
-            className="group transition-all duration-200 hover:-translate-y-1 hover:border-azure/40 hover:shadow-medium border border-border/50 bg-card/60 backdrop-blur-md"
-          >
-            <div className="flex items-center gap-4 p-1">
-              <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-border/50 bg-muted/40 text-muted-foreground/80 transition-colors duration-200 group-hover:border-azure/30 group-hover:text-azure">
-                <FileText className="size-5" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/80">
-                  Documentos na base
-                </p>
-                <p className="mt-0.5 text-headline font-bold text-foreground tabular-nums">
-                  {statistics.data?.totalDocuments?.toLocaleString("pt-BR") ?? "—"} arquivos
-                </p>
-              </div>
-            </div>
-          </Card>
-          <Card
-            interactive
-            padding="sm"
-            className="group transition-all duration-200 hover:-translate-y-1 hover:border-azure/40 hover:shadow-medium border border-border/50 bg-card/60 backdrop-blur-md"
-          >
-            <div className="flex items-center gap-4 p-1">
-              <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-border/50 bg-muted/40 text-muted-foreground/80 transition-colors duration-200 group-hover:border-azure/30 group-hover:text-azure">
-                <Database className="size-5" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/80">
-                  Páginas processadas
-                </p>
-                <p className="mt-0.5 text-headline font-bold text-foreground tabular-nums">
-                  {statistics.data?.totalPages?.toLocaleString("pt-BR") ?? "—"} páginas
-                </p>
-              </div>
-            </div>
-          </Card>
-          <Card
-            interactive
-            padding="sm"
-            className="group transition-all duration-200 hover:-translate-y-1 hover:border-azure/40 hover:shadow-medium border border-border/50 bg-card/60 backdrop-blur-md"
-          >
-            <div className="flex items-center gap-4 p-1">
-              <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-border/50 bg-muted/40 text-muted-foreground/80 transition-colors duration-200 group-hover:border-azure/30 group-hover:text-azure">
-                <Clock className="size-5" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/80">
-                  Pendentes de indexação
-                </p>
-                <p className="mt-0.5 text-headline font-bold text-foreground tabular-nums">
-                  {statistics.data?.pendingDocuments?.toLocaleString("pt-BR") ?? "—"} documentos
-                </p>
-              </div>
-            </div>
+          <Card className="flex flex-col items-center justify-center border-dashed bg-muted/20 text-center">
+            <AlertCircle className="mb-2 h-5 w-5 text-muted-foreground/40" />
+            <p className="text-[12px] font-medium text-muted-foreground">Manutenção programada</p>
+            <p className="text-[10px] text-muted-foreground/60">Domingo, às 02:00 BRT</p>
           </Card>
         </div>
       </Section>
+    </Container>
+  );
+}
 
       <p className="mt-8 flex items-center gap-1.5 text-caption text-muted-foreground">
         <Sparkle className="size-3.5 text-azure" aria-hidden />
