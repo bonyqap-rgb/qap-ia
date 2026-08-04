@@ -375,7 +375,7 @@ function DashboardPage() {
       {/* ------------------------------------------------------- kpis modernos */}
       <Section title="Métricas Workspace" description="Desempenho operacional da conta">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat label="Consultas Mês" value="1.240" hint="+12% em relação ao mês anterior" icon={MessagesSquare} tone="azure" />
+          <Stat label="Consultas Mês" value="1.240" hint="+12% em relação ao mês anterior" icon={MessagesSquare} tone="info" />
           <Stat label="Documentos Base" value={statistics.data?.indexedDocuments.toLocaleString("pt-BR") ?? "—"} hint="Total de arquivos indexados" icon={FileText} tone="warning" />
           <Stat label="Favoritos" value="48" hint="Consultas salvas no workspace" icon={Star} tone="accent" />
           <Stat label="Exportações" value="156" hint="Total de PDFs gerados" icon={Download} tone="success" />
@@ -437,7 +437,7 @@ function DashboardPage() {
       {/* ------------------------------------------------------- integridade sistema */}
       <Section title="Integridade do Sistema" description="Status dos serviços em tempo real">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Panel bodyClassName="grid grid-cols-2 gap-4 p-5">
+          <Panel title="Monitoramento" bodyClassName="grid grid-cols-2 gap-4 p-5">
             {serviceLabels.map((svc) => {
               const service = health.data?.services?.[svc.key];
               return (
