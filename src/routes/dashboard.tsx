@@ -179,14 +179,17 @@ function DashboardPage() {
 
         <div className="relative mx-auto max-w-3xl px-6">
           <div className="group relative flex h-16 items-center rounded-2xl border border-border/80 bg-card px-5 shadow-medium transition-all duration-300 ease-[var(--ease-standard)] focus-within:border-azure/70 focus-within:ring-azure/20 focus-within:ring-4 focus-within:shadow-elevated hover:border-border/100">
-            <Search
-              className="pointer-events-none absolute left-5 size-6 text-muted-foreground transition-colors duration-200 group-focus-within:text-azure"
-              aria-hidden
-            />
+            <div className="flex items-center gap-2 absolute left-5">
+              <Search
+                className="size-6 text-muted-foreground transition-colors duration-200 group-focus-within:text-azure"
+                aria-hidden
+              />
+              <Badge tone="info" className="hidden sm:inline-flex bg-azure/5 text-azure border-azure/20 text-[9px] uppercase tracking-wider font-bold h-5">Global</Badge>
+            </div>
             <input
               type="search"
-              placeholder="Pesquise por uso da força, regulamento disciplinar, estatuto, decretos..."
-              className="h-full w-full min-w-0 bg-transparent pl-12 pr-16 text-[16px] text-foreground outline-none placeholder:text-muted-foreground/60 transition-all duration-200"
+              placeholder="Pesquise em toda a plataforma (leis, documentos, histórico)..."
+              className="h-full w-full min-w-0 bg-transparent pl-24 pr-16 text-[16px] text-foreground outline-none placeholder:text-muted-foreground/60 transition-all duration-200"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && e.currentTarget.value.trim()) {
                   window.location.href = `/chat?q=${encodeURIComponent(e.currentTarget.value.trim())}`;
