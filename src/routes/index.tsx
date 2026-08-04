@@ -97,6 +97,7 @@ function LandingPage() {
     <MarketingLayout>
       <Hero />
       <Metrics />
+      <QuickSearch />
       <Demo />
       <HowItWorks />
       <Features />
@@ -189,6 +190,67 @@ function Hero() {
     </section>
   );
 }
+
+/** Dashboard-like search field integrated into landing page for quick access. */
+function QuickSearch() {
+  return (
+    <div className="relative mx-auto w-full max-w-4xl space-y-8 text-center py-20 animate-rise">
+      <div className="space-y-3">
+        <Badge tone="accent" className="px-3 py-1">Acesso Direto</Badge>
+        <h2 className="font-display text-3xl font-bold tracking-tight text-foreground leading-tight sm:text-4xl">
+          Qual a sua dúvida <span className="text-gradient-azure">hoje?</span>
+        </h2>
+        <p className="mx-auto max-w-xl text-muted-foreground">
+          Acesse instantaneamente a base legal indexada e obtenha respostas fundamentadas com referências exatas da legislação militar.
+        </p>
+      </div>
+
+      <div className="relative mx-auto max-w-3xl px-6">
+        <div className="group relative flex h-16 items-center rounded-2xl border border-border/80 bg-card px-5 shadow-medium transition-all duration-300 ease-[var(--ease-standard)] focus-within:border-azure/70 focus-within:ring-azure/20 focus-within:ring-4 focus-within:shadow-elevated hover:border-border/100">
+          <Search
+            className="pointer-events-none absolute left-5 size-6 text-muted-foreground transition-colors duration-200 group-focus-within:text-azure"
+            aria-hidden
+          />
+          <input
+            type="search"
+            placeholder="Pesquise por uso da força, regulamento disciplinar, estatuto..."
+            className="h-full w-full min-w-0 bg-transparent pl-12 pr-16 text-[16px] text-foreground outline-none placeholder:text-muted-foreground/60 transition-all duration-200"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                window.location.href = `/chat?q=${encodeURIComponent(e.currentTarget.value.trim())}`;
+              }
+            }}
+          />
+          <kbd className="pointer-events-none absolute right-5 hidden select-none rounded-lg border border-border/80 bg-muted/40 px-2.5 py-1 font-mono text-[11px] font-bold text-muted-foreground/80 sm:block shadow-sm">
+            ENTER
+          </kbd>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-2.5 px-6 text-[12px] text-muted-foreground">
+        <span className="font-bold text-muted-foreground/40 uppercase tracking-[0.15em] text-[10px] mr-2">
+          Sugestões:
+        </span>
+        {[
+          "Níveis de uso da força",
+          "Prazos de sindicância",
+          "Abordagem de suspeito",
+          "Crimes militares",
+        ].map((q) => (
+          <Link
+            key={q}
+            to={`/chat?q=${encodeURIComponent(q)}`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-4 py-2 font-medium transition-all duration-200 hover:-translate-y-0.5 hover:border-azure/40 hover:bg-azure/5 hover:text-foreground hover:shadow-subtle"
+          >
+            <Sparkles className="size-3 text-azure animate-pulse" />
+            {q}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 
 function Demo() {
   return (
