@@ -133,7 +133,7 @@ function Hero() {
           </div>
 
           <Badge
-            variant="outline"
+            tone="accent"
             className="mb-6 gap-2 border-azure/30 bg-azure/8 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-azure-dark dark:text-azure-light shadow-sm"
           >
             <ShieldCheck className="h-3.5 w-3.5" />
