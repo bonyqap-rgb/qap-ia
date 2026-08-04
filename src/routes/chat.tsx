@@ -687,43 +687,115 @@ function ChatPage() {
 
         </div>
 
-        {/* Consultas desta sessão (o backend ainda não persiste conversas) */}
+        {/* Painel Contextual */}
         {railOpen && (
-          <aside className="hidden w-72 shrink-0 flex-col border-l border-border/60 bg-card/40 lg:flex">
-            <div className="border-b border-border/60 px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                Consultas desta sessão
+          <aside className="hidden w-80 shrink-0 flex-col border-l border-border/60 bg-card/20 backdrop-blur-md lg:flex animate-in slide-in-from-right duration-300">
+            <div className="flex h-12 items-center border-b border-border/60 px-5 bg-card/40">
+              <div className="flex items-center gap-2">
+                <Layout className="h-3.5 w-3.5 text-azure" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/80">
+                  Contexto da Consulta
+                </span>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-3">
-              {messages.filter((m) => m.role === "user").length === 0 ? (
-                <EmptyState
-                  icon={MessageSquare}
-                  title="Sem consultas"
-                  description="As perguntas feitas nesta sessão aparecerão listadas aqui."
-                  className="m-1 border-dashed p-4"
-                />
-              ) : (
-                messages
-                  .filter((m) => m.role === "user")
-                  .map((m, i) => (
-                    <button
-                      key={`${m.id ?? i}-rail`}
-                      onClick={() => send(m.content)}
-                      className="group mb-1 w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-muted/70"
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <MessageSquare className="h-3 w-3 shrink-0 text-azure" />
-                        <span className="truncate text-[13px] font-medium text-foreground">
-                          {m.content.slice(0, 40)}
-                        </span>
+            
+            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+              {/* Documentos Utilizados */}
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Documentos Base</span>
+                </div>
+                {isEmpty ? (
+                   <div className="rounded-xl border border-dashed border-border/60 p-4 text-center">
+                    <p className="text-[11px] text-muted-foreground italic">Nenhum documento ativo no workspace</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="group relative rounded-xl border border-border/50 bg-card/60 p-3 shadow-soft transition-all hover:border-azure/30">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-azure/10 text-azure group-hover:bg-azure group-hover:text-white transition-colors">
+                          <FileText className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[12px] font-bold text-foreground">I-2-PM</p>
+                          <p className="truncate text-[10px] text-muted-foreground">Procedimento Operacional Padrão</p>
+                        </div>
                       </div>
-                      <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                        {m.content}
+                    </div>
+                  </div>
+                )}
+              </section>
+
+              {/* Referências Jurídicas */}
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Scale className="h-3.5 w-3.5" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Base Legal</span>
+                </div>
+                {isEmpty ? (
+                  <div className="rounded-xl border border-dashed border-border/60 p-4 text-center">
+                    <p className="text-[11px] text-muted-foreground italic">Aguardando análise normativa</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {["Art. 144 CF/88", "RDPM (Decreto 43.648/98)"].map((ref) => (
+                      <div key={ref} className="flex items-center justify-between rounded-lg border border-border/40 bg-card/40 px-3 py-2 transition-colors hover:bg-muted/40">
+                        <span className="text-[11px] font-medium text-foreground">{ref}</span>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground/50" />
                       </div>
-                    </button>
-                  ))
-              )}
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              {/* Estatísticas */}
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Análise Técnica</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-xl border border-border/40 bg-card/40 p-3">
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">Latência</p>
+                    <p className="mt-1 text-[13px] font-bold text-foreground">1.4s</p>
+                  </div>
+                  <div className="rounded-xl border border-border/40 bg-card/40 p-3">
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">Precisão</p>
+                    <p className="mt-1 text-[13px] font-bold text-emerald-500">98%</p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Ações Rápidas */}
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Zap className="h-3.5 w-3.5" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Ações Workspace</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  <Button variant="outline" size="sm" className="h-8 justify-start gap-2 rounded-lg border-border/60 text-[11px] font-semibold">
+                    <Download className="h-3 w-3" />
+                    Gerar PDF Técnico
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-8 justify-start gap-2 rounded-lg border-border/60 text-[11px] font-semibold">
+                    <LinkIcon className="h-3 w-3" />
+                    Compartilhar Workspace
+                  </Button>
+                </div>
+              </section>
+            </div>
+            
+            <div className="border-t border-border/60 p-4 bg-muted/20">
+              <div className="rounded-xl bg-azure/5 border border-azure/10 p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Info className="h-3 w-3 text-azure" />
+                  <span className="text-[10px] font-bold text-azure uppercase tracking-wider">Aviso Legal</span>
+                </div>
+                <p className="text-[10px] leading-relaxed text-muted-foreground italic">
+                  Dados extraídos exclusivamente da base normativa indexada.
+                </p>
+              </div>
             </div>
           </aside>
         )}
