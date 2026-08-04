@@ -481,19 +481,19 @@ function ChatPage() {
                             <User className="h-4 w-4" aria-hidden />
                           </div>
                         ) : (
-                          <BrandLogo size={32} className="rounded-xl shrink-0" />
+                          <BrandLogo size={32} className="rounded-xl shadow-soft ring-1 ring-azure/10 shrink-0" />
                         )}
                         <div
                           className={cn(
-                            "group relative min-w-0 rounded-2xl transition-all duration-200",
+                            "group relative min-w-0 rounded-2xl transition-all duration-300",
                             isUser
-                              ? "max-w-[85%] bg-muted/50 border border-border/40 text-foreground px-5 py-3.5 shadow-soft sm:max-w-[75%]"
-                              : "w-full max-w-full border border-border/40 bg-card text-foreground px-5 py-4.5 sm:px-6 sm:py-5.5 shadow-soft",
+                              ? "max-w-[85%] bg-gradient-azure text-primary-foreground px-5 py-3.5 shadow-azure sm:max-w-[75%]"
+                              : "w-full max-w-full border border-border/80 bg-card text-foreground px-5 py-4.5 sm:px-6 sm:py-5.5 shadow-subtle",
                             !isUser && message.error && "border-destructive/30 bg-destructive/5",
                           )}
                         >
                           {isUser ? (
-                            <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground font-medium">
+                            <p className="whitespace-pre-wrap text-[15px] leading-relaxed font-medium">
                               {message.content}
                             </p>
                           ) : message.error ? (
@@ -509,7 +509,7 @@ function ChatPage() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="mt-2.5 gap-1.5"
+                                  className="mt-2.5 gap-1.5 rounded-xl"
                                   onClick={handleRegenerate}
                                 >
                                   <RefreshCw className="h-3.5 w-3.5" />
@@ -526,25 +526,25 @@ function ChatPage() {
 
                           <div
                             className={cn(
-                              "mt-3 flex items-center gap-2 text-[10px] font-semibold tracking-wide uppercase",
+                              "mt-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.05em] uppercase transition-all duration-300",
                               isUser
-                                ? "justify-end text-muted-foreground/80"
-                                : "text-muted-foreground/75 border-t border-border/30 pt-3.5",
+                                ? "justify-end text-primary-foreground/70"
+                                : "text-muted-foreground/50 border-t border-border/40 pt-3.5",
                             )}
                           >
                             <time dateTime={new Date(message.createdAt).toISOString()}>
                               {formatTime(message.createdAt)}
                             </time>
                             {!isUser && !message.error && (
-                              <div className="ml-auto flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+                              <div className="ml-auto flex items-center gap-1.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(message)}
-                                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/80 transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-muted/40 text-muted-foreground transition-all hover:bg-muted hover:text-foreground shadow-sm"
                                   aria-label="Copiar resposta"
                                 >
                                   {copiedId === message.id ? (
-                                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                    <Check className="h-3.5 w-3.5 text-azure" />
                                   ) : (
                                     <Copy className="h-3.5 w-3.5" />
                                   )}
@@ -552,13 +552,11 @@ function ChatPage() {
                                 <button
                                   type="button"
                                   onClick={() => setRated((p) => ({ ...p, [message.id]: "up" }))}
-                                  aria-label="Marcar resposta como útil"
-                                  aria-pressed={rated[message.id] === "up"}
                                   className={cn(
-                                    "inline-flex h-7 w-7 items-center justify-center rounded-lg transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                    "inline-flex h-7 w-7 items-center justify-center rounded-lg bg-muted/40 transition-all hover:bg-muted shadow-sm",
                                     rated[message.id] === "up"
-                                      ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10"
-                                      : "text-muted-foreground/80 hover:text-foreground",
+                                      ? "text-azure bg-azure/10"
+                                      : "text-muted-foreground hover:text-foreground",
                                   )}
                                 >
                                   <ThumbsUp className="h-3.5 w-3.5" />
@@ -566,13 +564,11 @@ function ChatPage() {
                                 <button
                                   type="button"
                                   onClick={() => setRated((p) => ({ ...p, [message.id]: "down" }))}
-                                  aria-label="Marcar resposta como imprecisa"
-                                  aria-pressed={rated[message.id] === "down"}
                                   className={cn(
-                                    "inline-flex h-7 w-7 items-center justify-center rounded-lg transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                    "inline-flex h-7 w-7 items-center justify-center rounded-lg bg-muted/40 transition-all hover:bg-muted shadow-sm",
                                     rated[message.id] === "down"
-                                      ? "text-destructive bg-destructive/5"
-                                      : "text-muted-foreground/80 hover:text-foreground",
+                                      ? "text-destructive bg-destructive/10"
+                                      : "text-muted-foreground hover:text-foreground",
                                   )}
                                 >
                                   <ThumbsDown className="h-3.5 w-3.5" />
@@ -581,8 +577,7 @@ function ChatPage() {
                                   <button
                                     type="button"
                                     onClick={handleRegenerate}
-                                    aria-label="Regenerar resposta"
-                                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/80 transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-muted/40 text-muted-foreground transition-all hover:bg-muted hover:text-foreground shadow-sm"
                                   >
                                     <RefreshCw className="h-3.5 w-3.5" />
                                   </button>
@@ -591,6 +586,7 @@ function ChatPage() {
                             )}
                           </div>
                         </div>
+
                       </article>
                     );
                   })}
@@ -617,13 +613,10 @@ function ChatPage() {
             </div>
           </div>
 
-          <div className="shrink-0 border-t border-border/50 bg-background/80 px-4 py-5 backdrop-blur-xl sm:px-6 md:py-6">
+          <div className="shrink-0 border-t border-border/60 bg-card/40 px-4 py-5 backdrop-blur-md sm:px-6 sm:py-6">
             <div className="mx-auto max-w-3xl">
-              <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft transition-all duration-300 hover:border-border focus-within:border-azure/60 focus-within:ring-4 focus-within:ring-azure/10 focus-within:shadow-azure">
+              <div className="group relative flex flex-col rounded-2xl border border-border/80 bg-card shadow-medium transition-all duration-300 focus-within:border-azure/70 focus-within:ring-azure/20 focus-within:ring-4 focus-within:shadow-elevated hover:border-border/100">
                 <div className="p-3 sm:p-4">
-                  <label htmlFor="question" className="sr-only">
-                    Digite sua pergunta
-                  </label>
                   <textarea
                     ref={textareaRef}
                     id="question"
@@ -633,7 +626,7 @@ function ChatPage() {
                     placeholder="Faça uma pergunta jurídica ou administrativa sobre legislação militar..."
                     disabled={isLoading}
                     rows={1}
-                    className="max-h-[240px] min-h-[52px] w-full resize-none overflow-y-auto bg-transparent px-3 py-2 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/75 focus:outline-none focus:ring-0"
+                    className="max-h-[240px] min-h-[52px] w-full resize-none bg-transparent px-3 py-2 text-[16px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/60"
                   />
 
                   <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/40 pt-2.5 px-1">
@@ -642,58 +635,50 @@ function ChatPage() {
                         <TooltipTrigger asChild>
                           <button
                             type="button"
-                            onClick={() =>
-                              toast.info("Anexos chegam em breve", {
-                                description:
-                                  "Envie documentos pela Base de Conhecimento enquanto isso.",
-                              })
-                            }
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground transition-all duration-140 hover:bg-muted hover:text-foreground hover:scale-105"
+                            onClick={() => toast.info("Anexos em breve na central")}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground"
                           >
                             <Paperclip className="h-4.5 w-4.5" />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent>Anexar documento (em breve)</TooltipContent>
+                        <TooltipContent>Anexar documento</TooltipContent>
                       </Tooltip>
-                      <div className="hidden text-[11px] text-muted-foreground/80 sm:block font-medium">
-                        <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] shadow-sm">
-                          Enter
-                        </kbd>{" "}
-                        enviar ·{" "}
-                        <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] shadow-sm">
-                          Shift + Enter
-                        </kbd>{" "}
-                        quebra de linha
+                      <div className="hidden text-[11px] font-bold uppercase tracking-wider text-muted-foreground/50 sm:block">
+                        Markdown Ativo
                       </div>
                     </div>
-                    <Button
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={!input.trim() || isLoading}
-                      size="default"
-                      className="ml-auto gap-2 rounded-xl bg-gradient-azure px-5 text-primary-foreground shadow-azure transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] disabled:opacity-40 disabled:scale-100 disabled:shadow-none"
-                    >
-                      {isLoading ? (
-                        <RefreshCw className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <span className="font-semibold text-xs tracking-wide uppercase">
-                            Consultar
-                          </span>
+                    
+                    <div className="flex items-center gap-3">
+                      <span className="hidden text-[11px] font-medium text-muted-foreground/60 sm:inline-block">
+                        <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px] font-bold">Shift + Enter</kbd> pular linha
+                      </span>
+                      <Button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={!input.trim() || isLoading}
+                        className={cn(
+                          "h-10 gap-2 rounded-xl px-5 text-[13px] font-bold transition-all shadow-azure",
+                          !input.trim() || isLoading ? "opacity-40" : "hover:scale-[1.02] active:scale-[0.98]"
+                        )}
+                      >
+                        <span>{isLoading ? "Consultando" : "Enviar"}</span>
+                        {isLoading ? (
+                          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
                           <Send className="h-3.5 w-3.5" />
-                        </>
-                      )}
-                    </Button>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <p className="mt-3 text-center text-[11px] leading-relaxed text-muted-foreground/85">
-                As respostas possuem caráter informativo e devem ser conferidas na legislação
-                oficial.
+              <p className="mt-4 text-center text-[11px] font-medium text-muted-foreground/60 italic">
+                O QAP IA pode cometer erros. Verifique informações importantes na legislação oficial.
               </p>
             </div>
           </div>
+
         </div>
 
         {/* Consultas desta sessão (o backend ainda não persiste conversas) */}
