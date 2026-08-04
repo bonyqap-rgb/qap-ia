@@ -192,53 +192,68 @@ function Hero() {
 
 function Demo() {
   return (
-    <section id="demo" className="scroll-mt-20 border-b border-border/60 bg-muted/30">
-      <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
+    <section id="demo" className="scroll-mt-20 border-b border-border/40 bg-muted/20 py-24">
+      <div className="mx-auto w-full max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Veja como uma consulta acontece
+          <Badge tone="info" className="mb-4">
+            Interface Real
+          </Badge>
+          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            Simplicidade operacional
           </h2>
-          <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-            Resposta direta, base legal e convite para aprofundar — sem textos longos e sem rodeios.
+          <p className="mt-3 text-[16px] leading-relaxed text-muted-foreground">
+            Resposta direta, fundamentação legal exata e sugestões para aprofundar — sem textos
+            longos, sem alucinações e sem perda de tempo.
           </p>
         </div>
 
-        <div className="surface-raised mx-auto mt-9 max-w-3xl overflow-hidden p-0">
-          <div className="flex items-center gap-2 border-b border-border/60 bg-card/80 px-4 py-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
-            <span className="h-2.5 w-2.5 rounded-full bg-azure/50" />
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/60" />
-            <span className="ml-2 truncate text-[11px] font-medium text-muted-foreground">
-              QAP IA · Chat Jurídico
-            </span>
+        <div className="surface-raised mx-auto mt-12 max-w-4xl overflow-hidden p-0 shadow-large ring-1 ring-border/50">
+          <div className="flex items-center justify-between border-b border-border/50 bg-card/80 px-5 py-3.5 backdrop-blur-md">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-500/60" />
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/60" />
+              <div className="ml-4 h-4 w-px bg-border/60" />
+              <span className="ml-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70">
+                <ShieldCheck className="h-3 w-3 text-azure" />
+                QAP IA • TERMINAL DE CONSULTA
+              </span>
+            </div>
+            <Badge tone="accent" className="text-[9px]">
+              V1.2.0
+            </Badge>
           </div>
-          <div className="space-y-5 p-4 sm:p-6">
+
+          <div className="space-y-8 bg-card/40 p-6 sm:p-10">
             {demoConversation.map((m, i) => (
               <div
                 key={i}
-                className={cn("flex items-start gap-3", m.role === "user" && "flex-row-reverse")}
+                className={cn("flex items-start gap-4", m.role === "user" && "flex-row-reverse")}
               >
-                {m.role === "user" ? (
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground ring-1 ring-border">
-                    PM
-                  </div>
-                ) : (
-                  <BrandLogo size={36} className="rounded-full" />
-                )}
+                <div className="flex shrink-0 flex-col items-center gap-2">
+                  {m.role === "user" ? (
+                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-[11px] font-bold text-secondary-foreground ring-1 ring-border shadow-sm">
+                      PM
+                    </div>
+                  ) : (
+                    <BrandLogo size={40} className="rounded-xl shadow-soft ring-1 ring-azure/20" />
+                  )}
+                </div>
                 <div
                   className={cn(
-                    "min-w-0 rounded-2xl px-4 py-3 text-sm leading-relaxed",
+                    "min-w-0 flex-1 space-y-2 rounded-2xl px-5 py-4 text-sm leading-relaxed",
                     m.role === "user"
-                      ? "max-w-[85%] bg-primary text-primary-foreground shadow-azure"
-                      : "w-full border border-border/70 bg-card text-foreground shadow-soft",
+                      ? "max-w-[85%] bg-gradient-azure text-primary-foreground shadow-azure"
+                      : "border border-border/60 bg-card text-foreground shadow-soft",
                   )}
                 >
-                  <p className="whitespace-pre-wrap">{m.text}</p>
+                  <p className="whitespace-pre-wrap font-medium">{m.text}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="border-t border-border/60 bg-card/60 px-4 py-3 text-center text-[11px] text-muted-foreground">
+
+          <div className="border-t border-border/50 bg-muted/40 px-6 py-4 text-center text-[11px] font-medium text-muted-foreground/70 italic">
             As respostas possuem caráter informativo e devem ser conferidas na legislação oficial.
           </div>
         </div>
@@ -249,35 +264,38 @@ function Demo() {
 
 function Features() {
   return (
-    <section id="recursos" className="scroll-mt-20 border-b border-border/60">
-      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="max-w-2xl">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-azure">
-            Recursos
-          </span>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Tudo o que a unidade precisa em um só lugar
+    <section id="recursos" className="scroll-mt-20 border-b border-border/40 bg-background py-24">
+      <div className="mx-auto w-full max-w-6xl px-6">
+        <div className="flex flex-col items-center text-center mb-16">
+          <Badge tone="accent" className="mb-4">
+            Recursos Enterprise
+          </Badge>
+          <h2 className="max-w-2xl font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            Tudo o que a corporação precisa em uma plataforma única
           </h2>
-          <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-            Da consulta rápida no plantão à gestão da base documental da seção.
+          <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-muted-foreground">
+            Da consulta rápida no plantão à gestão estratégica da base documental de toda a unidade.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f) => (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f, i) => (
             <article
               key={f.title}
-              className="interactive-card group rounded-2xl border border-border/70 bg-card p-5 shadow-soft"
+              className="interactive-card group flex flex-col items-start rounded-2xl border border-border/60 bg-card/50 p-7 shadow-subtle hover:bg-card"
             >
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-azure/10 text-azure transition-colors group-hover:bg-gradient-azure group-hover:text-primary-foreground">
-                <f.icon className="h-5 w-5" />
+              <div className="grid size-12 place-items-center rounded-xl bg-azure/10 text-azure transition-all duration-300 group-hover:scale-110 group-hover:bg-gradient-azure group-hover:text-primary-foreground shadow-sm">
+                <f.icon className="h-6 w-6" />
               </div>
-              <h3 className="mt-4 font-display text-[15px] font-semibold text-foreground">
+              <h3 className="mt-6 font-display text-[17px] font-bold tracking-tight text-foreground">
                 {f.title}
               </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {f.description}
               </p>
+              <div className="mt-auto pt-6">
+                <div className="h-px w-8 bg-azure/30 transition-all duration-300 group-hover:w-full" />
+              </div>
             </article>
           ))}
         </div>
@@ -437,33 +455,42 @@ function Faq() {
 
 function FinalCta() {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden py-24 sm:py-32">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-linear-to-br from-azure/12 via-transparent to-navy/10"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,var(--color-azure-light),transparent_70%)] opacity-[0.12]"
       />
-      <div className="relative mx-auto w-full max-w-4xl px-4 py-16 text-center sm:px-6 sm:py-20">
-        <Sparkles className="mx-auto h-6 w-6 text-azure" />
-        <h2 className="mt-4 text-balance font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          Leve o QAP IA para o seu turno de serviço
+      <div className="relative mx-auto w-full max-w-4xl px-6 text-center">
+        <div className="mb-6 flex justify-center">
+          <div className="grid size-14 place-items-center rounded-2xl bg-azure/10 text-azure shadow-azure animate-bounce">
+            <Sparkles className="size-7" />
+          </div>
+        </div>
+        <h2 className="text-balance font-display text-3xl font-bold tracking-tight text-foreground sm:text-5xl">
+          Leve o QAP IA para o <span className="text-gradient-azure">seu turno de serviço</span>
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          Crie sua conta gratuita e faça a primeira consulta em menos de um minuto. Sem cartão de
-          crédito.
+        <p className="mx-auto mt-6 max-w-xl text-[17px] leading-relaxed text-muted-foreground">
+          Crie sua conta corporativa e faça a primeira consulta em menos de um minuto. 
+          Experimente a excelência da inteligência jurídica militar.
         </p>
-        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+        <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
           <Button
             asChild
             size="lg"
-            className="gap-2 bg-gradient-azure text-primary-foreground shadow-azure hover:brightness-110"
+            className="h-12 gap-2 px-8 text-[15px] font-bold tracking-tight shadow-azure transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <Link to="/signup">
-              Criar conta gratuita
-              <ArrowRight className="h-4 w-4" />
+              Criar Conta Gratuita
+              <ArrowRight className="h-4.5 w-4.5" />
             </Link>
           </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link to="/contact">Falar com especialista</Link>
+          <Button 
+            asChild 
+            size="lg" 
+            variant="outline"
+            className="h-12 px-8 text-[15px] font-medium border-border/80 hover:bg-muted/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Link to="/contact">Falar com Especialista</Link>
           </Button>
         </div>
       </div>
