@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import {
+  isLiteralArticleRequest,
+  runDirectBackendChat,
   runScopedRagChat,
   runScopedRagSearch,
   type RagChatPayload,
