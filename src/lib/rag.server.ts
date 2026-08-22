@@ -166,6 +166,76 @@ export class ScopedGenerationError extends Error {
   }
 }
 
+/** Padrões que indicam pedido de transcrição/texto literal de dispositivo. */
+const LITERAL_INTENT =
+  /\b(?:transcreva|transcri(?:ção|cao)|texto\s+(?:integral|literal|d[oa]\s+art)|conte[uú]do\s+d[oa]\s+art|o\s+que\s+diz|qual\s+(?:(?:é|e)\s+)?o\s+(?:texto|conte[uú]do)|reproduz|cite\s+o\s+artigo|copie)/i;
+
+/** Padrões que indicam pedido analítico (explicação/resumo/comparação). */
+const ANALYTICAL_INTENT =
+  /\b(expli|resum|interpret|compar|analis|diferen|exempl|apliq|aplica(?:ção|cao|r)|significa|entenda)\b/i;
+
+/** Referência a artigo/dispositivo legal numerado. */
+const ARTICLE_REF = /\bart(?:igo)?s?\.?\s*(?:n[ºo°]?\.?\s*)?\d+|\bartigos?\b|\binciso\b|\bpar[aá]grafo\b/i;
+
+/**
+ * Detecta pedidos de transcrição literal de dispositivo legal
+ * (ex.: "Qual é o conteúdo do artigo 13 do RDPM?").
+ *
+ * Esses pedidos NÃO passam pela geração própria (answerFromChunks): o backend
+ * qap-rag já possui bypass de transcrição literal no ChatService, então eles
+ * são encaminhados diretamente ao POST /chat para evitar paráfrases.
+ * Pedidos analíticos (explicar/resumir/interpretar/comparar) seguem o fluxo
+ * normal de escopo documental.
+ */
+export function isLiteralArticleRequest(question: string): boolean {
+  const q = question.trim();
+  if (!q) return false;
+  if (ANALYTICAL_INTENT.test(q)) return false;
+  return ARTICLE_REF.test(q) && LITERAL_INTENT.test(q);
+}
+
+/**
+ * Encaminha a pergunta diretamente ao POST /chat do QAP RAG (sem escopo
+ * documental nem geração própria), preservando question, conversationId e
+ * history. Usado para pedidos de transcrição literal, cujo bypass de
+ * transcrição já existe no ChatService do backend.
+ */
+export async function runDirectBackendChat(input: {
+  question: string;
+  conversationId?: string;
+  history: HistoryMessage[];
+}): Promise<RagChatPayload> {
+  console.info("[QAP IA][literal] bypass de transcrição literal → POST /chat", {
+    question: input.question,
+    historyMessages: input.history.length,
+    hasConversationId: Boolean(input.conversationId),
+  });
+
+  const parsed = await backendChat(input);
+  const rawSources = parsed.sources ?? parsed.citations ?? [];
+  const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
+    ? await fetchDocumentNames()
+    : new Map<string, string>();
+  const sources = normalizeSources(rawSources, names);
+
+  return {
+    answer: parsed.answer ?? parsed.response ?? "",
+    conversationId: parsed.conversationId,
+    model: parsed.model,
+    confidence: parsed.confidence,
+    latencyMs: parsed.latencyMs,
+    resultsCount: rawSources.length,
+    sources,
+    metadata: parsed.metadata
+      ? {
+          searchTime: parsed.metadata.searchTime,
+          generationTime: parsed.metadata.generationTime,
+          totalTime: parsed.metadata.totalTime,
+        }
+      : undefined,
+  };
+}
+
 /**
  * Geração restrita ao contexto informado (documento citado pelo usuário).
  * Usada apenas quando há escopo detectado; caso contrário o /chat responde.

@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import {
+  isLiteralArticleRequest,
+  runDirectBackendChat,
   runScopedRagChat,
   runScopedRagSearch,
   type RagChatPayload,
@@ -37,7 +39,13 @@ export const ragChat = createServerFn({ method: "POST" })
       history,
     };
   })
-  .handler(async ({ data }): Promise<RagChatPayload> => runScopedRagChat(data));
+  .handler(async ({ data }): Promise<RagChatPayload> =>
+    // Pedido de transcrição literal (ex.: "Qual é o conteúdo do artigo 13 do
+    // RDPM?") vai direto ao POST /chat do QAP RAG, que já possui bypass de
+    // transcrição no ChatService — sem interceptação nem paráfrase pelo LLM
+    // próprio. Demais perguntas seguem o fluxo de escopo documental atual.
+    isLiteralArticleRequest(data.question) ? runDirectBackendChat(data) : runScopedRagChat(data),
+  );
 
 /** Proxy server-side para POST /search, priorizando o documento citado. */
 export const ragSearch = createServerFn({ method: "POST" })
