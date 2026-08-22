@@ -168,7 +168,7 @@ export class ScopedGenerationError extends Error {
 
 /** Padrões que indicam pedido de transcrição/texto literal de dispositivo. */
 const LITERAL_INTENT =
-  /\b(transcreva|transcri(?:ção|cao)|texto\s+(?:integral|literal|d[oa]\s+art)|conte[uú]do\s+d[oa]\s+art|o\s+que\s+diz|qual\s+(?:(?:é|e)\s+)?o\s+(?:texto|conte[uú]do)|reproduz|cite\s+o\s+artigo|copie)\b/i;
+  /\b(?:transcreva|transcri(?:ção|cao)|texto\s+(?:integral|literal|d[oa]\s+art)|conte[uú]do\s+d[oa]\s+art|o\s+que\s+diz|qual\s+(?:(?:é|e)\s+)?o\s+(?:texto|conte[uú]do)|reproduz|cite\s+o\s+artigo|copie)/i;
 
 /** Padrões que indicam pedido analítico (explicação/resumo/comparação). */
 const ANALYTICAL_INTENT =
