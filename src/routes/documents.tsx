@@ -134,18 +134,6 @@ function safeLower(value: unknown) {
   return safeText(value).toLocaleLowerCase("pt-BR");
 }
 
-function safeStatus(value: unknown): DocumentStatus {
-  const normalized = safeLower(value);
-  if (
-    normalized === "aguardando" ||
-    normalized === "indexando" ||
-    normalized === "concluído" ||
-    normalized === "erro"
-  ) {
-    return normalized;
-  }
-  return "aguardando";
-}
 
 function StatusBadge({ status }: { status: DocumentStatus }) {
   const meta = statusMap[status] ?? statusMap.aguardando;
@@ -230,28 +218,14 @@ function DocumentsPage() {
   const documentsQuery = useDocuments();
   const { isLoading, isUnavailable, error, refetch } = documentsQuery;
   /**
-   * Normaliza os registros vindos da API: campos ausentes (name/file_name/title,
-   * status, id) recebem valores seguros para que a tela nunca quebre.
+   * O serviço já normaliza os campos do backend (totalChunks → chunks,
+   * processingStatus → status). Reutilizamos os dados diretamente para
+   * preservar valores reais e evitar perda de informação na interface.
    */
   const docs = useMemo<ApiDocument[]>(() => {
-    const raw = documentsQuery.data as unknown;
-    if (!Array.isArray(raw)) return [];
-    return raw.map((item, i) => {
-      const d = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
-      const nameSource = d["name"] ?? d["file_name"] ?? d["fileName"] ?? d["title"];
-      const name = safeText(nameSource).trim() || "Documento sem nome";
-      return {
-        ...(d as unknown as ApiDocument),
-        id: safeText(d["id"], `doc-${i}`),
-        name,
-        category: safeText(d["category"]).trim() || undefined,
-        size: safeText(d["size"]).trim() || undefined,
-        uploadedAt: safeText(d["uploadedAt"] ?? d["uploaded_at"]).trim() || undefined,
-        updatedAt: safeText(d["updatedAt"] ?? d["updated_at"]).trim() || undefined,
-        uploadedBy: safeText(d["uploadedBy"] ?? d["uploaded_by"]).trim() || undefined,
-        status: safeStatus(d["status"]),
-      };
-    });
+    const data = documentsQuery.data;
+    if (!Array.isArray(data)) return [];
+    return data;
   }, [documentsQuery.data]);
   const { remove, reindex, upload } = useDocumentMutations();
 

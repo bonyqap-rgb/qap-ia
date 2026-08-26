@@ -145,7 +145,7 @@ export const documentsService = {
   statistics: async (signal?: AbortSignal) =>
     normalizeStatistics(await api.get<BackendStatistics>("/documents/statistics", { signal })),
   indexingHistory: (signal?: AbortSignal) =>
-    api.get<IndexingHistoryItem[]>("/indexing/history", { signal }),
+    api.get<IndexingHistoryItem[]>("/documents/history", { signal }),
   upload: (file: File, category?: string) => {
     const formData = new FormData();
     formData.append("file", file);
