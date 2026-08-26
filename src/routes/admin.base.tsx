@@ -42,6 +42,13 @@ const statusStyles: Partial<Record<DocumentStatus, string>> = {
   erro: "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300",
 };
 
+function formatDateTime(value?: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
 function AdminBase() {
   const documents = useDocuments();
   const statistics = useDocumentStatistics();
@@ -49,6 +56,15 @@ function AdminBase() {
   const { remove, reindex } = useDocumentMutations();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | DocumentStatus>("all");
+
+  /** Último erro real reportado pelo backend por documento (via /documents/history). */
+  const documentErrors = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of history.data ?? []) {
+      if (item.error && !map.has(item.documentName)) map.set(item.documentName, item.error);
+    }
+    return map;
+  }, [history.data]);
 
   const rows = useMemo(
     () =>
@@ -157,12 +173,12 @@ function AdminBase() {
                           <span className="ml-2 text-[11px] text-muted-foreground">{doc.size}</span>
                         )}
                       </span>
-                      {documentErrors.get(doc.id ?? "") && doc.status === "erro" && (
+                      {documentErrors.get(doc.name) && doc.status === "erro" && (
                         <span
                           className="mt-0.5 block truncate text-[11px] font-normal text-destructive"
-                          title={documentErrors.get(doc.id ?? "") ?? undefined}
+                          title={documentErrors.get(doc.name) ?? undefined}
                         >
-                          {documentErrors.get(doc.id ?? "")}
+                          {documentErrors.get(doc.name)}
                         </span>
                       )}
                     </TableCell>
