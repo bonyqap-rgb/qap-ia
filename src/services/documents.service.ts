@@ -96,6 +96,39 @@ function normalizeDocument(raw: BackendDocument, index: number): ApiDocument {
   };
 }
 
+type BackendHistoryItem = {
+  id?: string;
+  document?: string;
+  document_id?: string;
+  documentId?: string;
+  date?: string;
+  duration?: number;
+  chunks_count?: number;
+  embeddings_count?: number;
+  success?: boolean;
+  error_message?: string | null;
+};
+
+function normalizeHistory(raw: unknown): IndexingHistoryItem[] {
+  const list: BackendHistoryItem[] = Array.isArray(raw)
+    ? (raw as BackendHistoryItem[])
+    : (((raw as { history?: BackendHistoryItem[]; data?: BackendHistoryItem[] })?.history ??
+        (raw as { data?: BackendHistoryItem[] })?.data ??
+        []) as BackendHistoryItem[]);
+
+  return list.map((item, index) => ({
+    id: String(item?.id ?? `history-${index}`),
+    documentId: item?.document_id ?? item?.documentId,
+    documentName: fixMojibake(String(item?.document ?? "Documento sem nome")),
+    startedAt: item?.date ?? "",
+    durationSeconds:
+      typeof item?.duration === "number" ? Math.round(item.duration / 1000) : undefined,
+    status: item?.success === true ? "concluído" : "erro",
+    chunks: typeof item?.chunks_count === "number" ? item.chunks_count : undefined,
+    error: item?.error_message ? fixMojibake(item.error_message) : null,
+  }));
+}
+
 type BackendDocumentList =
   | BackendDocument[]
   | { documents?: BackendDocument[]; data?: BackendDocument[] };
@@ -144,8 +177,8 @@ export const documentsService = {
     api.post<{ status: string }>(`/documents/${encodeURIComponent(id)}/reindex`),
   statistics: async (signal?: AbortSignal) =>
     normalizeStatistics(await api.get<BackendStatistics>("/documents/statistics", { signal })),
-  indexingHistory: (signal?: AbortSignal) =>
-    api.get<IndexingHistoryItem[]>("/documents/history", { signal }),
+  indexingHistory: async (signal?: AbortSignal) =>
+    normalizeHistory(await api.get<unknown>("/documents/history", { signal })),
   upload: (file: File, category?: string) => {
     const formData = new FormData();
     formData.append("file", file);
