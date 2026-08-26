@@ -42,6 +42,13 @@ const statusStyles: Partial<Record<DocumentStatus, string>> = {
   erro: "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300",
 };
 
+function formatDateTime(value?: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
 function AdminBase() {
   const documents = useDocuments();
   const statistics = useDocumentStatistics();
@@ -49,6 +56,15 @@ function AdminBase() {
   const { remove, reindex } = useDocumentMutations();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | DocumentStatus>("all");
+
+  /** Último erro real reportado pelo backend por documento (via /documents/history). */
+  const documentErrors = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of history.data ?? []) {
+      if (item.error && !map.has(item.documentName)) map.set(item.documentName, item.error);
+    }
+    return map;
+  }, [history.data]);
 
   const rows = useMemo(
     () =>
@@ -150,10 +166,20 @@ function AdminBase() {
               <TableBody>
                 {rows.map((doc) => (
                   <TableRow key={doc.id}>
-                    <TableCell className="max-w-[260px] truncate font-medium">
-                      {doc.name}
-                      {doc.size && (
-                        <span className="ml-2 text-[11px] text-muted-foreground">{doc.size}</span>
+                    <TableCell className="max-w-[260px] font-medium">
+                      <span className="block truncate">
+                        {doc.name}
+                        {doc.size && (
+                          <span className="ml-2 text-[11px] text-muted-foreground">{doc.size}</span>
+                        )}
+                      </span>
+                      {documentErrors.get(doc.name) && doc.status === "erro" && (
+                        <span
+                          className="mt-0.5 block truncate text-[11px] font-normal text-destructive"
+                          title={documentErrors.get(doc.name) ?? undefined}
+                        >
+                          {documentErrors.get(doc.name)}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
@@ -222,14 +248,19 @@ function AdminBase() {
               <TableBody>
                 {history.data?.slice(0, 10).map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="max-w-[220px] truncate font-medium">
-                      {item.documentName}
+                    <TableCell className="max-w-[220px] font-medium">
+                      <span className="block truncate">{item.documentName}</span>
+                      {item.error && (
+                        <span
+                          className="mt-0.5 block truncate text-[11px] font-normal text-destructive"
+                          title={item.error}
+                        >
+                          {item.error}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
-                      {new Date(item.startedAt).toLocaleString("pt-BR", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      })}
+                      {formatDateTime(item.startedAt)}
                     </TableCell>
                     <TableCell className="text-sm">
                       {item.durationSeconds ? `${item.durationSeconds}s` : "—"}
