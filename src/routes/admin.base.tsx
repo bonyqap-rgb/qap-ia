@@ -150,10 +150,20 @@ function AdminBase() {
               <TableBody>
                 {rows.map((doc) => (
                   <TableRow key={doc.id}>
-                    <TableCell className="max-w-[260px] truncate font-medium">
-                      {doc.name}
-                      {doc.size && (
-                        <span className="ml-2 text-[11px] text-muted-foreground">{doc.size}</span>
+                    <TableCell className="max-w-[260px] font-medium">
+                      <span className="block truncate">
+                        {doc.name}
+                        {doc.size && (
+                          <span className="ml-2 text-[11px] text-muted-foreground">{doc.size}</span>
+                        )}
+                      </span>
+                      {documentErrors.get(doc.id ?? "") && doc.status === "erro" && (
+                        <span
+                          className="mt-0.5 block truncate text-[11px] font-normal text-destructive"
+                          title={documentErrors.get(doc.id ?? "") ?? undefined}
+                        >
+                          {documentErrors.get(doc.id ?? "")}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
@@ -222,14 +232,19 @@ function AdminBase() {
               <TableBody>
                 {history.data?.slice(0, 10).map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="max-w-[220px] truncate font-medium">
-                      {item.documentName}
+                    <TableCell className="max-w-[220px] font-medium">
+                      <span className="block truncate">{item.documentName}</span>
+                      {item.error && (
+                        <span
+                          className="mt-0.5 block truncate text-[11px] font-normal text-destructive"
+                          title={item.error}
+                        >
+                          {item.error}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
-                      {new Date(item.startedAt).toLocaleString("pt-BR", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      })}
+                      {formatDateTime(item.startedAt)}
                     </TableCell>
                     <TableCell className="text-sm">
                       {item.durationSeconds ? `${item.durationSeconds}s` : "—"}
