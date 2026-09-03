@@ -146,19 +146,19 @@ export function detectDocumentScope(question: unknown, documents: ScopeDocument[
       const hit = explicitKeys.some((key) => docKeys.some((docKey) => docKey === key));
       if (hit) matched.push({ id: doc.id, name: doc.name });
     }
-    return { documents: matched, keys: explicitKeys, comparison };
+    return { documents: matched, keys: explicitKeys, comparison, inferred: false };
   }
 
-  if (comparison) return { documents: [], keys: [], comparison };
+  if (comparison) return { documents: [], keys: [], comparison, inferred: false };
 
   const inferredKeys = inferLegalScope(question);
-  if (!inferredKeys.length) return { documents: [], keys: [], comparison };
+  if (!inferredKeys.length) return { documents: [], keys: [], comparison, inferred: false };
 
   const matched = documents.filter((doc) =>
     documentKeys(doc.name).some((docKey) => inferredKeys.includes(docKey)),
   );
 
-  return { documents: matched, keys: inferredKeys, comparison };
+  return { documents: matched, keys: inferredKeys, comparison, inferred: true };
 }
 
 /** Um chunk pertence ao escopo detectado? */
