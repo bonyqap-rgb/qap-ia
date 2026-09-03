@@ -142,7 +142,8 @@ function Hero() {
           </Badge>
 
           <h1 className="text-balance font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-            Pesquisa jurídica <span className="text-gradient-azure">em segundos</span>, com base legal
+            Pesquisa jurídica <span className="text-gradient-azure">em segundos</span>, com base
+            legal
           </h1>
 
           <p className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-xl lg:text-lg">
@@ -198,12 +199,15 @@ function QuickSearch() {
   return (
     <div className="relative mx-auto w-full max-w-4xl space-y-8 text-center py-20 animate-rise">
       <div className="space-y-3">
-        <Badge tone="accent" className="px-3 py-1">Acesso Global</Badge>
+        <Badge tone="accent" className="px-3 py-1">
+          Acesso Global
+        </Badge>
         <h2 className="font-display text-3xl font-bold tracking-tight text-foreground leading-tight sm:text-4xl">
           Pesquisa <span className="text-gradient-azure">Inteligente</span>
         </h2>
         <p className="mx-auto max-w-xl text-muted-foreground text-[15px]">
-          Busca unificada em toda a plataforma. Encontre leis, documentos e consultas anteriores instantaneamente.
+          Busca unificada em toda a plataforma. Encontre leis, documentos e consultas anteriores
+          instantaneamente.
         </p>
       </div>
 
@@ -214,7 +218,12 @@ function QuickSearch() {
               className="size-6 text-muted-foreground transition-colors duration-200 group-focus-within:text-azure"
               aria-hidden
             />
-            <Badge tone="info" className="hidden sm:inline-flex bg-azure/5 text-azure border-azure/20 text-[9px] uppercase tracking-wider font-bold h-5">Global</Badge>
+            <Badge
+              tone="info"
+              className="hidden sm:inline-flex bg-azure/5 text-azure border-azure/20 text-[9px] uppercase tracking-wider font-bold h-5"
+            >
+              Global
+            </Badge>
           </div>
           <input
             type="search"
@@ -255,7 +264,6 @@ function QuickSearch() {
     </div>
   );
 }
-
 
 function Demo() {
   return (
@@ -357,9 +365,7 @@ function Features() {
               <h3 className="mt-6 font-display text-[17px] font-bold tracking-tight text-foreground">
                 {f.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {f.description}
-              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.description}</p>
               <div className="mt-auto pt-6">
                 <div className="h-px w-8 bg-azure/30 transition-all duration-300 group-hover:w-full" />
               </div>
@@ -372,7 +378,6 @@ function Features() {
 }
 
 // Benefits moved below, cleanup.
-
 
 function PlansPreview() {
   return (
@@ -402,7 +407,10 @@ function PlansPreview() {
               )}
             >
               {p.badge && (
-                <Badge tone="accent" className="absolute -top-2.5 left-5 bg-gradient-azure text-[10px] font-semibold text-primary-foreground">
+                <Badge
+                  tone="accent"
+                  className="absolute -top-2.5 left-5 bg-gradient-azure text-[10px] font-semibold text-primary-foreground"
+                >
                   {p.badge}
                 </Badge>
               )}
@@ -511,8 +519,8 @@ function FinalCta() {
           Leve o QAP IA para o <span className="text-gradient-azure">seu turno de serviço</span>
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-[17px] leading-relaxed text-muted-foreground">
-          Crie sua conta corporativa e faça a primeira consulta em menos de um minuto. 
-          Experimente a excelência da inteligência jurídica militar.
+          Crie sua conta corporativa e faça a primeira consulta em menos de um minuto. Experimente a
+          excelência da inteligência jurídica militar.
         </p>
         <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
           <Button
@@ -525,9 +533,9 @@ function FinalCta() {
               <ArrowRight className="h-4.5 w-4.5" />
             </Link>
           </Button>
-          <Button 
-            asChild 
-            size="lg" 
+          <Button
+            asChild
+            size="lg"
             variant="outline"
             className="h-12 px-8 text-[15px] font-medium border-border/80 hover:bg-muted/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
@@ -563,7 +571,9 @@ function HowItWorks() {
     <section id="como-funciona" className="scroll-mt-20 border-b border-border/40 py-24">
       <div className="mx-auto w-full max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center mb-16">
-          <Badge tone="accent" className="mb-4">Fluxo Inteligente</Badge>
+          <Badge tone="accent" className="mb-4">
+            Fluxo Inteligente
+          </Badge>
           <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Da dúvida à fundamentação legal em segundos
           </h2>
@@ -583,9 +593,7 @@ function HowItWorks() {
               <h3 className="font-display text-[16px] font-bold tracking-tight text-foreground">
                 {s.title}
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                {s.description}
-              </p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.description}</p>
             </div>
           ))}
         </div>
@@ -599,7 +607,9 @@ function Screenshots() {
     <section className="border-b border-border/40 bg-muted/20 py-24">
       <div className="mx-auto w-full max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center mb-16">
-          <Badge tone="info" className="mb-4">Experiência Premium</Badge>
+          <Badge tone="info" className="mb-4">
+            Experiência Premium
+          </Badge>
           <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Um ecossistema completo para a unidade
           </h2>
@@ -629,9 +639,7 @@ function Screenshots() {
                 </div>
               </div>
               <div className="p-7">
-                <h3 className="font-display text-[17px] font-bold text-foreground">
-                  {s.title}
-                </h3>
+                <h3 className="font-display text-[17px] font-bold text-foreground">{s.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {s.description}
                 </p>
@@ -664,9 +672,7 @@ function Benefits() {
                 {b.metricLabel}
               </div>
               <h3 className="mt-6 text-[17px] font-bold text-foreground">{b.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {b.description}
-              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b.description}</p>
             </div>
           ))}
         </div>
@@ -681,13 +687,15 @@ function Differentials() {
       <div className="mx-auto w-full max-w-6xl px-6">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div>
-            <Badge tone="success" className="mb-4">Superioridade Técnica</Badge>
+            <Badge tone="success" className="mb-4">
+              Superioridade Técnica
+            </Badge>
             <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               Por que o QAP IA e não um assistente genérico?
             </h2>
             <p className="mt-6 text-[16px] leading-relaxed text-muted-foreground">
-              Nossa arquitetura foi desenhada especificamente para a segurança pública e rotina militar, 
-              garantindo precisão onde modelos comuns falham.
+              Nossa arquitetura foi desenhada especificamente para a segurança pública e rotina
+              militar, garantindo precisão onde modelos comuns falham.
             </p>
             <div className="mt-10 space-y-4">
               <div className="flex items-center gap-3">
@@ -700,7 +708,9 @@ function Differentials() {
                 <div className="grid size-10 place-items-center rounded-xl bg-azure/10 text-azure shadow-sm">
                   <Lock className="size-5" />
                 </div>
-                <span className="text-[15px] font-semibold">Privacidade de Dados Corporativos Stricto Sensu</span>
+                <span className="text-[15px] font-semibold">
+                  Privacidade de Dados Corporativos Stricto Sensu
+                </span>
               </div>
             </div>
           </div>
