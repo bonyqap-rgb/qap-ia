@@ -358,6 +358,17 @@ export async function runScopedRagChat(input: {
   if (scope.keys.length) {
     const scopeIds = scope.documents.map((d) => d.id).filter((id): id is string => Boolean(id));
 
+    // Escopo inferido pelo tema (ex.: crime militar → CPM) sem documento
+    // correspondente na base: falha fechada, jamais busca global.
+    if (scope.inferred && !scopeIds.length) {
+      return {
+        answer: `Não há documento indexado correspondente ao ${requested} para responder com base exclusiva nele. Indexe o Código Penal Militar ou cite outro documento explicitamente.`,
+        sources: [],
+        resultsCount: 0,
+        scopedTo: scope.keys.map(formatDocumentKey),
+      };
+    }
+
     // Documento citado, mas não resolvido no catálogo: não execute uma busca
     // global, pois ela poderia trazer conteúdo de outro documento.
     // Em vez de retornar erro local, faz fallback para o backendChat.
