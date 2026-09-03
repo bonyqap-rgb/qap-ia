@@ -432,18 +432,30 @@ export async function runScopedRagChat(input: {
     // Busca vetorial restrita ao documento citado — sem fallback para outros.
     const raw = await searchChunks(input.question, 30, scopeIds);
     const names = await fetchDocumentNames();
-    const scoped = normalizeSources(raw, names).filter((c) => chunkInScope(c, scope));
+    const inScope = normalizeSources(raw, names).filter((c) => chunkInScope(c, scope));
+
+    // Relevância jurídica: prioriza o(s) dispositivo(s) que efetivamente
+    // respondem à pergunta (ex.: Art. 9º para crime militar em tempo de paz) e
+    // remove duplicados e trechos cujo único artigo é irrelevante (ex.: Art. 10).
+    const priorityArticles = [
+      ...explicitArticles(input.question),
+      ...inferPriorityArticles(input.question),
+    ];
+    const scoped = prioritizeByArticles(inScope, priorityArticles);
 
     console.info("[QAP IA][scoped] recuperação", {
       question: input.question,
       requested,
       scopeIds,
       scopeNames,
+      priorityArticles,
       rawChunks: raw.length,
+      inScopeChunks: inScope.length,
       scopedChunks: scoped.length,
       scopedContextChars: scoped.reduce((sum, c) => sum + (c.snippet?.length ?? 0), 0),
       topScores: scoped.slice(0, 5).map((c) => c.score),
     });
+
 
     // Escopo inferido: nunca complementa com a base global. Havendo ao menos um
     // trecho do CPM, gera com ele; sem trechos, responde de forma fechada.
