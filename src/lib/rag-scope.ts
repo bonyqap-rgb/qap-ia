@@ -99,12 +99,25 @@ export function isComparisonQuestion(question: unknown): boolean {
   return COMPARISON_TERMS.some((term) => normalized.includes(term));
 }
 
-/** Inferência conservadora: perguntas sobre o conceito de crime militar pertencem ao CPM. */
+/** Tema material do Código Penal Militar: crime militar e tempo de paz/guerra. */
+const CPM_INTENT = [
+  /\bcrime militar\b/,
+  /\bcrimes militares\b/,
+  /\bcrime propriamente militar\b/,
+  /\bcrime impropriamente militar\b/,
+  /\btempo de paz\b/,
+  /\btempo de guerra\b/,
+];
+
+/**
+ * Inferência conservadora: perguntas conceituais/analíticas sobre crime militar
+ * ou sobre tempo de paz/guerra são consultas ao Código Penal Militar, mesmo
+ * quando o documento não é citado. Só se aplica quando nenhum documento foi
+ * citado explicitamente (ver detectDocumentScope).
+ */
 export function inferLegalScope(question: unknown): string[] {
   const normalized = ` ${normalizeForMatch(question)} `;
-  if (/\bcrime militar\b/.test(normalized) || /\bcrimes militares\b/.test(normalized)) {
-    return ["cpm"];
-  }
+  if (CPM_INTENT.some((pattern) => pattern.test(normalized))) return ["cpm"];
   return [];
 }
 
