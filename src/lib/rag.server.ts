@@ -175,7 +175,7 @@ const LITERAL_INTENT =
 
 /** Padrões que indicam pedido analítico (explicação/resumo/comparação). */
 const ANALYTICAL_INTENT =
-  /\b(expli|resum|interpret|compar|analis|diferen|exempl|apliq|aplica(?:ção|cao|r)|significa|entenda)\b/i;
+  /\b(expli|resum|interpret|compar|analis|diferen|exempl|apliq|aplica(?:ção|cao|r)|significa|entenda)/i;
 
 /** Referência a artigo/dispositivo legal numerado. */
 const ARTICLE_REF = /\bart(?:igo)?s?\.?\s*(?:n[ºo°]?\.?\s*)?\d+|\bartigos?\b|\binciso\b|\bpar[aá]grafo\b/i;
