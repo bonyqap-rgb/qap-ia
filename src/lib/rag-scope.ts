@@ -127,6 +127,8 @@ export type DetectedScope = {
   /** Chaves normalizadas citadas ou inferidas. */
   keys: string[];
   comparison: boolean;
+  /** true quando o escopo veio de inferência temática, não de citação explícita. */
+  inferred: boolean;
 };
 
 /**
