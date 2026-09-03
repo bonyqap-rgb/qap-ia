@@ -417,7 +417,18 @@ export async function runScopedRagChat(input: {
       topScores: scoped.slice(0, 5).map((c) => c.score),
     });
 
-    if (scoped.length < MIN_SCOPED_CHUNKS) {
+    // Escopo inferido: nunca complementa com a base global. Havendo ao menos um
+    // trecho do CPM, gera com ele; sem trechos, responde de forma fechada.
+    if (scope.inferred && !scoped.length) {
+      return {
+        answer: `Os trechos recuperados de ${scopeNames.length ? scopeNames.join(", ") : requested} não trazem essa informação. Reformule a pergunta ou cite outro documento explicitamente.`,
+        sources: [],
+        resultsCount: 0,
+        scopedTo: scopeNames.length ? scopeNames : scope.keys.map(formatDocumentKey),
+      };
+    }
+
+    if (!scope.inferred && scoped.length < MIN_SCOPED_CHUNKS) {
       const parsed = await backendChat(input);
       const rawSources = parsed.sources ?? parsed.citations ?? [];
       const names = rawSources.some((s) => !s.filename && !s.documentName && !s.title)
