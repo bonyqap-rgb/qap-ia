@@ -2,11 +2,9 @@
  * Detecção de escopo documental nas perguntas do chat.
  *
  * O backend /chat recupera sobre toda a base indexada, o que fazia respostas
- * misturarem artigos de documentos diferentes (ex.: "Artigo 31" do I-2-PM,
- * do RDPM e do I-36-PM na mesma resposta). Aqui identificamos qual documento
- * o usuário citou explicitamente para restringir a recuperação.
- *
- * Módulo puro (sem I/O) para poder ser usado no servidor e testado isolado.
+ * misturarem artigos de documentos diferentes. Aqui identificamos qual documento
+ * o usuário citou explicitamente e, para perguntas claramente conceituais sobre
+ * crime militar, inferimos CPM quando nenhum outro documento foi citado.
  */
 
 export type ScopeDocument = { id?: string; name?: string };
@@ -56,7 +54,6 @@ const COMPARISON_TERMS = [
   "compare",
   "comparar",
   "comparacao",
-  "comparativo",
   "diferenca",
   "diferencas",
   "divergencia",
@@ -72,31 +69,51 @@ export function isComparisonQuestion(question: unknown): boolean {
   return COMPARISON_TERMS.some((term) => normalized.includes(term));
 }
 
+/** Inferência conservadora: perguntas sobre o conceito de crime militar pertencem ao CPM. */
+export function inferLegalScope(question: unknown): string[] {
+  const normalized = ` ${normalizeForMatch(question)} `;
+  if (/\bcrime militar\b/.test(normalized) || /\bcrimes militares\b/.test(normalized)) {
+    return ["cpm"];
+  }
+  return [];
+}
+
 export type DetectedScope = {
   /** Documentos citados explicitamente na pergunta. */
   documents: Array<{ id?: string; name?: string }>;
-  /** Chaves normalizadas citadas (mesmo sem documento correspondente na base). */
+  /** Chaves normalizadas citadas ou inferidas. */
   keys: string[];
   comparison: boolean;
 };
 
 /**
  * Cruza as chaves citadas na pergunta com os documentos indexados.
- * Retorna escopo vazio quando nada foi citado — o fluxo normal segue intacto.
+ * Quando não há documento citado explicitamente, aplica apenas inferências
+ * jurídicas conservadoras para evitar mistura de fontes.
  */
 export function detectDocumentScope(question: unknown, documents: ScopeDocument[]): DetectedScope {
-  const keys = questionKeys(question);
+  const explicitKeys = questionKeys(question);
   const comparison = isComparisonQuestion(question);
-  if (!keys.length) return { documents: [], keys, comparison };
-
-  const matched: Array<{ id?: string; name?: string }> = [];
-  for (const doc of documents) {
-    const docKeys = documentKeys(doc.name);
-    const hit = keys.some((key) => docKeys.some((docKey) => docKey === key));
-    if (hit) matched.push({ id: doc.id, name: doc.name });
+  if (explicitKeys.length) {
+    const matched: Array<{ id?: string; name?: string }> = [];
+    for (const doc of documents) {
+      const docKeys = documentKeys(doc.name);
+      const hit = explicitKeys.some((key) => docKeys.some((docKey) => docKey === key));
+      if (hit) matched.push({ id: doc.id, name: doc.name });
+    }
+    return { documents: matched, keys: explicitKeys, comparison };
   }
 
-  return { documents: matched, keys, comparison };
+  if (comparison) return { documents: [], keys: [], comparison };
+
+  const inferredKeys = inferLegalScope(question);
+  if (!inferredKeys.length) return { documents: [], keys: [], comparison };
+
+  const matched = documents.filter((doc) =>
+    documentKeys(doc.name).some((docKey) => inferredKeys.includes(docKey)),
+  );
+
+  return { documents: matched, keys: inferredKeys, comparison };
 }
 
 /** Um chunk pertence ao escopo detectado? */
