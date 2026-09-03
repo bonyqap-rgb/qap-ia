@@ -22,12 +22,36 @@ export function normalizeForMatch(value: unknown): string {
 /** Códigos de manuais/regulamentos: I-2-PM, I 36 PM, M-1-PM, RDPM, RISG... */
 const CODE_PATTERN = /\b[a-z]{1,4}\s*-?\s*\d{1,3}\s*-?\s*pm\b|\b[a-z]{2,8}pm\b/g;
 
+/**
+ * Aliases semânticos: códigos jurídicos cujos nomes de arquivo não trazem sigla
+ * (ex.: "Código Penal Militar.pdf" → cpm). A ordem importa: processo penal
+ * militar (cppm) é avaliado antes do penal militar (cpm).
+ */
+const NAME_ALIASES: Array<{ key: string; test: (name: string) => boolean }> = [
+  {
+    key: "cppm",
+    test: (n) => /codigo de processo penal militar|processo penal militar/.test(n) || /\bcppm\b/.test(n),
+  },
+  {
+    key: "cpm",
+    test: (n) =>
+      (/codigo penal militar/.test(n) && !/processo/.test(n)) || /\bcpm\b/.test(n),
+  },
+  { key: "cf88", test: (n) => /constituicao (federal|da republica)/.test(n) || /\bcf ?88\b/.test(n) },
+];
+
 /** Chaves de identificação extraídas do nome de um documento. */
 export function documentKeys(name: unknown): string[] {
   const normalized = normalizeForMatch(name).replace(/\.(pdf|docx?|txt)\b/g, "");
   const keys = new Set<string>();
   for (const match of normalized.matchAll(CODE_PATTERN)) {
     keys.add(match[0].replace(/[\s-]+/g, ""));
+  }
+  for (const alias of NAME_ALIASES) {
+    if (alias.test(normalized)) {
+      keys.add(alias.key);
+      break;
+    }
   }
   return Array.from(keys);
 }
