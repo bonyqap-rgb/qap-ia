@@ -63,6 +63,12 @@ export function questionKeys(question: unknown): string[] {
   for (const match of normalized.matchAll(CODE_PATTERN)) {
     keys.add(match[0].replace(/[\s-]+/g, ""));
   }
+  for (const alias of NAME_ALIASES) {
+    if (alias.test(normalized)) {
+      keys.add(alias.key);
+      break;
+    }
+  }
   return Array.from(keys);
 }
 
