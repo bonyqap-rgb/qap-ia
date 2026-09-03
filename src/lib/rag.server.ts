@@ -263,16 +263,29 @@ export async function answerFromChunks(input: {
     })
     .join("\n\n");
 
+  const articles = [...explicitArticles(input.question), ...inferPriorityArticles(input.question)];
+  const articleInstruction = articles.length
+    ? `\n- Dispositivo(s) central(is) da pergunta: Art. ${articles.join(", Art. ")}. Fundamente a resposta neles e NÃO cite outros artigos que não sejam necessários para responder.`
+    : "";
+
+  const literalInstruction = wantsLiteralText(input.question)
+    ? `\n\nFidelidade textual (obrigatória):
+- A pergunta pede o conteúdo do dispositivo legal: reproduza o texto legal exatamente como consta nos trechos, preservando redação, numeração, incisos, alíneas e pontuação.
+- Não parafraseie, não resuma e não reescreva o texto legal apresentado como transcrição.
+- Comentários seus, se houver, vêm depois da transcrição e claramente separados.`
+    : "";
+
   const scopeInstruction = `Restrição de escopo documental (prioridade máxima):
 - O usuário citou explicitamente: ${scope}.
 - Responda EXCLUSIVAMENTE com base nos trechos fornecidos abaixo, que pertencem a esse(s) documento(s).
 - Nunca utilize artigos, dispositivos ou numerações de outros documentos.
 - Se existirem artigos com o mesmo número em outros documentos, ignore-os.
 - Se os trechos fornecidos não contiverem a informação, diga explicitamente que o documento citado não traz essa informação nos trechos recuperados, sem substituir por outro documento.
-- Ao citar, indique sempre o nome do documento de origem.
+- Ao citar, indique sempre o nome do documento de origem.${articleInstruction}${literalInstruction}
 
 Trechos recuperados:
 ${context}`;
+
 
   const providers = inspectLlmProviders();
 
