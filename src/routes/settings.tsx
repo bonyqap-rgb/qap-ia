@@ -35,7 +35,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Tooltip,
 } from "@/components/ds";
 import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
@@ -64,21 +63,25 @@ function SettingRow({
   children,
   className,
 }: {
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   title: string;
   description?: string;
   children: React.ReactNode;
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-center justify-between gap-6 py-4 first:pt-0 last:pb-0", className)}>
+    <div
+      className={cn("flex items-center justify-between gap-6 py-4 first:pt-0 last:pb-0", className)}
+    >
       <div className="flex items-start gap-3 min-w-0">
         <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg border border-border/50 bg-muted/30 text-muted-foreground group-hover:border-azure/30 group-hover:text-azure transition-colors">
           <Icon className="size-4" />
         </div>
         <div className="min-w-0">
           <p className="text-sm font-medium text-foreground">{title}</p>
-          {description && <p className="text-xs text-muted-foreground line-clamp-1">{description}</p>}
+          {description && (
+            <p className="text-xs text-muted-foreground line-clamp-1">{description}</p>
+          )}
         </div>
       </div>
       <div className="shrink-0">{children}</div>
@@ -124,7 +127,8 @@ function SettingsPage() {
             Configurações
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            Gerencie suas preferências de interface, segurança e o comportamento do seu assistente de inteligência.
+            Gerencie suas preferências de interface, segurança e o comportamento do seu assistente
+            de inteligência.
           </p>
         </header>
       </Section>
@@ -140,14 +144,12 @@ function SettingsPage() {
                 "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
                 activeTab === item.id
                   ? "bg-azure/10 text-azure shadow-sm"
-                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
               )}
             >
               <item.icon className="size-4" />
               {item.label}
-              {activeTab === item.id && (
-                <ChevronRight className="ml-auto size-3.5 opacity-60" />
-              )}
+              {activeTab === item.id && <ChevronRight className="ml-auto size-3.5 opacity-60" />}
             </button>
           ))}
         </nav>
@@ -160,27 +162,57 @@ function SettingsPage() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   {[
                     { id: "light", label: "Claro", icon: Sun, preview: "bg-white border-border" },
-                    { id: "dark", label: "Escuro", icon: Moon, preview: "bg-zinc-900 border-zinc-800" },
-                    { id: "system", label: "Sistema", icon: Monitor, preview: "bg-linear-to-br from-white to-zinc-900 border-border" },
+                    {
+                      id: "dark",
+                      label: "Escuro",
+                      icon: Moon,
+                      preview: "bg-zinc-900 border-zinc-800",
+                    },
+                    {
+                      id: "system",
+                      label: "Sistema",
+                      icon: Monitor,
+                      preview: "bg-linear-to-br from-white to-zinc-900 border-border",
+                    },
                   ].map((option) => (
                     <button
                       key={option.id}
-                      onClick={() => setTheme(option.id as any)}
+                      onClick={() => setTheme(option.id as "light" | "dark" | "system")}
                       className={cn(
                         "group relative flex flex-col items-center gap-3 rounded-2xl border bg-card p-4 transition-all duration-300",
                         theme === option.id
                           ? "border-azure ring-1 ring-azure/30 shadow-azure"
-                          : "border-border/60 hover:border-azure/40 hover:bg-muted/30"
+                          : "border-border/60 hover:border-azure/40 hover:bg-muted/30",
                       )}
                     >
-                      <div className={cn("h-20 w-full rounded-lg border shadow-xs overflow-hidden", option.preview)}>
+                      <div
+                        className={cn(
+                          "h-20 w-full rounded-lg border shadow-xs overflow-hidden",
+                          option.preview,
+                        )}
+                      >
                         <div className="p-2 space-y-1.5 opacity-40">
-                          <div className={cn("h-2 w-1/2 rounded-full", option.id === 'dark' ? 'bg-zinc-700' : 'bg-zinc-200')} />
-                          <div className={cn("h-2 w-3/4 rounded-full", option.id === 'dark' ? 'bg-zinc-800' : 'bg-zinc-100')} />
+                          <div
+                            className={cn(
+                              "h-2 w-1/2 rounded-full",
+                              option.id === "dark" ? "bg-zinc-700" : "bg-zinc-200",
+                            )}
+                          />
+                          <div
+                            className={cn(
+                              "h-2 w-3/4 rounded-full",
+                              option.id === "dark" ? "bg-zinc-800" : "bg-zinc-100",
+                            )}
+                          />
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <option.icon className={cn("size-3.5", theme === option.id ? "text-azure" : "text-muted-foreground")} />
+                        <option.icon
+                          className={cn(
+                            "size-3.5",
+                            theme === option.id ? "text-azure" : "text-muted-foreground",
+                          )}
+                        />
                         <span className="text-xs font-semibold">{option.label}</span>
                       </div>
                       {theme === option.id && (
@@ -237,18 +269,28 @@ function SettingsPage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-foreground">Groq Llama 3.1 70B</p>
-                      <p className="text-xs text-muted-foreground">Provedor ativo via QAP IA Enterprise</p>
+                      <p className="text-xs text-muted-foreground">
+                        Provedor ativo via QAP IA Enterprise
+                      </p>
                     </div>
                     <Badge tone="accent">Ativo</Badge>
                   </div>
                 </Card>
               </Panel>
 
-              <Panel title="Configurações de Resposta" description="Personalize como o assistente interage com você.">
+              <Panel
+                title="Configurações de Resposta"
+                description="Personalize como o assistente interage com você."
+              >
                 <div className="space-y-4">
                   <div className="rounded-xl border border-border/60 p-4 bg-muted/20">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Comportamento Padrão</p>
-                    <p className="text-sm text-foreground">O assistente prioriza objetividade, base legal brasileira e organização técnica em 3 partes.</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                      Comportamento Padrão
+                    </p>
+                    <p className="text-sm text-foreground">
+                      O assistente prioriza objetividade, base legal brasileira e organização
+                      técnica em 3 partes.
+                    </p>
                   </div>
                   <Button variant="outline" size="sm" disabled className="opacity-50">
                     Editar System Prompt (Admin)
@@ -267,7 +309,9 @@ function SettingsPage() {
                       <Download className="size-5 text-azure" />
                       <div>
                         <p className="text-sm font-semibold">Exportar meus dados</p>
-                        <p className="text-xs text-muted-foreground mb-3">Baixe um arquivo contendo todas as suas interações e documentos favoritos.</p>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Baixe um arquivo contendo todas as suas interações e documentos favoritos.
+                        </p>
                         <Button variant="outline" size="sm" onClick={handleExport}>
                           Solicitar Exportação
                         </Button>
@@ -278,7 +322,10 @@ function SettingsPage() {
                       <Trash2 className="size-5 text-destructive" />
                       <div>
                         <p className="text-sm font-semibold">Excluir Histórico</p>
-                        <p className="text-xs text-muted-foreground mb-3">Remova permanentemente todo o seu histórico de conversas deste dispositivo.</p>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Remova permanentemente todo o seu histórico de conversas deste
+                          dispositivo.
+                        </p>
                         <Button variant="destructive" size="sm" onClick={handleClearHistory}>
                           Limpar Tudo
                         </Button>
@@ -300,7 +347,9 @@ function SettingsPage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-foreground">Autenticado</p>
-                      <p className="text-xs text-muted-foreground">Conectado via Token Corporativo PMESP</p>
+                      <p className="text-xs text-muted-foreground">
+                        Conectado via Token Corporativo PMESP
+                      </p>
                     </div>
                     <Badge tone="success">Seguro</Badge>
                   </div>
@@ -340,15 +389,18 @@ function SettingsPage() {
                 <div className="flex flex-col items-center text-center p-8 bg-muted/20 rounded-2xl border border-border/40">
                   <BrandLogo size={80} className="mb-4 rounded-2xl shadow-azure" />
                   <h3 className="font-display text-xl font-bold">QAP IA Enterprise</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Versão 2.4.0 (Build 2026.08.04)</p>
-                  
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Versão 2.4.0 (Build 2026.08.04)
+                  </p>
+
                   <div className="flex gap-2 mt-6">
                     <Badge tone="accent">Produção</Badge>
                     <Badge tone="info">API v1.2</Badge>
                   </div>
 
                   <p className="mt-8 text-xs text-muted-foreground max-w-sm">
-                    Inteligência Artificial que apoia quem protege. Desenvolvido para agilizar a pesquisa jurídica e administrativa na segurança pública.
+                    Inteligência Artificial que apoia quem protege. Desenvolvido para agilizar a
+                    pesquisa jurídica e administrativa na segurança pública.
                   </p>
                 </div>
               </Panel>
@@ -361,9 +413,12 @@ function SettingsPage() {
               <div className="size-16 rounded-full bg-muted/40 grid place-items-center mb-4">
                 <Info className="size-8 text-muted-foreground/60" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-foreground">Em desenvolvimento</h3>
+              <h3 className="font-display text-lg font-semibold text-foreground">
+                Em desenvolvimento
+              </h3>
               <p className="text-sm text-muted-foreground max-w-xs mt-1">
-                A seção de {navigation.find(n => n.id === activeTab)?.label} está sendo preparada para a próxima versão.
+                A seção de {navigation.find((n) => n.id === activeTab)?.label} está sendo preparada
+                para a próxima versão.
               </p>
             </div>
           )}

@@ -134,7 +134,6 @@ function safeLower(value: unknown) {
   return safeText(value).toLocaleLowerCase("pt-BR");
 }
 
-
 function StatusBadge({ status }: { status: DocumentStatus }) {
   const meta = statusMap[status] ?? statusMap.aguardando;
   const Icon = meta.icon;

@@ -374,12 +374,14 @@ function ChatPage() {
                     className="h-8 gap-1.5 px-2.5 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline text-[11px] font-semibold uppercase tracking-wider">Novo</span>
+                    <span className="hidden sm:inline text-[11px] font-semibold uppercase tracking-wider">
+                      Novo
+                    </span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Iniciar novo workspace de consulta</TooltipContent>
               </Tooltip>
-              
+
               <div className="h-4 w-px bg-border/60 mx-1" />
 
               <Tooltip>
@@ -392,7 +394,9 @@ function ChatPage() {
                     className="h-8 gap-1.5 px-2.5 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   >
                     <Download className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline text-[11px] font-semibold uppercase tracking-wider">Exportar</span>
+                    <span className="hidden sm:inline text-[11px] font-semibold uppercase tracking-wider">
+                      Exportar
+                    </span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Exportar workspace atual</TooltipContent>
@@ -406,7 +410,9 @@ function ChatPage() {
                     onClick={() => setRailOpen((v) => !v)}
                     className="h-8 w-8 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   >
-                    <Layout className={cn("h-4 w-4 transition-transform", railOpen && "text-azure")} />
+                    <Layout
+                      className={cn("h-4 w-4 transition-transform", railOpen && "text-azure")}
+                    />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -489,7 +495,10 @@ function ChatPage() {
                             <User className="h-4 w-4" aria-hidden />
                           </div>
                         ) : (
-                          <BrandLogo size={32} className="rounded-xl shadow-soft ring-1 ring-azure/10 shrink-0" />
+                          <BrandLogo
+                            size={32}
+                            className="rounded-xl shadow-soft ring-1 ring-azure/10 shrink-0"
+                          />
                         )}
                         <div
                           className={cn(
@@ -594,7 +603,6 @@ function ChatPage() {
                             )}
                           </div>
                         </div>
-
                       </article>
                     );
                   })}
@@ -655,10 +663,13 @@ function ChatPage() {
                         Markdown Ativo
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                       <span className="hidden text-[11px] font-medium text-muted-foreground/60 sm:inline-block">
-                        <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px] font-bold">Shift + Enter</kbd> pular linha
+                        <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px] font-bold">
+                          Shift + Enter
+                        </kbd>{" "}
+                        pular linha
                       </span>
                       <Button
                         type="button"
@@ -666,7 +677,9 @@ function ChatPage() {
                         disabled={!input.trim() || isLoading}
                         className={cn(
                           "h-10 gap-2 rounded-xl px-5 text-[13px] font-bold transition-all shadow-azure",
-                          !input.trim() || isLoading ? "opacity-40" : "hover:scale-[1.02] active:scale-[0.98]"
+                          !input.trim() || isLoading
+                            ? "opacity-40"
+                            : "hover:scale-[1.02] active:scale-[0.98]",
                         )}
                       >
                         <span>{isLoading ? "Consultando" : "Enviar"}</span>
@@ -682,11 +695,11 @@ function ChatPage() {
               </div>
 
               <p className="mt-4 text-center text-[11px] font-medium text-muted-foreground/60 italic">
-                O QAP IA pode cometer erros. Verifique informações importantes na legislação oficial.
+                O QAP IA pode cometer erros. Verifique informações importantes na legislação
+                oficial.
               </p>
             </div>
           </div>
-
         </div>
 
         {/* Painel Contextual */}
@@ -700,17 +713,21 @@ function ChatPage() {
                 </span>
               </div>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-5 space-y-6">
               {/* Documentos Utilizados */}
               <section className="space-y-3">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <BookOpen className="h-3.5 w-3.5" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Documentos Base</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider">
+                    Documentos Base
+                  </span>
                 </div>
                 {isEmpty ? (
-                   <div className="rounded-xl border border-dashed border-border/60 p-4 text-center">
-                    <p className="text-[11px] text-muted-foreground italic">Nenhum documento ativo no workspace</p>
+                  <div className="rounded-xl border border-dashed border-border/60 p-4 text-center">
+                    <p className="text-[11px] text-muted-foreground italic">
+                      Nenhum documento ativo no workspace
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -721,7 +738,9 @@ function ChatPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-[12px] font-bold text-foreground">I-2-PM</p>
-                          <p className="truncate text-[10px] text-muted-foreground">Procedimento Operacional Padrão</p>
+                          <p className="truncate text-[10px] text-muted-foreground">
+                            Procedimento Operacional Padrão
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -737,12 +756,17 @@ function ChatPage() {
                 </div>
                 {isEmpty ? (
                   <div className="rounded-xl border border-dashed border-border/60 p-4 text-center">
-                    <p className="text-[11px] text-muted-foreground italic">Aguardando análise normativa</p>
+                    <p className="text-[11px] text-muted-foreground italic">
+                      Aguardando análise normativa
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     {["Art. 144 CF/88", "RDPM (Decreto 43.648/98)"].map((ref) => (
-                      <div key={ref} className="flex items-center justify-between rounded-lg border border-border/40 bg-card/40 px-3 py-2 transition-colors hover:bg-muted/40">
+                      <div
+                        key={ref}
+                        className="flex items-center justify-between rounded-lg border border-border/40 bg-card/40 px-3 py-2 transition-colors hover:bg-muted/40"
+                      >
                         <span className="text-[11px] font-medium text-foreground">{ref}</span>
                         <ExternalLink className="h-3 w-3 text-muted-foreground/50" />
                       </div>
@@ -755,15 +779,21 @@ function ChatPage() {
               <section className="space-y-3">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <BarChart3 className="h-3.5 w-3.5" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Análise Técnica</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider">
+                    Análise Técnica
+                  </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="rounded-xl border border-border/40 bg-card/40 p-3">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">Latência</p>
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">
+                      Latência
+                    </p>
                     <p className="mt-1 text-[13px] font-bold text-foreground">1.4s</p>
                   </div>
                   <div className="rounded-xl border border-border/40 bg-card/40 p-3">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">Precisão</p>
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">
+                      Precisão
+                    </p>
                     <p className="mt-1 text-[13px] font-bold text-emerald-500">98%</p>
                   </div>
                 </div>
@@ -773,26 +803,38 @@ function ChatPage() {
               <section className="space-y-3">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Zap className="h-3.5 w-3.5" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Ações Workspace</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider">
+                    Ações Workspace
+                  </span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                  <Button variant="outline" size="sm" className="h-8 justify-start gap-2 rounded-lg border-border/60 text-[11px] font-semibold">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 justify-start gap-2 rounded-lg border-border/60 text-[11px] font-semibold"
+                  >
                     <Download className="h-3 w-3" />
                     Gerar PDF Técnico
                   </Button>
-                  <Button variant="outline" size="sm" className="h-8 justify-start gap-2 rounded-lg border-border/60 text-[11px] font-semibold">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 justify-start gap-2 rounded-lg border-border/60 text-[11px] font-semibold"
+                  >
                     <LinkIcon className="h-3 w-3" />
                     Compartilhar Workspace
                   </Button>
                 </div>
               </section>
             </div>
-            
+
             <div className="border-t border-border/60 p-4 bg-muted/20">
               <div className="rounded-xl bg-azure/5 border border-azure/10 p-3">
                 <div className="flex items-center gap-2 mb-1">
                   <Info className="h-3 w-3 text-azure" />
-                  <span className="text-[10px] font-bold text-azure uppercase tracking-wider">Aviso Legal</span>
+                  <span className="text-[10px] font-bold text-azure uppercase tracking-wider">
+                    Aviso Legal
+                  </span>
                 </div>
                 <p className="text-[10px] leading-relaxed text-muted-foreground italic">
                   Dados extraídos exclusivamente da base normativa indexada.
