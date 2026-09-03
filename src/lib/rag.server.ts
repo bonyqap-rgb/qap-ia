@@ -5,7 +5,10 @@ import { generateWithSelectedProvider, inspectLlmProviders } from "@/lib/llm-pro
 import {
   chunkInScope,
   detectDocumentScope,
+  explicitArticles,
   formatDocumentKey,
+  inferPriorityArticles,
+  prioritizeByArticles,
   type DetectedScope,
 } from "@/lib/rag-scope";
 
