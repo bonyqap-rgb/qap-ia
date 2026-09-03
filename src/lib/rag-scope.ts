@@ -22,12 +22,36 @@ export function normalizeForMatch(value: unknown): string {
 /** Códigos de manuais/regulamentos: I-2-PM, I 36 PM, M-1-PM, RDPM, RISG... */
 const CODE_PATTERN = /\b[a-z]{1,4}\s*-?\s*\d{1,3}\s*-?\s*pm\b|\b[a-z]{2,8}pm\b/g;
 
+/**
+ * Aliases semânticos: códigos jurídicos cujos nomes de arquivo não trazem sigla
+ * (ex.: "Código Penal Militar.pdf" → cpm). A ordem importa: processo penal
+ * militar (cppm) é avaliado antes do penal militar (cpm).
+ */
+const NAME_ALIASES: Array<{ key: string; test: (name: string) => boolean }> = [
+  {
+    key: "cppm",
+    test: (n) => /codigo de processo penal militar|processo penal militar/.test(n) || /\bcppm\b/.test(n),
+  },
+  {
+    key: "cpm",
+    test: (n) =>
+      (/codigo penal militar/.test(n) && !/processo/.test(n)) || /\bcpm\b/.test(n),
+  },
+  { key: "cf88", test: (n) => /constituicao (federal|da republica)/.test(n) || /\bcf ?88\b/.test(n) },
+];
+
 /** Chaves de identificação extraídas do nome de um documento. */
 export function documentKeys(name: unknown): string[] {
   const normalized = normalizeForMatch(name).replace(/\.(pdf|docx?|txt)\b/g, "");
   const keys = new Set<string>();
   for (const match of normalized.matchAll(CODE_PATTERN)) {
     keys.add(match[0].replace(/[\s-]+/g, ""));
+  }
+  for (const alias of NAME_ALIASES) {
+    if (alias.test(normalized)) {
+      keys.add(alias.key);
+      break;
+    }
   }
   return Array.from(keys);
 }
@@ -38,6 +62,12 @@ export function questionKeys(question: unknown): string[] {
   const keys = new Set<string>();
   for (const match of normalized.matchAll(CODE_PATTERN)) {
     keys.add(match[0].replace(/[\s-]+/g, ""));
+  }
+  for (const alias of NAME_ALIASES) {
+    if (alias.test(normalized)) {
+      keys.add(alias.key);
+      break;
+    }
   }
   return Array.from(keys);
 }
@@ -69,12 +99,25 @@ export function isComparisonQuestion(question: unknown): boolean {
   return COMPARISON_TERMS.some((term) => normalized.includes(term));
 }
 
-/** Inferência conservadora: perguntas sobre o conceito de crime militar pertencem ao CPM. */
+/** Tema material do Código Penal Militar: crime militar e tempo de paz/guerra. */
+const CPM_INTENT = [
+  /\bcrime militar\b/,
+  /\bcrimes militares\b/,
+  /\bcrime propriamente militar\b/,
+  /\bcrime impropriamente militar\b/,
+  /\btempo de paz\b/,
+  /\btempo de guerra\b/,
+];
+
+/**
+ * Inferência conservadora: perguntas conceituais/analíticas sobre crime militar
+ * ou sobre tempo de paz/guerra são consultas ao Código Penal Militar, mesmo
+ * quando o documento não é citado. Só se aplica quando nenhum documento foi
+ * citado explicitamente (ver detectDocumentScope).
+ */
 export function inferLegalScope(question: unknown): string[] {
   const normalized = ` ${normalizeForMatch(question)} `;
-  if (/\bcrime militar\b/.test(normalized) || /\bcrimes militares\b/.test(normalized)) {
-    return ["cpm"];
-  }
+  if (CPM_INTENT.some((pattern) => pattern.test(normalized))) return ["cpm"];
   return [];
 }
 
@@ -84,6 +127,8 @@ export type DetectedScope = {
   /** Chaves normalizadas citadas ou inferidas. */
   keys: string[];
   comparison: boolean;
+  /** true quando o escopo veio de inferência temática, não de citação explícita. */
+  inferred: boolean;
 };
 
 /**
@@ -101,19 +146,19 @@ export function detectDocumentScope(question: unknown, documents: ScopeDocument[
       const hit = explicitKeys.some((key) => docKeys.some((docKey) => docKey === key));
       if (hit) matched.push({ id: doc.id, name: doc.name });
     }
-    return { documents: matched, keys: explicitKeys, comparison };
+    return { documents: matched, keys: explicitKeys, comparison, inferred: false };
   }
 
-  if (comparison) return { documents: [], keys: [], comparison };
+  if (comparison) return { documents: [], keys: [], comparison, inferred: false };
 
   const inferredKeys = inferLegalScope(question);
-  if (!inferredKeys.length) return { documents: [], keys: [], comparison };
+  if (!inferredKeys.length) return { documents: [], keys: [], comparison, inferred: false };
 
   const matched = documents.filter((doc) =>
     documentKeys(doc.name).some((docKey) => inferredKeys.includes(docKey)),
   );
 
-  return { documents: matched, keys: inferredKeys, comparison };
+  return { documents: matched, keys: inferredKeys, comparison, inferred: true };
 }
 
 /** Um chunk pertence ao escopo detectado? */
