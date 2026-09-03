@@ -565,9 +565,13 @@ export async function runScopedRagSearch(input: {
   const needsNames = results.some((r) => !r.filename && !r.documentName && !r.title);
   const names = needsNames ? await fetchDocumentNames() : new Map<string, string>();
   const normalized = normalizeSources(results, names);
+  const articles = [...explicitArticles(input.query), ...inferPriorityArticles(input.query)];
 
-  if (!scoped) return normalized;
+  if (!scoped) return prioritizeByArticles(normalized, articles).slice(0, input.limit ?? 10);
 
   // Somente trechos do documento citado — nunca complementa com outros.
-  return normalized.filter((r) => chunkInScope(r, scope)).slice(0, input.limit ?? 10);
+  return prioritizeByArticles(
+    normalized.filter((r) => chunkInScope(r, scope)),
+    articles,
+  ).slice(0, input.limit ?? 10);
 }
