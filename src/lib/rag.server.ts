@@ -5,7 +5,10 @@ import { generateWithSelectedProvider, inspectLlmProviders } from "@/lib/llm-pro
 import {
   chunkInScope,
   detectDocumentScope,
+  explicitArticles,
   formatDocumentKey,
+  inferPriorityArticles,
+  prioritizeByArticles,
   type DetectedScope,
 } from "@/lib/rag-scope";
 
@@ -172,7 +175,7 @@ const LITERAL_INTENT =
 
 /** Padrões que indicam pedido analítico (explicação/resumo/comparação). */
 const ANALYTICAL_INTENT =
-  /\b(expli|resum|interpret|compar|analis|diferen|exempl|apliq|aplica(?:ção|cao|r)|significa|entenda)\b/i;
+  /\b(expli|resum|interpret|compar|analis|diferen|exempl|apliq|aplica(?:ção|cao|r)|significa|entenda)/i;
 
 /** Referência a artigo/dispositivo legal numerado. */
 const ARTICLE_REF = /\bart(?:igo)?s?\.?\s*(?:n[ºo°]?\.?\s*)?\d+|\bartigos?\b|\binciso\b|\bpar[aá]grafo\b/i;
@@ -191,6 +194,18 @@ export function isLiteralArticleRequest(question: string): boolean {
   const q = question.trim();
   if (!q) return false;
   if (ANALYTICAL_INTENT.test(q)) return false;
+  return ARTICLE_REF.test(q) && LITERAL_INTENT.test(q);
+}
+
+/**
+ * Pedido de conteúdo de dispositivo legal, ainda que acompanhado de pedido
+ * analítico (ex.: "explique o conteúdo do art. 9º"). Nesses casos o texto legal
+ * deve ser preservado com fidelidade, sem paráfrase apresentada como
+ * transcrição.
+ */
+export function wantsLiteralText(question: string): boolean {
+  const q = question.trim();
+  if (!q) return false;
   return ARTICLE_REF.test(q) && LITERAL_INTENT.test(q);
 }
 
@@ -263,16 +278,29 @@ export async function answerFromChunks(input: {
     })
     .join("\n\n");
 
+  const articles = [...explicitArticles(input.question), ...inferPriorityArticles(input.question)];
+  const articleInstruction = articles.length
+    ? `\n- Dispositivo(s) central(is) da pergunta: Art. ${articles.join(", Art. ")}. Fundamente a resposta neles e NÃO cite outros artigos que não sejam necessários para responder.`
+    : "";
+
+  const literalInstruction = wantsLiteralText(input.question)
+    ? `\n\nFidelidade textual (obrigatória):
+- A pergunta pede o conteúdo do dispositivo legal: reproduza o texto legal exatamente como consta nos trechos, preservando redação, numeração, incisos, alíneas e pontuação.
+- Não parafraseie, não resuma e não reescreva o texto legal apresentado como transcrição.
+- Comentários seus, se houver, vêm depois da transcrição e claramente separados.`
+    : "";
+
   const scopeInstruction = `Restrição de escopo documental (prioridade máxima):
 - O usuário citou explicitamente: ${scope}.
 - Responda EXCLUSIVAMENTE com base nos trechos fornecidos abaixo, que pertencem a esse(s) documento(s).
 - Nunca utilize artigos, dispositivos ou numerações de outros documentos.
 - Se existirem artigos com o mesmo número em outros documentos, ignore-os.
 - Se os trechos fornecidos não contiverem a informação, diga explicitamente que o documento citado não traz essa informação nos trechos recuperados, sem substituir por outro documento.
-- Ao citar, indique sempre o nome do documento de origem.
+- Ao citar, indique sempre o nome do documento de origem.${articleInstruction}${literalInstruction}
 
 Trechos recuperados:
 ${context}`;
+
 
   const providers = inspectLlmProviders();
 
@@ -404,18 +432,30 @@ export async function runScopedRagChat(input: {
     // Busca vetorial restrita ao documento citado — sem fallback para outros.
     const raw = await searchChunks(input.question, 30, scopeIds);
     const names = await fetchDocumentNames();
-    const scoped = normalizeSources(raw, names).filter((c) => chunkInScope(c, scope));
+    const inScope = normalizeSources(raw, names).filter((c) => chunkInScope(c, scope));
+
+    // Relevância jurídica: prioriza o(s) dispositivo(s) que efetivamente
+    // respondem à pergunta (ex.: Art. 9º para crime militar em tempo de paz) e
+    // remove duplicados e trechos cujo único artigo é irrelevante (ex.: Art. 10).
+    const priorityArticles = [
+      ...explicitArticles(input.question),
+      ...inferPriorityArticles(input.question),
+    ];
+    const scoped = prioritizeByArticles(inScope, priorityArticles);
 
     console.info("[QAP IA][scoped] recuperação", {
       question: input.question,
       requested,
       scopeIds,
       scopeNames,
+      priorityArticles,
       rawChunks: raw.length,
+      inScopeChunks: inScope.length,
       scopedChunks: scoped.length,
       scopedContextChars: scoped.reduce((sum, c) => sum + (c.snippet?.length ?? 0), 0),
       topScores: scoped.slice(0, 5).map((c) => c.score),
     });
+
 
     // Escopo inferido: nunca complementa com a base global. Havendo ao menos um
     // trecho do CPM, gera com ele; sem trechos, responde de forma fechada.
@@ -525,9 +565,13 @@ export async function runScopedRagSearch(input: {
   const needsNames = results.some((r) => !r.filename && !r.documentName && !r.title);
   const names = needsNames ? await fetchDocumentNames() : new Map<string, string>();
   const normalized = normalizeSources(results, names);
+  const articles = [...explicitArticles(input.query), ...inferPriorityArticles(input.query)];
 
-  if (!scoped) return normalized;
+  if (!scoped) return prioritizeByArticles(normalized, articles).slice(0, input.limit ?? 10);
 
   // Somente trechos do documento citado — nunca complementa com outros.
-  return normalized.filter((r) => chunkInScope(r, scope)).slice(0, input.limit ?? 10);
+  return prioritizeByArticles(
+    normalized.filter((r) => chunkInScope(r, scope)),
+    articles,
+  ).slice(0, input.limit ?? 10);
 }

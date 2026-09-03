@@ -176,3 +176,96 @@ export function chunkInScope(
   const docKeys = documentKeys(name);
   return scope.keys.some((key) => docKeys.some((docKey) => docKey === key));
 }
+
+/* ------------------------------------------------------------------------- *
+ * Relevância por dispositivo legal (artigo)
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Artigos prioritários inferidos do tema jurídico da pergunta.
+ *
+ * Ex.: condições/hipóteses de crime militar em tempo de paz são tratadas no
+ * Art. 9º do CPM; tempo de guerra, no Art. 10. Assim evitamos trazer o Art. 10
+ * como referência quando ele não é necessário para responder.
+ */
+export function inferPriorityArticles(question: unknown): string[] {
+  const q = ` ${normalizeForMatch(question)} `;
+  const crimeMilitar = /crime[s]? (propriamente |impropriamente )?militar/.test(q);
+  const guerra = /tempo de guerra/.test(q);
+  const paz = /tempo de paz/.test(q);
+  if (crimeMilitar || paz || guerra) {
+    if (guerra && !paz) return ["10"];
+    if (paz || crimeMilitar) return ["9"];
+  }
+  return [];
+}
+
+/** Artigos citados explicitamente na pergunta (ex.: "artigo 31" → ["31"]). */
+export function explicitArticles(question: unknown): string[] {
+  const q = normalizeForMatch(question);
+  const found = new Set<string>();
+  for (const m of q.matchAll(/\bart(?:igo|\.)?s?\.?\s*(?:n[o°º]?\.?\s*)?(\d{1,4})/g)) {
+    if (m[1]) found.add(m[1]);
+  }
+  return Array.from(found);
+}
+
+/** Números de artigo mencionados em um trecho recuperado. */
+export function articlesInText(text: unknown): string[] {
+  const normalized = normalizeForMatch(text);
+  const found = new Set<string>();
+  for (const m of normalized.matchAll(/\bart(?:igo|\.)?s?\.?\s*(?:n[o°º]?\.?\s*)?(\d{1,4})/g)) {
+    if (m[1]) found.add(m[1]);
+  }
+  return Array.from(found);
+}
+
+type RankableChunk = {
+  chunkId?: string;
+  chunkIndex?: number;
+  documentId?: string;
+  snippet?: string;
+  text?: string;
+  score?: number;
+};
+
+/** Remove trechos duplicados (mesmo id/índice ou mesmo conteúdo). */
+export function dedupeChunks<T extends RankableChunk>(chunks: T[]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const chunk of chunks) {
+    const body = normalizeForMatch(chunk.snippet ?? chunk.text ?? "").slice(0, 400);
+    const key = `${chunk.documentId ?? ""}|${chunk.chunkId ?? chunk.chunkIndex ?? ""}|${body}`;
+    if (!body && !chunk.chunkId && chunk.chunkIndex == null) continue;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(chunk);
+  }
+  return out;
+}
+
+/**
+ * Ordena e filtra os trechos pelos artigos relevantes à pergunta.
+ *
+ * Quando há artigos prioritários e existem trechos que os contêm, trechos cujo
+ * único dispositivo é outro artigo são descartados — eliminando referências
+ * irrelevantes (ex.: Art. 10 em pergunta sobre tempo de paz).
+ */
+export function prioritizeByArticles<T extends RankableChunk>(
+  chunks: T[],
+  articles: string[],
+): T[] {
+  const unique = dedupeChunks(chunks);
+  if (!articles.length) return unique;
+
+  const relevant: T[] = [];
+  const neutral: T[] = [];
+  for (const chunk of unique) {
+    const found = articlesInText(chunk.snippet ?? chunk.text ?? "");
+    if (found.some((a) => articles.includes(a))) relevant.push(chunk);
+    else if (!found.length) neutral.push(chunk);
+  }
+
+  if (!relevant.length) return unique;
+  return [...relevant, ...neutral];
+}
