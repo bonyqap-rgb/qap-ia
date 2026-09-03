@@ -198,6 +198,18 @@ export function isLiteralArticleRequest(question: string): boolean {
 }
 
 /**
+ * Pedido de conteúdo de dispositivo legal, ainda que acompanhado de pedido
+ * analítico (ex.: "explique o conteúdo do art. 9º"). Nesses casos o texto legal
+ * deve ser preservado com fidelidade, sem paráfrase apresentada como
+ * transcrição.
+ */
+export function wantsLiteralText(question: string): boolean {
+  const q = question.trim();
+  if (!q) return false;
+  return ARTICLE_REF.test(q) && LITERAL_INTENT.test(q);
+}
+
+/**
  * Encaminha a pergunta diretamente ao POST /chat do QAP RAG (sem escopo
  * documental nem geração própria), preservando question, conversationId e
  * history. Usado para pedidos de transcrição literal, cujo bypass de
